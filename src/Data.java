@@ -14,5 +14,9 @@ public class Data {
 	public void setData(ArrayList<EndPoint> data) {
 		this.data = data;
 	}
+	
+	public void parser() {
+		
+	}
 
 }

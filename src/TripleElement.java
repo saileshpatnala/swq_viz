@@ -1,5 +1,5 @@
 
-public class TripleElement {
+public abstract class TripleElement {
 	private String name;
 	
 	public TripleElement(String name) {

@@ -1,17 +1,38 @@
-import java.util.ArrayList;
 
 public class Triple {
-	private ArrayList<TripleElement> triple;
+	private TripleElement subject;
+	private TripleElement predicate;
+	private TripleElement object;
 	
-	public Triple() {
-		this.setTriple(new ArrayList<TripleElement>());
+	public Triple(String subject, String predicate, String object) {
+		this.subject = new Subject(subject);
+		this.predicate = new Predicate(predicate);
+		this.object = new ObjectElement(object);
 	}
 
-	public ArrayList<TripleElement> getTriple() {
-		return triple;
+	public TripleElement getSubject() {
+		return subject;
 	}
 
-	public void setTriple(ArrayList<TripleElement> triple) {
-		this.triple = triple;
+	public void setSubject(TripleElement subject) {
+		this.subject = subject;
 	}
+
+	public TripleElement getPredicate() {
+		return predicate;
+	}
+
+	public void setPredicate(TripleElement predicate) {
+		this.predicate = predicate;
+	}
+
+	public TripleElement getObject() {
+		return object;
+	}
+
+	public void setObject(TripleElement object) {
+		this.object = object;
+	}
+
+
 }
