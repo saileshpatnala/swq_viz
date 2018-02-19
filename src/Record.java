@@ -14,6 +14,10 @@ public class Record {
 	public void setRecord(ArrayList<Triple> record) {
 		this.record = record;
 	}
+	
+	public void addTriple(Triple triple) {
+		record.add(triple);
+	}
 
 
 }

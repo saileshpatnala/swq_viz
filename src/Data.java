@@ -16,7 +16,7 @@ public class Data {
 	}
 	
 	public void parser() {
-		
+		//parse Json output
 	}
 
 }

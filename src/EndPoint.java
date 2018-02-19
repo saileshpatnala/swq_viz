@@ -14,4 +14,8 @@ public class EndPoint {
 	public void setEndPoint(ArrayList<Record> endPoint) {
 		this.endPoint = endPoint;
 	}
+	
+	public void addRecord(Record record) {
+		endPoint.add(record);
+	}
 }
