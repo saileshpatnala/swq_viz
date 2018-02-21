@@ -1,10 +1,5 @@
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.json.JSONArray;
-//import org.json.simple.JSONArray;
-//import org.json.simple.JSONObject;
-//import org.json.simple.parser.*;
 import org.json.JSONObject;
 
 public class Data {
@@ -23,28 +18,36 @@ public class Data {
 	}
 	
 	public void parser(String data) throws Exception {
-		// creating JSONObject
         JSONObject jsonObject = new JSONObject(data);
-//        Object obj = new JSONParser().parse(data);
         
-        // typecasting obj to JSONObject
-//        JSONObject jsonObject = (JSONObject) obj;
-        System.out.println("object: " + jsonObject);
-		System.out.println("HERE "+ jsonObject);
+//        System.out.println("object: " + jsonObject);
+//        System.out.println();
 
-        String name = (String) jsonObject.get("subject");
-        System.out.println(name);
+        jsonObject = jsonObject.getJSONObject("results");
+//        System.out.println(jsonObject);
+//        System.out.println();
 
-        long age = (Long) jsonObject.get("predicate");
-        System.out.println(age);
-
-        // loop array
-        JSONArray msg = (JSONArray) jsonObject.get("object");
-//        Iterator<String> iterator = msg.iterator();
-//        while (iterator.hasNext()) {
-//            System.out.println(iterator.next());
-//        }
-
+        JSONArray triples = jsonObject.getJSONArray("bindings");
+       
+//        System.out.println(triples);
+//        System.out.println(triples.length());
+        
+        JSONObject temp;
+        String subject = "";
+        String predicate = ""; 
+        String object = "";
+        for(int i = 0; i < triples.length(); i++) {
+        		temp = (JSONObject) triples.get(i);
+        		
+        		subject = temp.getJSONObject("subject").get("value").toString();
+        		predicate = temp.getJSONObject("predicate").get("value").toString();
+        		object = temp.getJSONObject("object").get("value").toString();
+        		
+        		System.out.println("Triple " + (i+1) + ": ");
+        		System.out.println(subject);
+        	    System.out.println(predicate);
+        	    System.out.println(object);
+        		System.out.println();
+        }
 	}
-
 }

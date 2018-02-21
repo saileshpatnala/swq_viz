@@ -18,7 +18,7 @@ public class Driver {
 	}
 	
 	public static String getData() throws IOException {
-		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+1&format=json";
+		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
 	        
         URL link = new URL(url);
         HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
@@ -34,11 +34,10 @@ public class Driver {
             resp.append(inputLine);
         }
 
+         System.out.println("Raw Output: " + resp);
+         System.out.println();
 
-         System.out.println("Link Request Output: " + resp);
-	
-		
-		return null;
+		return resp.toString();
 		
 	}
 
