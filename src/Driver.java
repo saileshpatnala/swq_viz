@@ -7,12 +7,9 @@ import java.net.URL;
 public class Driver {
 
 	public static void main(String[] args) {
-		Data data = new Data();
-		
 		try {
-			String jsonOutput = getData();
-			data.parser(jsonOutput);
-		} catch (Exception e) {
+			Data data = new Data(getData());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -23,10 +20,7 @@ public class Driver {
         URL link = new URL(url);
         HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
         httpLink.setRequestMethod("GET");
-        // httpLink.getResponseProperty("User-Agent", "Mozilla/5.0");
-        int responseCode = httpLink.getResponseCode();
-        // System.out.println("\nResponse Code" + responseCode);
-
+       
         BufferedReader in = new BufferedReader( new InputStreamReader(httpLink.getInputStream()));
         String inputLine;
         StringBuffer resp = new StringBuffer();
