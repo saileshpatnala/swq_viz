@@ -27,9 +27,9 @@ public class HelloServlet extends HttpServlet {
          // out.println("<p>Protocol: " + request.getProtocol() + "</p>");
          // out.println("<p>PathInfo: " + request.getPathInfo() + "</p>");
 
-        // String url = "http://dbpedia.org/sparql?query=SELECT+DISTINCT+?concept+WHERE+{+?s+a+?concept+}+LIMIT+2&format=json";
+        //String url = "http://dbpedia.org/sparql?query=SELECT+DISTINCT+?concept+WHERE+{+?s+a+?concept+}+LIMIT+15&format=json";
         
-        String url =  "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+        String url = "http://localhost:3030/feb23/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+10&format=json";
         
         URL link = new URL(url);
         HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
