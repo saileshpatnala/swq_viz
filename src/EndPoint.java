@@ -4,10 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class EndPoint {
-	private ArrayList<Record> endPoint;
+	private ArrayList<Triple> endPoint;
 	
 	public EndPoint(String data) {
-		this.setEndPoint(new ArrayList<Record>());
+		this.setEndPoint(new ArrayList<Triple>());
 		try {
 			this.parser(data);
 		} catch (Exception e) {
@@ -15,20 +15,19 @@ public class EndPoint {
 		}
 	}
 
-	public ArrayList<Record> getEndPoint() {
+	public ArrayList<Triple> getEndPoint() {
 		return endPoint;
 	}
 
-	public void setEndPoint(ArrayList<Record> endPoint) {
+	public void setEndPoint(ArrayList<Triple> endPoint) {
 		this.endPoint = endPoint;
 	}
 	
-	public void addRecord(Record record) {
-		endPoint.add(record);
+	public void addTriple(Triple triple) {
+		endPoint.add(triple);
 	}
 	
 	public void parser(String data) throws Exception {
-        Record newRecord = new Record();
 		JSONObject jsonObject = new JSONObject(data);
         
 //        System.out.println("object: " + jsonObject);
@@ -60,9 +59,7 @@ public class EndPoint {
         	    System.out.println(object);
         		System.out.println();
         		
-        		newRecord.addTriple(new Triple(subject, predicate, object));
+        		this.addTriple(new Triple(subject, predicate, object));
         }
-        
-        this.addRecord(newRecord);
-	}
+    	}
 }
