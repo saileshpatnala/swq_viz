@@ -11,6 +11,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.json.JSONObject;
+
 /**
  * Root resource (exposed at "myresource" path)
  */
@@ -24,24 +26,30 @@ public class MyResource {
      * @return String that will be returned as a text/plain response.
      */
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-//    @Produces(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public String getIt() {
 //        return "mithun";
     		String temp = ""; 
+    		JSONObject jsonObject = new JSONObject();
         try {
-//			Data data = new Data(getData());
         		temp = getData();
+    			Data data = new Data(temp);
+ 
+    			jsonObject = data.constructJSON();
+    			System.out.println(jsonObject.toString());
+//    			jsonObject = new JSONObject(temp);    		
+    			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
         
-        return temp;
+        return jsonObject.toString();
     }
     
     public static String getData() throws IOException {
-//		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		String url =  "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+//		String url = "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
         URL link = new URL(url);
         HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
         httpLink.setRequestMethod("GET");

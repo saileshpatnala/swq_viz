@@ -5,27 +5,27 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class EndPoint {
-	private ArrayList<Triple> endPoint;
+	private ArrayList<Triple> triples;
 	
 	public EndPoint(String data) {
-		this.setEndPoint(new ArrayList<Triple>());
+		this.setTriples(new ArrayList<Triple>());
 		try {
 			this.parser(data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
-	public ArrayList<Triple> getEndPoint() {
-		return endPoint;
+	
+	public ArrayList<Triple> getTriples() {
+		return triples;
 	}
 
-	public void setEndPoint(ArrayList<Triple> endPoint) {
-		this.endPoint = endPoint;
+	public void setTriples(ArrayList<Triple> triples) {
+		this.triples = triples;
 	}
 	
 	public void addTriple(Triple triple) {
-		endPoint.add(triple);
+		triples.add(triple);
 	}
 	
 	public void parser(String data) throws Exception {
@@ -63,4 +63,6 @@ public class EndPoint {
         		this.addTriple(new Triple(subject, predicate, object));
         }
     	}
+
+
 }

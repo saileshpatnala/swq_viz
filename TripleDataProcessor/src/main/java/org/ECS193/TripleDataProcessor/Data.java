@@ -23,5 +23,24 @@ public class Data {
 		data.add(endPoint);
 	}
 	
+	public JSONObject constructJSON() {
+		JSONObject json = new JSONObject();
+		JSONArray array = new JSONArray();
+
+		for (EndPoint endPoint : data) {
+			for(Triple triple : endPoint.getTriples()) {
+				System.out.println("HERE " + triple.getSubject().getName());
+				JSONObject item = new JSONObject();
+				item.put("subject", triple.getSubject().getName());
+				item.put("predicate", triple.getPredicate().getName());
+				item.put("object", triple.getObject().getName());
+				array.put(item);
+			}
+		}
+		json.put("triple", array);
+		
+		return json;
+	}
+	
 
 }

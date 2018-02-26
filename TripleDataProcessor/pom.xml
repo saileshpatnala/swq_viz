@@ -54,7 +54,6 @@
         	<groupId>org.json</groupId>
         	<artifactId>json</artifactId>
         	<version>20170516</version>
-        	<scope>import</scope>
         	
         </dependency>
     </dependencies>
