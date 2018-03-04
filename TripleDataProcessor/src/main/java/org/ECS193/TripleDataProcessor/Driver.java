@@ -5,6 +5,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.json.JSONObject;
+
+@Path("resource")
 public class Driver {
 
 //	public static void main(String[] args) {
@@ -14,6 +22,25 @@ public class Driver {
 //			e.printStackTrace();
 //		}
 //	}
+	
+	@GET
+    @Produces(MediaType.APPLICATION_JSON)
+	public String getIt() {
+  		String temp = ""; 
+  		JSONObject jsonObject = new JSONObject();
+        try {
+      		temp = getData();
+  			Data data = new Data(temp);
+
+  			jsonObject = data.constructJSON();
+  			System.out.println(jsonObject.toString());
+  			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+      
+        return jsonObject.toString();
+	}
 	
 	public static String getData() throws IOException {
 //		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";

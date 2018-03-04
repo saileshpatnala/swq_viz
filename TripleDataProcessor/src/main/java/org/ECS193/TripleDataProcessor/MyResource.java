@@ -29,7 +29,6 @@ public class MyResource {
 //    @Produces(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public String getIt() {
-//        return "mithun";
     		String temp = ""; 
     		JSONObject jsonObject = new JSONObject();
         try {
@@ -38,7 +37,6 @@ public class MyResource {
  
     			jsonObject = data.constructJSON();
     			System.out.println(jsonObject.toString());
-//    			jsonObject = new JSONObject(temp);    		
     			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -65,6 +63,5 @@ public class MyResource {
         System.out.println();
 
 		return resp.toString();
-		
 	}
 }
