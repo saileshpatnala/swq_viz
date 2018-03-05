@@ -2,9 +2,16 @@ package org.ECS193.TripleDataProcessor;
 
 public abstract class TripleElement {
 	private String name;
+	private TYPE type;
 	
-	public TripleElement(String name) {
+	enum TYPE
+	{
+	    LITERAL, URI;
+	}
+	
+	public TripleElement(String name, TYPE type) {
 		this.setName(name);
+		this.setType(type);
 	}
 
 	public String getName() {
@@ -13,6 +20,14 @@ public abstract class TripleElement {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public TYPE getType() {
+		return type;
+	}
+
+	public void setType(TYPE type) {
+		this.type = type;
 	}
 	
 	

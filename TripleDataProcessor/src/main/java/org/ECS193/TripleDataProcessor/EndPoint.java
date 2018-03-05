@@ -1,6 +1,7 @@
 package org.ECS193.TripleDataProcessor;
 import java.util.ArrayList;
 
+import org.ECS193.TripleDataProcessor.TripleElement.TYPE;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -47,6 +48,10 @@ public class EndPoint {
         String subject = "";
         String predicate = ""; 
         String object = "";
+        TYPE subjectType = null;
+        TYPE predicateType = null;
+        TYPE objectType = null;
+        
         for(int i = 0; i < triples.length(); i++) {
         		temp = (JSONObject) triples.get(i);
         		
@@ -54,13 +59,34 @@ public class EndPoint {
         		predicate = temp.getJSONObject("predicate").get("value").toString();
         		object = temp.getJSONObject("object").get("value").toString();
         		
+        		if(temp.getJSONObject("subject").get("type").toString().equals("literal")) {
+        			subjectType = TYPE.LITERAL;
+        		}
+        		else {
+        			subjectType = TYPE.URI;
+        		}
+        		
+        		if(temp.getJSONObject("predicate").get("type").toString().equals("literal")) {
+        			predicateType = TYPE.LITERAL;
+        		}
+        		else {
+        			predicateType = TYPE.URI;
+        		}
+        		
+        		if(temp.getJSONObject("object").get("type").toString().equals("literal")) {
+        			objectType = TYPE.LITERAL;
+        		}
+        		else {
+        			objectType = TYPE.URI;
+        		}
+        		
         		System.out.println("Triple " + (i+1) + ": ");
         		System.out.println(subject);
         	    System.out.println(predicate);
         	    System.out.println(object);
         		System.out.println();
         		
-        		this.addTriple(new Triple(subject, predicate, object));
+        		this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
         }
     	}
 

@@ -49,12 +49,15 @@ public class MyResource {
     
     public static String getData() throws IOException {
     		//Wiki endpoint
-    		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+//    		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
     		//Jena Endpoint	
     	//	String url = "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
     		//VIAF Endpoint
 //    		String url = "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";	
 		
+    		//
+    		String url = "http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?predicate),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?object),+%22Great%20Britain%22)+)+}";
+    		
     		URL link = new URL(url);
         HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
         httpLink.setRequestMethod("GET");
