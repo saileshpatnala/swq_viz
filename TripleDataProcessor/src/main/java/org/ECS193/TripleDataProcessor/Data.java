@@ -23,7 +23,7 @@ public class Data {
 		data.add(endPoint);
 	}
 	
-	public JSONObject constructJSON() {
+	public JSONObject constructJSON(String input) {
 		JSONObject json = new JSONObject();
 		JSONArray array = new JSONArray();
 
@@ -37,7 +37,7 @@ public class Data {
 				array.put(item);
 			}
 		}
-		json.put("triple", array);
+		json.put(input, array);
 		
 		return json;
 	}

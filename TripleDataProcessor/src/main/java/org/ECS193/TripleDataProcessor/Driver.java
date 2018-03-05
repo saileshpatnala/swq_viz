@@ -12,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
 
-@Path("resource")
+@Path("mainresource")
 public class Driver {
 
 //	public static void main(String[] args) {
@@ -32,7 +32,7 @@ public class Driver {
       		temp = getData();
   			Data data = new Data(temp);
 
-  			jsonObject = data.constructJSON();
+  			jsonObject = data.constructJSON("second");
   			System.out.println(jsonObject.toString());
   			
 		} catch (IOException e) {
@@ -43,8 +43,8 @@ public class Driver {
 	}
 	
 	public static String getData() throws IOException {
-//		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		String url =  "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+//		String url =  "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
         URL link = new URL(url);
         HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
         httpLink.setRequestMethod("GET");
