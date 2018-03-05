@@ -29,8 +29,13 @@ public class HelloServlet extends HttpServlet {
 
         //String url = "http://dbpedia.org/sparql?query=SELECT+DISTINCT+?concept+WHERE+{+?s+a+?concept+}+LIMIT+15&format=json";
         
-        String url = "http://localhost:3030/feb23/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+10&format=json";
-        
+        //String url = "http://localhost:3030/feb25wonhee/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+%22Great%20Britain%22+}&format=json";
+        String str = "Great Britain";
+        String url = String.format("http://localhost:3030/feb25wonhee/sparql?query=select+?s+?p+?o+WHERE+{+?s+?p+?o+.+FILTER+(+REGEX(STR(?s),+%s)+||+REGEX(STR(?p),+%s)+||+REGEX(STR(?o),+%s)+)+}", str);
+        //String input = "Chekhov";
+        //String url = "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
+        //String url =  "http://localhost:3030/feb25wonhee/sparql?query=select+?s+?p+?o+WHERE+{+?s+?p+\"Great Britain\"}";
+
         URL link = new URL(url);
         HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
         httpLink.setRequestMethod("GET");
