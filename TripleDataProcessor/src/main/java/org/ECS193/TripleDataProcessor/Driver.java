@@ -24,16 +24,16 @@ public class Driver {
 //	}
 	
 	@GET
-    @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
 	public String getIt() {
   		String temp = ""; 
   		JSONObject jsonObject = new JSONObject();
         try {
       		temp = getData();
-  			Data data = new Data(temp);
+  			  Data data = new Data(temp);
 
-  			jsonObject = data.constructJSON("second");
-  			System.out.println(jsonObject.toString());
+  			  jsonObject = data.constructJSON("second");
+  			  System.out.println(jsonObject.toString());
   			
 		} catch (IOException e) {
 			e.printStackTrace();

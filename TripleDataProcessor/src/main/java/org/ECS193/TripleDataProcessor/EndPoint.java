@@ -60,24 +60,24 @@ public class EndPoint {
         		object = temp.getJSONObject("object").get("value").toString();
         		
         		if(temp.getJSONObject("subject").get("type").toString().equals("literal")) {
-        			subjectType = TYPE.LITERAL;
+        			subjectType = TYPE.literal;
         		}
         		else {
-        			subjectType = TYPE.URI;
+        			subjectType = TYPE.uri;
         		}
         		
         		if(temp.getJSONObject("predicate").get("type").toString().equals("literal")) {
-        			predicateType = TYPE.LITERAL;
+        			predicateType = TYPE.literal;
         		}
         		else {
-        			predicateType = TYPE.URI;
+        			predicateType = TYPE.uri;
         		}
         		
         		if(temp.getJSONObject("object").get("type").toString().equals("literal")) {
-        			objectType = TYPE.LITERAL;
+        			objectType = TYPE.literal;
         		}
         		else {
-        			objectType = TYPE.URI;
+        			objectType = TYPE.uri;
         		}
         		
         		System.out.println("Triple " + (i+1) + ": ");

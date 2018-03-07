@@ -29,11 +29,22 @@ public class Data {
 
 		for (EndPoint endPoint : data) {
 			for(Triple triple : endPoint.getTriples()) {
-				System.out.println("HERE " + triple.getSubject().getName());
 				JSONObject item = new JSONObject();
-				item.put("subject", triple.getSubject().getName());
-				item.put("predicate", triple.getPredicate().getName());
-				item.put("object", triple.getObject().getName());
+				
+				JSONObject subjectItem = new JSONObject();
+				item.put("subject", subjectItem);
+				subjectItem.put("type", triple.getSubject().getType());
+				subjectItem.put("value", triple.getSubject().getName());
+				
+				JSONObject predicateItem = new JSONObject();
+				item.put("predicate", predicateItem);
+				predicateItem.put("type", triple.getPredicate().getType());
+				predicateItem.put("value", triple.getPredicate().getName());
+				
+				JSONObject objectItem = new JSONObject();
+				item.put("object", objectItem);
+				objectItem.put("type", triple.getObject().getType());
+				objectItem.put("value", triple.getObject().getName());
 				array.put(item);
 			}
 		}
