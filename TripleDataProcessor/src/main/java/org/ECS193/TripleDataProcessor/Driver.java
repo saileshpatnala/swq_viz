@@ -32,7 +32,7 @@ public class Driver {
       		temp = getData();
   			Data data = new Data(temp);
 
-  			jsonObject = data.constructJSON("second");
+  			jsonObject = data.constructJSON("asdf");
   			System.out.println(jsonObject.toString());
   			
 		} catch (IOException e) {

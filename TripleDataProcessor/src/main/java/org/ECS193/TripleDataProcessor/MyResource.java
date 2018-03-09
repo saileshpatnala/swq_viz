@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -27,10 +28,10 @@ public class MyResource {
      *	
      * @return String that will be returned as a text/plain response.
      */
-    @POST
-	@Consumes(MediaType.TEXT_PLAIN)
+    @POST	
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public String getIt(String input) {
+    public String getIt(@FormParam("input") String input) {
     		String temp = ""; 
     		JSONObject jsonObject = new JSONObject();
         try {
@@ -69,9 +70,9 @@ public class MyResource {
     
     public static String getData() throws IOException {
     		//Wiki endpoint
-    		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+//    		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
     		//Jena Endpoint	
-//    		String url = "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+    		String url = "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
     		//VIAF Endpoint
 //    		String url = "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";	
 		
