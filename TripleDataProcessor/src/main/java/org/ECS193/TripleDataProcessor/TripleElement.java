@@ -6,7 +6,7 @@ public abstract class TripleElement {
 	
 	enum TYPE
 	{
-	    LITERAL, URI;
+	    literal, uri;
 	}
 	
 	public TripleElement(String name, TYPE type) {

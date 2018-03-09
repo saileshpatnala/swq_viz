@@ -17,12 +17,12 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONObject;
 
 /**
- * Root re	source (exposed at "myresource" path)
+ * Root re source (exposed at "myresource" path)
  */
 @Path("myresource")
 public class MyResource {
 
-    /**
+	/**
      * Method handling HTTP GET requests. The returned object will be sent
      * to the client as "text/plain" media type.
      *	
@@ -68,27 +68,34 @@ public class MyResource {
 //        return jsonObject.toString();
 //   }
     
-    public static String getData() throws IOException {
-    		//Wiki endpoint
-//    		String url = "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-    		//Jena Endpoint	
-    		String url = "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-    		//VIAF Endpoint
-//    		String url = "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";	
-		
-    		URL link = new URL(url);
-        HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
-        httpLink.setRequestMethod("GET");
-       
-        BufferedReader in = new BufferedReader( new InputStreamReader(httpLink.getInputStream()));
-        String inputLine;
-        StringBuffer resp = new StringBuffer();
-        while ((inputLine = in.readLine()) != null){
-            resp.append(inputLine);
-        }
 
-        System.out.println("Raw Output: " + resp);
-        System.out.println();
+	public static String getData() throws IOException {
+		// Wiki endpoint
+		// String url =
+		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		// Jena Endpoint
+		// String url =
+		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		// VIAF Endpoint
+		// String url =
+		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
+
+		// Jena Endpoint for specific search
+		String url = "http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?predicate),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?object),+%22Great%20Britain%22)+)+}";
+
+		URL link = new URL(url);
+		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+		httpLink.setRequestMethod("GET");
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+		String inputLine;
+		StringBuffer resp = new StringBuffer();
+		while ((inputLine = in.readLine()) != null) {
+			resp.append(inputLine);
+		}
+
+		System.out.println("Raw Output: " + resp);
+		System.out.println();
 
 		return resp.toString();
 	}
