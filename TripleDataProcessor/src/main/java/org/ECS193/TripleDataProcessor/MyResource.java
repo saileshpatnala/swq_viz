@@ -28,26 +28,6 @@ import javax.ws.rs.CookieParam;
 @Path("myresource")
 public class MyResource {
 
-	private Data _data = null;
-	private String _input = null;
-
-	public Data getData() {
-		return this._data;
-	}
-
-
-	public void setData(Data d) {
-		this._data = d;
-	}
-
-	public String getInput() {
-		return this._input;
-	}
-
-	public void setInput(String s) {
-		this._input = s;
-	}
-
     @POST	
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
@@ -87,14 +67,9 @@ public class MyResource {
 		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
 
 		// Jena Endpoint for specific search
-		// Object[] data = {search, search, search};
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
-		String url = "http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+" + 
-		"WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + 
-		"+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
-
-		// String url = "http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?predicate),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?object),+%22Great%20Britain%22)+)+}";
-
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
 		URL link = new URL(url);
 		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
