@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+
+<style>
+
+.links line {
+	stroke: #999;
+	stroke-opacity: 0.6;
+}
+
+.nodes circle {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+
+</style>
+
+<!-- Bootstrap requirements-->
+	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" id="bootstrap-css">
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+
+<!-- JQuery requirements-->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<svg width="960" height="600"></svg>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+<!-- <script type="text/javascript" src="./js/json.parser.js"></script> -->
+<body>
+
+<form action="http://localhost:8080/TripleDataProcessor/webapi/myresource" method="POST" target="_blank"> 
+  <div class="row">
+    <div class="col-xs-6 col-md-4">
+      <div class="input-group">
+   <input type="text" class="form-control" placeholder="Search" id="txtSearch"/ name="input">
+   <div class="input-group-btn">
+        <button class="btn btn-primary" type="submit" value="Submit">
+        <span class="glyphicon glyphicon-search"></span>
+        </button>
+   </div>
+    <button id="rJSON" type = "button" > Call REST </button>
+   </div>
+    </div>
+  </div>
+</form>
+<script>
+	var passingInput;
+	$(document).ready(function () {
+        $('#rJSON').click(function () {
+            jQuery.support.cors = true;
+            
+
+            $.ajax(
+                {
+                    crossDomain: true, 
+                    type: "GET",
+                    url: 'http://localhost:8080/TripleDataProcessor/webapi/myresource',
+                    // data: {},
+                    // contentType: "application/json, charset=utf-8",
+                    dataType: "JSONP",
+                    jsonpCallback: 'callback',
+                    cache: false,
+                    // outputFormat : 'text/javascript',
+                    // input: 'Great Britain',
+                    header: { 'Access-Control-Allow-Origin': '*' },
+                    success: function (data) {
+                    	// var dat = jQuery.parseJSON(data)
+                    	// passingInput = data;
+                    	// JSON.parse(data, function(d) {
+                    	// 	console.log(d);
+                    	// })
+                        console.log(data);
+                        // alert('msgData: ' + data);
+                    },
+                    error: function (msg, url, line) {
+                    	console.log(msg);
+                        // alert('error trapped in error: function(msg, url, line)');
+                        // alert('msg = ' + msg + ', url = ' + url + ', line = ' + line);
+
+                    }
+                });
+        });
+    });
+
+
+	// var svg = d3.select("svg"),
+	// 	width = +svg.attr("width"),
+	// 	height = +svg.attr("height");
+
+	// var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+	// var simulation = d3.forceSimulation()
+	// 	.force("link", d3.forceLink().id(function(d) { return d.id; }).distance(200))
+	// 	.force("charge", d3.forceManyBody())
+	// 	.force("center", d3.forceCenter(width / 2, height / 2));
+
+	// d3.json("./linkedData.json", function(error, obj) {
+	// 	if (error) throw error;
+
+	// 	var links = [];
+	// 	var nodes = [];
+	// 	var graph = {};
+
+	// 	Object.keys(obj).forEach(function(key){
+	// 		var triples = obj[key];
+	// 		triples.forEach(function(key){
+	// 			var triple = {};
+	// 			triple["source"] = key.subject.value;
+	// 			triple["target"] = key.object.value;
+	// 			triple["predicate"] = key.predicate.value;
+	// 			triple["value"] = 1;
+	// 			links.push(triple);
+
+	// 			var node = {};
+	// 			node["id"] = key.subject.value;
+	// 			node["group"] = 1;
+	// 			nodes.push(node);
+	// 			node = {};
+	// 			node["id"] = key.object.value;
+	// 			node["group"] = 1;
+	// 			nodes.push(node);
+	// 		});
+	// 	});
+
+	// 	graph["nodes"] = nodes;
+	// 	graph["links"] = links;
+
+	// 	var link = svg.append("g")
+	// 		.attr("class", "links")
+	// 		.selectAll("line")
+	// 		.data(graph.links)
+	// 		.enter().append("line")
+	// 			.attr("stroke-width", function(d) { return Math.sqrt(d.value); })
+	// 			.attr("stroke-length", 15);
+
+	// 	var node = svg.append("g")
+	// 		.attr("class", "nodes")
+	// 		.selectAll("circle")
+	// 		.data(graph.nodes)
+	// 		.enter().append("circle")
+	// 			.attr("r", 20)
+	// 			.attr("fill", function(d) { return color(d.group); })
+	// 			.call(d3.drag()
+	// 				.on("start", dragstarted)
+	// 				.on("drag", dragged)
+	// 				.on("end", dragended));
+
+	// 	var text = svg.append("g")
+	// 		.attr("class", "labels")
+	// 		.selectAll("g")
+	// 		.data(graph.nodes)
+	// 		.enter().append("g");
+
+	// 	text.append("text")
+	// 		.attr("x", 14)
+	// 		.attr("y", ".31em")
+	// 	    .style("font-family", "sans-serif")
+	// 	    .style("font-size", "0.7em")
+	// 	    .text(function(d) { return d.id; });
+
+	// 	node.append("title")
+	// 		.text(function(d) { return d.id; }); 
+
+	// 	simulation
+	// 		.nodes(graph.nodes)
+	// 		.on("tick", ticked);
+
+	// 	simulation.force("link")
+	// 		.links(graph.links);
+
+	// 	function ticked() {
+	// 		link
+	// 			.attr("x1", function(d) { return d.source.x; })
+	// 			.attr("y1", function(d) { return d.source.y; })
+	// 			.attr("x2", function(d) { return d.target.x; })
+	// 			.attr("y2", function(d) { return d.target.y; });
+
+	// 		node
+	// 			.attr("cx", function(d) { return d.x; })
+	// 			.attr("cy", function(d) { return d.y; });
+
+	// 		text
+	// 			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	//  	}
+	// });
+
+	// function dragstarted(d) {
+	// 	if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+	// 	d.fx = d.x;
+	// 	d.fy = d.y;
+	// }
+
+	// function dragged(d) {
+	// 	d.fx = d3.event.x;
+	// 	d.fy = d3.event.y;
+	// }
+
+	// function dragended(d) {
+	// 	if (!d3.event.active) simulation.alphaTarget(0);
+	// 	d.fx = null;
+	// 	d.fy = null;
+	// }
+	// function returnInput(data) {
+	// 	return data;
+	// }
+
+
+</script>
+</body>
