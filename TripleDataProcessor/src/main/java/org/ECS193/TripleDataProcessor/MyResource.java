@@ -31,18 +31,17 @@ import javax.ws.rs.CookieParam;
 @Path("myresource")
 public class MyResource {
 
-	private String indexFilePath = "index.html";
+	private String indexFilePath = "index";
 
     @POST	
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
-    public InputStream post(@FormParam("input") String input) {
-    	System.out.println("Raw input POST: " + input);
+    public Response post(@FormParam("input") String input) {
     	NewCookie cookie = new NewCookie("input", input);
-    	System.out.println("Cookie POST: " + cookie);
     	try {
-    		File f = new File(this.indexFilePath);
-    		return new FileInputStream(f);
+    		return Response.seeOther(new java.net.URI(this.indexFilePath))
+    		.cookie(cookie)
+    		.build();
     	}
     	catch (Exception e) {
     		e.printStackTrace();
@@ -52,8 +51,7 @@ public class MyResource {
  
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	//public String get(@CookieParam("input") String input) {
-	public String get(String input) {
+	public String get(@CookieParam("input") String input) {
 		String result = "";
 		//System.out.println("Raw input GET: " + input);
 		JSONObject jsonObject = new JSONObject();
