@@ -2,7 +2,11 @@ package org.ECS193.TripleDataProcessor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.File;
+import java.io.FileInputStream;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -27,18 +31,29 @@ import javax.ws.rs.CookieParam;
 @Path("myresource")
 public class MyResource {
 
+	private String indexFilePath = "index";
+
     @POST	
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_HTML)
     public Response post(@FormParam("input") String input) {
     	NewCookie cookie = new NewCookie("input", input);
-    	return Response.ok("OK").cookie(cookie).build();
+    	try {
+    		return Response.seeOther(new java.net.URI(this.indexFilePath))
+    		.cookie(cookie)
+    		.build();
+    	}
+    	catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    	return null;
     }
-    
+ 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@CookieParam("input") String input) {
 		String result = "";
+		//System.out.println("Raw input GET: " + input);
 		JSONObject jsonObject = new JSONObject();
 		try {
 			result = query(input);
@@ -67,6 +82,7 @@ public class MyResource {
 
 		// Jena Endpoint for specific search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		//input = "%22World%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
