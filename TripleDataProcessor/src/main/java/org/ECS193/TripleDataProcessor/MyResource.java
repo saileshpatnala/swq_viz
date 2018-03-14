@@ -2,7 +2,11 @@ package org.ECS193.TripleDataProcessor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.File;
+import java.io.FileInputStream;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -27,12 +31,21 @@ import javax.ws.rs.CookieParam;
 @Path("myresource")
 public class MyResource {
 
+	private String indexFilePath = "index.html";
+
     @POST	
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response post(@FormParam("input") String input) {
+    @Produces(MediaType.TEXT_HTML)
+    public InputStream post(@FormParam("input") String input) {
     	NewCookie cookie = new NewCookie("input", input);
-    	return Response.ok("OK").cookie(cookie).build();
+    	try {
+    		File f = new File(this.indexFilePath);
+    		return new FileInputStream(f);
+    	}
+    	catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    	return null;
     }
     
 	@GET
