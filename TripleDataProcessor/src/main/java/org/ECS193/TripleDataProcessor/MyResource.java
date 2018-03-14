@@ -16,60 +16,45 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
 
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.CookieParam;
+
+
 /**
- * Root re source (exposed at "myresource" path)
+ * Root resource (exposed at "myresource" path)
  */
 @Path("myresource")
 public class MyResource {
 
-	/**
-     * Method handling HTTP GET requests. The returned object will be sent
-     * to the client as "text/plain" media type.
-     *	
-     * @return String that will be returned as a text/plain response.
-     */
     @POST	
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    public String getIt(@FormParam("input") String input) {
-    		String temp = ""; 
-    		JSONObject jsonObject = new JSONObject();
-        try {
-        		temp = getData();
-    			Data data = new Data(temp);
- 
-    			jsonObject = data.constructJSON(input);
-    			System.out.println(jsonObject.toString());
-    			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        
-        return jsonObject.toString();
+    public Response post(@FormParam("input") String input) {
+    	NewCookie cookie = new NewCookie("input", input);
+    	return Response.ok("OK").cookie(cookie).build();
     }
     
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public String getIt() {
-//   		String temp = ""; 
-//   		JSONObject jsonObject = new JSONObject();
-//   		try {
-//       		temp = getData();
-//   			Data data = new Data(temp);
-//
-//   			jsonObject = data.constructJSON();
-//   			System.out.println(jsonObject.toString());
-//   			
-//   		} 
-//   		catch (IOException e) {
-//   			e.printStackTrace();
-//   		}
-//       
-//        return jsonObject.toString();
-//   }
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String get(@CookieParam("input") String input) {
+		String result = "";
+		JSONObject jsonObject = new JSONObject();
+		try {
+			result = query(input);
+			Data data = new Data(result);
+			jsonObject = data.constructJSON(input);
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	  
+		return jsonObject.toString();
+	}
     
 
-	public static String getData() throws IOException {
+	public static String query(String input) throws IOException {
 		// Wiki endpoint
 		// String url =
 		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
@@ -81,7 +66,9 @@ public class MyResource {
 		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
 
 		// Jena Endpoint for specific search
-		String url = "http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?predicate),+%22Great%20Britain%22)+%7C%7C+REGEX(STR(?object),+%22Great%20Britain%22)+)+}";
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
 		URL link = new URL(url);
 		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
