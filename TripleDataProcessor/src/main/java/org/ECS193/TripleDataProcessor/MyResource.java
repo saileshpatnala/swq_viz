@@ -37,7 +37,9 @@ public class MyResource {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
     public InputStream post(@FormParam("input") String input) {
+    	System.out.println("Raw input POST: " + input);
     	NewCookie cookie = new NewCookie("input", input);
+    	System.out.println("Cookie POST: " + cookie);
     	try {
     		File f = new File(this.indexFilePath);
     		return new FileInputStream(f);
@@ -47,11 +49,13 @@ public class MyResource {
     	}
     	return null;
     }
-    
+ 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String get(@CookieParam("input") String input) {
+	//public String get(@CookieParam("input") String input) {
+	public String get(String input) {
 		String result = "";
+		//System.out.println("Raw input GET: " + input);
 		JSONObject jsonObject = new JSONObject();
 		try {
 			result = query(input);
@@ -80,6 +84,7 @@ public class MyResource {
 
 		// Jena Endpoint for specific search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		//input = "%22World%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
