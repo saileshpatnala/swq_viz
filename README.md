@@ -11,7 +11,9 @@ This branch produces a local semantic web application. Currently, you are able t
 * clone the repo
 * set up Apache Jena Fuseki, create dataset name `ds`, upload .jsonld files into Fuseki's UI. You can access their UI via localhost:3030
 * cd into `TripleDataProcessor` folder and run `mvn package` then `mvn tomcat:run`. Make sure you're running java 8. 
-* go to a browser and type `http://localhost:8080/TripleDataProcessor/webapi/myresource` 
+* go to a browser and type `http://localhost:8080/TripleDataProcessor/webapi/search` for search UI, which will redirect to `/myresource` to display D3
+* `http://localhost:8080/TripleDataProcessor/webapi/myresource` for raw triples of returned query
+* `http://localhost:8080/TripleDataProcessor/webapi/myresource` for D3 display 
 
 ## Expected Output
 * should see D3 display based on user given input in search bar 
