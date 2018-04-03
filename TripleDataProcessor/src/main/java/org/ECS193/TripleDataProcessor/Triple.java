@@ -8,8 +8,8 @@ public class Triple {
 	private TripleElement object;
 	
 	public Triple(String subject, TYPE subjectType, String predicate, TYPE predicateType, String object, TYPE objectType) {
-		this.subject = new Subject(subject, subjectType);
-		this.predicate = new Predicate(predicate, predicateType);
+		this.subject = new SubjectElement(subject, subjectType);
+		this.predicate = new PredicateElement(predicate, predicateType);
 		this.object = new ObjectElement(object, objectType);
 	}
 
