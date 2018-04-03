@@ -30,27 +30,17 @@ public class EndPoint {
 	}
 	
 	public void parser(String data) throws Exception {
-		JSONObject jsonObject = new JSONObject(data);
-        
-//        System.out.println("object: " + jsonObject);
-//        System.out.println();
-
-        jsonObject = jsonObject.getJSONObject("results");
-//        System.out.println(jsonObject);
-//        System.out.println();
-
-        JSONArray triples = jsonObject.getJSONArray("bindings");
-       
-//        System.out.println(triples);
-//        System.out.println(triples.length());
-        
-        JSONObject temp;
+		JSONObject temp;
         String subject = "";
         String predicate = ""; 
         String object = "";
         TYPE subjectType = null;
         TYPE predicateType = null;
         TYPE objectType = null;
+        
+        JSONObject jsonObject = new JSONObject(data);
+        jsonObject = jsonObject.getJSONObject("results");
+        JSONArray triples = jsonObject.getJSONArray("bindings");
         
         for(int i = 0; i < triples.length(); i++) {
         		temp = (JSONObject) triples.get(i);

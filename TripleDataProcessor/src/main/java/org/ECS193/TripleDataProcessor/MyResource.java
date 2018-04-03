@@ -30,16 +30,16 @@ import javax.ws.rs.CookieParam;
  */
 @Path("myresource")
 public class MyResource {
-
-	private String indexFilePath = "index";
+	private static final String INPUT_PARAM = "input";
+	private static final String INDEX_FILE_PATH = "index";
 
     @POST	
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
-    public Response post(@FormParam("input") String input) {
-    	NewCookie cookie = new NewCookie("input", input);
+    public Response post(@FormParam(INPUT_PARAM) String input) {
+    	NewCookie cookie = new NewCookie(INPUT_PARAM, input);
     	try {
-    		return Response.seeOther(new java.net.URI(this.indexFilePath))
+    		return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
     		.cookie(cookie)
     		.build();
     	}
@@ -51,9 +51,8 @@ public class MyResource {
  
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String get(@CookieParam("input") String input) {
+	public String get(@CookieParam(INPUT_PARAM) String input) {
 		String result = "";
-		//System.out.println("Raw input GET: " + input);
 		JSONObject jsonObject = new JSONObject();
 		try {
 			result = query(input);
@@ -82,7 +81,6 @@ public class MyResource {
 
 		// Jena Endpoint for specific search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
-		//input = "%22World%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
