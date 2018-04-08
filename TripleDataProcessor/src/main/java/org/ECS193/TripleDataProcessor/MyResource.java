@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -37,7 +39,17 @@ public class MyResource {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
     public Response post(@FormParam(INPUT_PARAM) String input) {
+        input = input.replaceAll("\\p{M}", "");
+
+        // Encode the input to avoid cookie restrictions
+        try {
+            input = URLEncoder.encode(input, "UTF-8");
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
     	NewCookie cookie = new NewCookie(INPUT_PARAM, input);
+
     	try {
     		return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
     		.cookie(cookie)
@@ -46,6 +58,7 @@ public class MyResource {
     	catch (Exception e) {
     		e.printStackTrace();
     	}
+
     	return null;
     }
  
@@ -54,6 +67,14 @@ public class MyResource {
 	public String get(@CookieParam(INPUT_PARAM) String input) {
 		String result = "";
 		JSONObject jsonObject = new JSONObject();
+        
+        // Decode the input for querying
+        try{
+            input = URLDecoder.decode(input, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
 		try {
 			result = query(input);
 			Data data = new Data(result);
@@ -82,7 +103,7 @@ public class MyResource {
 		// Jena Endpoint for specific search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
-		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+"+ input +"+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
 		URL link = new URL(url);
 		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
