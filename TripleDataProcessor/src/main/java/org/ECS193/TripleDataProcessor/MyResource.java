@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -19,6 +21,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.ECS193.TripleDataProcessor.EndPoint.ENDPOINT_TYPE;
+import org.ECS193.TripleDataProcessor.TripleElement.TYPE;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.NewCookie;
@@ -39,8 +43,6 @@ public class MyResource {
     @Produces(MediaType.TEXT_HTML)
     public Response post(@FormParam(INPUT_PARAM) String input) {
 	    	NewCookie cookie = new NewCookie(INPUT_PARAM, input);
-		System.out.println("Mithun");
-
 	    	try {
 	    		return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
 	    		.cookie(cookie)
@@ -57,10 +59,12 @@ public class MyResource {
 	public String get(@CookieParam(INPUT_PARAM) String input) {
 		String result = "";
 		String libraryInput = "";
+		String url = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
-//			libraryInput = parserViaf(input);
-			result = query(input);
+			libraryInput = parserViaf(input);
+			url = generate_query(input);
+			result = query(url);
 			Data data = new Data(result, ENDPOINT_TYPE.library);
 			jsonObject = data.constructJSON(input);
 
@@ -73,7 +77,64 @@ public class MyResource {
 	}
     
 
-	public static String query(String input) throws IOException {
+	public static String query(String url) throws IOException {
+		
+		URL link = new URL(url);
+		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+		httpLink.setRequestMethod("GET");
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+		String inputLine;
+		StringBuffer resp = new StringBuffer();
+		while ((inputLine = in.readLine()) != null) {
+			resp.append(inputLine);
+		}
+
+		System.out.println("Raw Output: " + resp);
+		System.out.println();
+
+		return resp.toString();
+	}
+	
+	public static String parserViaf(String id) throws IOException {
+		String libraryInput = "";
+		String url = generate_query_viaf(id);
+		String rawJSON = query(url);
+		
+		JSONObject temp;
+		String idElement;
+        
+        JSONObject jsonObject = new JSONObject(rawJSON);
+        JSONArray graphs = jsonObject.getJSONArray("@graph");
+        
+        for(int i = 0; i < graphs.length(); i++) {
+        		temp = (JSONObject) graphs.get(i);
+        		idElement = temp.get("@id").toString();
+//        		System.out.println("===============================");
+//        		System.out.println(idElement);
+        		List<String> elements = Arrays.asList(idElement.split("/"));
+        		if(elements.size() == 6) {
+        			String gotIt = elements.get(5);
+//        			System.out.println(gotIt);
+
+        			if (gotIt.substring(0, 2).equals("LC")) {
+        				libraryInput = gotIt.substring(gotIt.indexOf("++") + 2, gotIt.indexOf("#"));
+        				System.out.println("LIBRARY INPUT: " + libraryInput);
+        				return libraryInput;
+        			}
+        		}
+        }
+        
+		return libraryInput;
+	}
+	
+	public static String generate_query_viaf(String id) {
+		id = "102333412";
+		
+		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+	}
+	
+	public static String generate_query(String input) {
 		// Wiki endpoint
 		 String url =
 		 "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
@@ -89,45 +150,7 @@ public class MyResource {
 //		String url = 
 //		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
-		URL link = new URL(url);
-		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
-		httpLink.setRequestMethod("GET");
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
-		String inputLine;
-		StringBuffer resp = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			resp.append(inputLine);
-		}
-
-		System.out.println("Raw Output: TEST " + resp);
-		System.out.println();
-
-		return resp.toString();
-	}
-	
-	public static String parserViaf(String id) throws IOException {
-		String libraryInput = "";
-		
-		id = "102333412";
-		
-		String url = "http://viaf.org/viaf/" + id + "/viaf.jsonld";
-
-		URL link = new URL(url);
-		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
-		httpLink.setRequestMethod("GET");
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
-		String inputLine;
-		StringBuffer resp = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			resp.append(inputLine);
-		}
-
-		System.out.println("Raw VIAF Output: " + resp);
-		System.out.println();
-
-		return libraryInput;
+		return url;
 	}
 	
 }
