@@ -21,7 +21,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.ECS193.TripleDataProcessor.EndPoint.ENDPOINT_TYPE;
-import org.ECS193.TripleDataProcessor.TripleElement.TYPE;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -63,7 +62,7 @@ public class MyResource {
 		JSONObject jsonObject = new JSONObject();
 		try {
 			libraryInput = parserViaf(input);
-			url = generate_query(input);
+			url = generate_query(libraryInput);
 			result = query(url);
 			Data data = new Data(result, ENDPOINT_TYPE.library);
 			jsonObject = data.constructJSON(input);
@@ -118,7 +117,7 @@ public class MyResource {
 //        			System.out.println(gotIt);
 
         			if (gotIt.substring(0, 2).equals("LC")) {
-        				libraryInput = gotIt.substring(gotIt.indexOf("++") + 2, gotIt.indexOf("#"));
+        				libraryInput = "n" + gotIt.substring(gotIt.indexOf("++") + 2, gotIt.indexOf("#"));
         				System.out.println("LIBRARY INPUT: " + libraryInput);
         				return libraryInput;
         			}
@@ -129,15 +128,14 @@ public class MyResource {
 	}
 	
 	public static String generate_query_viaf(String id) {
-		id = "102333412";
-		
+		id = "66628424";
 		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
 	}
 	
 	public static String generate_query(String input) {
 		// Wiki endpoint
-		 String url =
-		 "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+//		 String url =
+//		 "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
 		// Jena Endpoint
 		// String url =
 		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
@@ -146,9 +144,9 @@ public class MyResource {
 		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
 
 		// Jena Endpoint for specific search
-//		input = "%22"+input.replaceAll(" ", "%20")+"%22";
-//		String url = 
-//		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
 		return url;
 	}
