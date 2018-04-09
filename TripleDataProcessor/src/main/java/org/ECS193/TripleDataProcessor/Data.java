@@ -1,14 +1,16 @@
 package org.ECS193.TripleDataProcessor;
 import java.util.ArrayList;
+
+import org.ECS193.TripleDataProcessor.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Data {
 	private ArrayList<EndPoint> data;
 	
-	public Data(String data) {
+	public Data(String data, ENDPOINT_TYPE type) {
 		this.setData(new ArrayList<EndPoint>());
-		this.addEndPoint(new EndPoint(data));
+		this.addEndPoint(new EndPoint(data, type));
 	}
 
 	public ArrayList<EndPoint> getData() {

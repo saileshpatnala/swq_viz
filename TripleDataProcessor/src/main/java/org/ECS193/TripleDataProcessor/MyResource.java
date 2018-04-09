@@ -18,6 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.ECS193.TripleDataProcessor.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.NewCookie;
@@ -37,26 +38,30 @@ public class MyResource {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
     public Response post(@FormParam(INPUT_PARAM) String input) {
-    	NewCookie cookie = new NewCookie(INPUT_PARAM, input);
-    	try {
-    		return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
-    		.cookie(cookie)
-    		.build();
-    	}
-    	catch (Exception e) {
-    		e.printStackTrace();
-    	}
-    	return null;
+	    	NewCookie cookie = new NewCookie(INPUT_PARAM, input);
+		System.out.println("Mithun");
+
+	    	try {
+	    		return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
+	    		.cookie(cookie)
+	    		.build();
+	    	}
+	    	catch (Exception e) {
+	    		e.printStackTrace();
+	    	}
+	    	return null;
     }
  
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@CookieParam(INPUT_PARAM) String input) {
 		String result = "";
+		String libraryInput = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
+//			libraryInput = parserViaf(input);
 			result = query(input);
-			Data data = new Data(result);
+			Data data = new Data(result, ENDPOINT_TYPE.library);
 			jsonObject = data.constructJSON(input);
 
 		}
@@ -70,8 +75,8 @@ public class MyResource {
 
 	public static String query(String input) throws IOException {
 		// Wiki endpoint
-		// String url =
-		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		 String url =
+		 "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
 		// Jena Endpoint
 		// String url =
 		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
@@ -80,9 +85,9 @@ public class MyResource {
 		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
 
 		// Jena Endpoint for specific search
-		input = "%22"+input.replaceAll(" ", "%20")+"%22";
-		String url = 
-		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+//		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+//		String url = 
+//		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
 
 		URL link = new URL(url);
 		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
@@ -95,9 +100,34 @@ public class MyResource {
 			resp.append(inputLine);
 		}
 
-		System.out.println("Raw Output: " + resp);
+		System.out.println("Raw Output: TEST " + resp);
 		System.out.println();
 
 		return resp.toString();
 	}
+	
+	public static String parserViaf(String id) throws IOException {
+		String libraryInput = "";
+		
+		id = "102333412";
+		
+		String url = "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+
+		URL link = new URL(url);
+		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+		httpLink.setRequestMethod("GET");
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+		String inputLine;
+		StringBuffer resp = new StringBuffer();
+		while ((inputLine = in.readLine()) != null) {
+			resp.append(inputLine);
+		}
+
+		System.out.println("Raw VIAF Output: " + resp);
+		System.out.println();
+
+		return libraryInput;
+	}
+	
 }
