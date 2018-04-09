@@ -12,7 +12,7 @@ import javax.ws.rs.Path;
 @Path("index")
 public class Index {
 	
-	private String indexFilePath = "index.html";
+	private String indexFilePath = "client/index.html";
 
 	@GET
 	@Produces({MediaType.TEXT_HTML})
