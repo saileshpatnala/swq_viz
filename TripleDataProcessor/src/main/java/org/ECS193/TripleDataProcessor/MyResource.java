@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -18,6 +20,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.ECS193.TripleDataProcessor.EndPoint.ENDPOINT_TYPE;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.NewCookie;
@@ -53,10 +57,14 @@ public class MyResource {
 	public String get(@CookieParam(COOKIE_PARAM) String input) {
 		System.out.println("GET request: " + input);
 		String result = "";
+		String libraryInput = "";
+		String url = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
-			result = query(input);
-			Data data = new Data(result);
+			libraryInput = parserViaf(input);
+			url = generate_query(libraryInput);
+			result = query(url);
+			Data data = new Data(result, ENDPOINT_TYPE.library);
 			jsonObject = data.constructJSON(input);
 
 		}
@@ -68,22 +76,8 @@ public class MyResource {
 	}
 	
 
-	public static String query(String input) throws IOException {
-		// Wiki endpoint
-		// String url =
-		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// Jena Endpoint
-		// String url =
-		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// VIAF Endpoint
-		// String url =
-		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
-
-		// Jena Endpoint for specific search
-		input = "%22"+input.replaceAll(" ", "%20")+"%22";
-		String url = 
-		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
-
+	public static String query(String url) throws IOException {
+		
 		URL link = new URL(url);
 		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
 		httpLink.setRequestMethod("GET");
@@ -100,4 +94,61 @@ public class MyResource {
 
 		return resp.toString();
 	}
+	
+	public static String parserViaf(String id) throws IOException {
+		String libraryInput = "";
+		String url = generate_query_viaf(id);
+		String rawJSON = query(url);
+		
+		JSONObject temp;
+		String idElement;
+        
+        JSONObject jsonObject = new JSONObject(rawJSON);
+        JSONArray graphs = jsonObject.getJSONArray("@graph");
+        
+        for(int i = 0; i < graphs.length(); i++) {
+        		temp = (JSONObject) graphs.get(i);
+        		idElement = temp.get("@id").toString();
+//        		System.out.println("===============================");
+//        		System.out.println(idElement);
+        		List<String> elements = Arrays.asList(idElement.split("/"));
+        		if(elements.size() == 6) {
+        			String gotIt = elements.get(5);
+//        			System.out.println(gotIt);
+
+        			if (gotIt.substring(0, 2).equals("LC")) {
+        				libraryInput = "n" + gotIt.substring(gotIt.indexOf("++") + 2, gotIt.indexOf("#"));
+        				System.out.println("LIBRARY INPUT: " + libraryInput);
+        				return libraryInput;
+        			}
+        		}
+        }
+        
+		return libraryInput;
+	}
+	
+	public static String generate_query_viaf(String id) {
+		id = "66628424";
+		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+	}
+	
+	public static String generate_query(String input) {
+		// Wiki endpoint
+//		 String url =
+//		 "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		// Jena Endpoint
+		// String url =
+		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		// VIAF Endpoint
+		// String url =
+		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
+
+		// Jena Endpoint for specific search
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+
+		return url;
+	}
+	
 }

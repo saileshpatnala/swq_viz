@@ -7,13 +7,25 @@ import org.json.JSONObject;
 
 public class EndPoint {
 	private ArrayList<Triple> triples;
+	private ENDPOINT_TYPE type;
 	
-	public EndPoint(String data) {
+	enum ENDPOINT_TYPE
+	{
+	    wiki, oclc, library, viaf;
+	}
+	
+	public EndPoint(String data, ENDPOINT_TYPE type_) {
 		this.setTriples(new ArrayList<Triple>());
-		try {
-			this.parser(data);
-		} catch (Exception e) {
-			e.printStackTrace();
+		this.type = type_;
+		if (type == ENDPOINT_TYPE.wiki || type == ENDPOINT_TYPE.library) {
+			try {
+				this.parser(data);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else if (type == ENDPOINT_TYPE.oclc) {
+			// use differnt parse if needed
 		}
 	}
 	
@@ -77,8 +89,6 @@ public class EndPoint {
         		System.out.println();
         		
         		this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
-        }
+        }  
     	}
-
-
 }
