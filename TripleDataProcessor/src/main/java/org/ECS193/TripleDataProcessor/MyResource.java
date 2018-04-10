@@ -128,7 +128,7 @@ public class MyResource {
 	}
 	
 	public static String generate_query_viaf(String id) {
-		id = "66628424";
+//		id = "66628424";
 		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
 	}
 	
