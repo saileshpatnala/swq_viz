@@ -30,28 +30,30 @@ import javax.ws.rs.CookieParam;
  */
 @Path("myresource")
 public class MyResource {
-	private static final String INPUT_PARAM = "input";
+	private static final String COOKIE_PARAM = "search";
 	private static final String INDEX_FILE_PATH = "index";
 
-    @POST	
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_HTML)
-    public Response post(@FormParam(INPUT_PARAM) String input) {
-    	NewCookie cookie = new NewCookie(INPUT_PARAM, input);
-    	try {
-    		return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
-    		.cookie(cookie)
-    		.build();
-    	}
-    	catch (Exception e) {
-    		e.printStackTrace();
-    	}
-    	return null;
-    }
+	@POST	
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_HTML)
+	public Response post(String input) {
+		System.out.println("POST request: " + input);
+		NewCookie cookie = new NewCookie(COOKIE_PARAM, input);
+		try {
+			return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
+			.cookie(cookie)
+			.build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
  
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String get(@CookieParam(INPUT_PARAM) String input) {
+	public String get(@CookieParam(COOKIE_PARAM) String input) {
+		System.out.println("GET request: " + input);
 		String result = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
@@ -66,7 +68,7 @@ public class MyResource {
 	  
 		return jsonObject.toString();
 	}
-    
+	
 
 	public static String query(String input) throws IOException {
 		// Wiki endpoint

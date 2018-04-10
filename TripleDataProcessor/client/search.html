@@ -36,15 +36,26 @@
     function post( message ) {
         // $( "<div>" ).text( message ).prependTo( "#log" );
         // $( "#log" ).scrollTop( 0 );
-        $( "#submit" ).click(function() {
-          console.log(message);
-          $.post(
-            "http://localhost:8080/TripleDataProcessor/webapi/myresource/",
-            message,
-            function() {
-              console.log('POST successful');
-            });
-        })
+      $( "#submit" ).click(function() {
+        console.log(message);
+        // $.post(
+        //   "http://localhost:8080/TripleDataProcessor/webapi/myresource/",
+        //   message,
+        //   function() {
+        //     console.log('POST successful');
+        //   });
+
+        $.ajax({
+          type: "POST",
+          url: 'http://localhost:8080/TripleDataProcessor/webapi/myresource/',
+          data: message,
+          success: function() { console.log('POST successful'); },
+          contentType: 'text/plain'
+        });
+
+      });
+
+        
     }
 
     $(function() {
@@ -58,18 +69,18 @@
 
 
 <div class="ui-widget">
-  <div class="row">
-    <div class="col-xs-6 col-md-4">
-      <div class="input-group">
-        <input type="text" class="ui-widget-content" placeholder="Search" id="myViafId" name="input">
-        <div class="input-group-btn">
-          <button id="submit" class="btn btn-primary" type="submit" value="Submit">
-            <span class="glyphicon glyphicon-search"></span>
-          </button>
+    <div class="row">
+      <div class="col-xs-6 col-md-4">
+        <div class="input-group">
+          <input type="text" class="ui-widget-content" placeholder="Search" id="myViafId" name="input">
+          <div class="input-group-btn">
+            <button id="submit" class="btn btn-primary" type="submit" value="Submit">
+              <span class="glyphicon glyphicon-search"></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 </div>
 
 <div class="ui-widget">
