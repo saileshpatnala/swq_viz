@@ -33,26 +33,23 @@
   </style>
   
   <script>
-    function log( message ) {
-        $( "<div>" ).text( message ).prependTo( "#log" );
-        $( "#log" ).scrollTop( 0 );
+    function post( message ) {
+        // $( "<div>" ).text( message ).prependTo( "#log" );
+        // $( "#log" ).scrollTop( 0 );
+        $( "#submit" ).click(function() {
+          console.log(message);
+          $.post(
+            "http://localhost:8080/TripleDataProcessor/webapi/myresource/",
+            message,
+            function() {
+              console.log('POST successful');
+            });
+        })
     }
 
     $(function() {
-
-      $("#myViafId").viafautox( {
-          select: function(event, ui){
-              var item = ui.item;
-              var message = "From First Search Box: " +item.id + " " + item.value + " (type: " + item.nametype +")";
-              log(message);
-              event.preventDefault();
-              event.stopPropagation();
-              $(this).val("");
-          } 
-      });
-
       $(".clear").click(function() { $(this).prev("input").val(""); });
-  }); 
+    }); 
 </script>
 
 </head>
@@ -61,20 +58,18 @@
 
 
 <div class="ui-widget">
-  <form action="http://localhost:8080/TripleDataProcessor/webapi/myresource" method="POST" target="_blank"> 
-    <div class="row">
-      <div class="col-xs-6 col-md-4">
-        <div class="input-group">
-          <input type="text" class="ui-widget-content" placeholder="Search" id="myViafId" name="input">
-          <div class="input-group-btn">
-            <button class="btn btn-primary" type="submit" value="Submit">
-              <span class="glyphicon glyphicon-search"></span>
-            </button>
-          </div>
+  <div class="row">
+    <div class="col-xs-6 col-md-4">
+      <div class="input-group">
+        <input type="text" class="ui-widget-content" placeholder="Search" id="myViafId" name="input">
+        <div class="input-group-btn">
+          <button id="submit" class="btn btn-primary" type="submit" value="Submit">
+            <span class="glyphicon glyphicon-search"></span>
+          </button>
         </div>
       </div>
     </div>
-  </form>
+  </div>
 </div>
 
 <div class="ui-widget">
@@ -90,10 +85,10 @@ Result:
             var item = ui.item;
             // var message = "From First Search Box: " +item.id + " " + item.value + " (type: " + item.nametype +")";
             var message = item.id;
-            log(message);
+            post(message);
             event.preventDefault();
             event.stopPropagation();
-            $(this).val("");
+            $(this).val(item.value);
         } 
     });
   });
