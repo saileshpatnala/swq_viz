@@ -40,9 +40,7 @@ public class MyResource {
 		System.out.println("POST request: " + input);
 		NewCookie cookie = new NewCookie(COOKIE_PARAM, input);
 		try {
-			return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
-			.cookie(cookie)
-			.build();
+			return Response.ok(INDEX_FILE_PATH).cookie(cookie).build();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

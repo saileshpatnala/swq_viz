@@ -47,10 +47,13 @@
 
         $.ajax({
           type: "POST",
-          url: 'http://localhost:8080/TripleDataProcessor/webapi/myresource/',
+          url: 'http://localhost:8080/TripleDataProcessor/webapi/myresource',
           data: message,
-          success: function() { console.log('POST successful'); },
-          contentType: 'text/plain'
+          success: function(response) { 
+            console.log('POST successful'); 
+            window.location = response;
+          },
+          contentType: 'text/plain',
         });
 
       });
@@ -83,9 +86,8 @@
     </div>
 </div>
 
-<div class="ui-widget">
-Result:
-<div id="log" style="height: 200px; width: 300px; overflow: auto;" class="ui-widget-content"></div>
+<div id="#showresults">
+  
 </div>
 
 
