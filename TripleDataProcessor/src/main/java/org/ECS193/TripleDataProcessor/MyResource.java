@@ -11,8 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.net.URLEncoder;
-import java.net.URLDecoder;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -39,32 +37,20 @@ public class MyResource {
 	private static final String COOKIE_PARAM = "search";
 	private static final String INDEX_FILE_PATH = "index";
 
-    @POST	
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_HTML)
-    public Response post(@FormParam(INPUT_PARAM) String input) {
-        input = input.replaceAll("\\p{M}", "");
-
-        // Encode the input to avoid cookie restrictions
-        try {
-            input = URLEncoder.encode(input, "UTF-8");
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-
-    	NewCookie cookie = new NewCookie(INPUT_PARAM, input);
-
-    	try {
-    		return Response.seeOther(new java.net.URI(INDEX_FILE_PATH))
-    		.cookie(cookie)
-    		.build();
-    	}
-    	catch (Exception e) {
-    		e.printStackTrace();
-    	}
-
-    	return null;
-    }
+	@POST   
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_HTML)
+	public Response post(String input) {
+		System.out.println("POST request: " + input);
+		NewCookie cookie = new NewCookie(COOKIE_PARAM, input);
+		try {
+			return Response.ok(INDEX_FILE_PATH).cookie(cookie).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
  
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -74,14 +60,6 @@ public class MyResource {
 		String libraryInput = "";
 		String url = "";
 		JSONObject jsonObject = new JSONObject();
-        
-        // Decode the input for querying
-        try{
-            input = URLDecoder.decode(input, "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
 		try {
 			libraryInput = parserViaf(input);
 			url = generate_query(libraryInput);
@@ -96,23 +74,7 @@ public class MyResource {
 	  
 		return jsonObject.toString();
 	}
-    
-
-	public static String query(String input) throws IOException {
-		// Wiki endpoint
-		// String url =
-		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// Jena Endpoint
-		// String url =
-		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// VIAF Endpoint
-		// String url =
-		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
-
-		// Jena Endpoint for specific search
-		input = "%22"+input.replaceAll(" ", "%20")+"%22";
-		String url = 
-		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+"+ input +"+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+	
 
 	public static String query(String url) throws IOException {
 		
