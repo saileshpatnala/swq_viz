@@ -21,10 +21,6 @@
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
   
-  <!-- <script src="src/jquery.viafauto.js"></script> -->
-  
-  <!-- <script src="src/jquery.viafauto.extended.js"></script> -->
-  
   <style>
   .ui-autocomplete-loading {
     background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;
@@ -34,17 +30,7 @@
   
   <script>
     function post( message ) {
-        // $( "<div>" ).text( message ).prependTo( "#log" );
-        // $( "#log" ).scrollTop( 0 );
       $( "#submit" ).click(function() {
-        console.log(message);
-        // $.post(
-        //   "http://localhost:8080/TripleDataProcessor/webapi/myresource/",
-        //   message,
-        //   function() {
-        //     console.log('POST successful');
-        //   });
-
         $.ajax({
           type: "POST",
           url: 'http://localhost:8080/TripleDataProcessor/webapi/myresource',
@@ -96,7 +82,6 @@
     $("#myViafId").viafautox( {
         select: function(event, ui){
             var item = ui.item;
-            // var message = "From First Search Box: " +item.id + " " + item.value + " (type: " + item.nametype +")";
             var message = item.id;
             post(message);
             event.preventDefault();

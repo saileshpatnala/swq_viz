@@ -37,7 +37,7 @@ public class MyResource {
 	private static final String COOKIE_PARAM = "search";
 	private static final String INDEX_FILE_PATH = "index";
 
-	@POST	
+	@POST   
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_HTML)
 	public Response post(String input) {
@@ -102,40 +102,36 @@ public class MyResource {
 		
 		JSONObject temp;
 		String idElement;
-        
-        JSONObject jsonObject = new JSONObject(rawJSON);
-        JSONArray graphs = jsonObject.getJSONArray("@graph");
-        
-        for(int i = 0; i < graphs.length(); i++) {
-        		temp = (JSONObject) graphs.get(i);
-        		idElement = temp.get("@id").toString();
-//        		System.out.println("===============================");
-//        		System.out.println(idElement);
-        		List<String> elements = Arrays.asList(idElement.split("/"));
-        		if(elements.size() == 6) {
-        			String gotIt = elements.get(5);
-//        			System.out.println(gotIt);
+		
+		JSONObject jsonObject = new JSONObject(rawJSON);
+		JSONArray graphs = jsonObject.getJSONArray("@graph");
+		
+		for(int i = 0; i < graphs.length(); i++) {
+				temp = (JSONObject) graphs.get(i);
+				idElement = temp.get("@id").toString();
+				List<String> elements = Arrays.asList(idElement.split("/"));
+				if(elements.size() == 6) {
+					String gotIt = elements.get(5);
 
-        			if (gotIt.substring(0, 2).equals("LC")) {
-        				libraryInput = "n" + gotIt.substring(gotIt.indexOf("++") + 2, gotIt.indexOf("#"));
-        				System.out.println("LIBRARY INPUT: " + libraryInput);
-        				return libraryInput;
-        			}
-        		}
-        }
-        
+					if (gotIt.substring(0, 2).equals("LC")) {
+						libraryInput = "n" + gotIt.substring(gotIt.indexOf("++") + 2, gotIt.indexOf("#"));
+						System.out.println("LIBRARY INPUT: " + libraryInput);
+						return libraryInput;
+					}
+				}
+		}
+		
 		return libraryInput;
 	}
 	
 	public static String generate_query_viaf(String id) {
-//		id = "66628424";
 		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
 	}
 	
 	public static String generate_query(String input) {
 		// Wiki endpoint
-//		 String url =
-//		 "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+		// String url =
+		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
 		// Jena Endpoint
 		// String url =
 		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
