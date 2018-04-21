@@ -58,12 +58,15 @@ public class MyResource {
 		System.out.println("GET request: " + input);
 		String result = "";
 		String libraryInput = "";
+		String libraryIDinput = "";
 		String url = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
 			libraryInput = parserViaf(input);
-			url = generate_query(libraryInput);
+			libraryIDinput = generate_query_libraryID(libraryInput);
+			url = generate_query(libraryIDinput);
 			result = query(url);
+
 			Data data = new Data(result, ENDPOINT_TYPE.library);
 			jsonObject = data.constructJSON(input);
 
@@ -126,6 +129,15 @@ public class MyResource {
 	
 	public static String generate_query_viaf(String id) {
 		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+	}
+
+	// Get Library ID from VIAF srcID 
+	public static String generate_query_libraryID(String id) {
+		id = "%22"+id+"%22";
+		String libraryIDinput = "http://localhost:3030/ds/sparql?query=select+?subject+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+%22alma%22)+%26%26+REGEX(STR(?object),+"+id+"+)+)+}";
+		
+		return libraryIDinput;
+
 	}
 	
 	public static String generate_query(String input) {
