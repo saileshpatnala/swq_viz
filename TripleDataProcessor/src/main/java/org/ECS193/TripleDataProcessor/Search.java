@@ -12,7 +12,7 @@ import javax.ws.rs.Path;
 @Path("search")
 public class Search {
 	
-	private String searchFilePath = "client/search.html";
+	private String searchFilePath = "src/main/webapp/search.html";
 
 	@GET
 	@Produces({MediaType.TEXT_HTML})
