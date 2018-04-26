@@ -3,24 +3,83 @@
 <html lang="en">
 
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<style type="text/css">
-		.node {}
-		.link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
-	</style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+    .node {}
+
+    .link {
+        stroke: #999;
+        stroke-opacity: .6;
+        stroke-width: 1px;
+    }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script type="text/javascript" src="/TripleDataProcessor/js/post.js"></script>
+    <script type="text/javascript">
+        document.getElementById( "goHomeBtn" ).onclick = function() {
+            location.href="http://localhost:8080/TripleDataProcessor/webapi/search";
+        }
+    </script>
 </head>
 
 <body>
-<p>GRAPH</p>
-
-<svg width="1300" height="1000"></svg>
-<script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
-<script src="http://d3js.org/d3-selection-multi.v1.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-
-<script type="text/javascript" src="/TripleDataProcessor/js/graph.js"></script>
-
+    <div style="display: flex; flex-direction: column;">
+        <div style="display:flex; flex: 1; justify-content: flex-start; ">
+            <h5 id="ViafidText" style="margin-right: 5px;">VIAF ID: </h5>
+            <br>
+            <h5 id="Viafid"></h5>
+            <script type="text/javascript">
+            document.getElementById('Viafid').innerHTML = " " + GetCookie('viafID')
+            </script>
+        </div>
+        <div style="display: flex; justify-content: column; flex: 4;">
+            <div style="display: flex; flex: 4;">
+                <svg width="80vw" height="90vh"></svg>
+                <script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+                <script src="http://d3js.org/d3-selection-multi.v1.js"></script>
+                <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+                <script type="text/javascript" src="/TripleDataProcessor/js/graph.js"></script>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex: 1; background-color: #B7BBBC; padding: 20px; border-radius: 25px; ">
+                <div>
+                    <fieldset class="form-group">
+                        <div class="row">
+                            <div style="display: flex; flex-direction: row; justify-content: space-between;">
+                                <legend class="col-form-label col-sm-2 pt-0" style="margin-right: 20%;">Source Options</legend>
+                                <div class="col-sm-10">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SourceLib1" id="LibSrc" value="Library" checked>
+                                        <label class="form-check-label" for="CSV1">
+                                            Library
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SourceLib2" id="ViafSrc" value="Viaf" checked>
+                                        <label class="form-check-label" for="CSV2">
+                                            VIAF
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SourceLib3" id="OCLCSrc" value="Oclc">
+                                        <label class="form-check-label" for="CSV2">
+                                            OCLC
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary" id="Pause-Play"> Pause </button>
+                    <button type="button" class="btn btn-danger" id="StopBtn"> Stop </button>
+                    <button type="button" class="btn btn-secondary" id="goHomeBtn" onclick="window.location.href='search'"> Home </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>
