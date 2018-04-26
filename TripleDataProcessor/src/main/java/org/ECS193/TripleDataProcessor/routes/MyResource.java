@@ -58,8 +58,8 @@ public class MyResource {
 		String url = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
-			libraryInput = parserViaf(input);
-			url = generate_query(libraryInput);
+			libraryInput = Helper.parserViaf(input);
+			url = Helper.generate_library_query(libraryInput);
 			result = query(url);
 			Data data = new Data(result, ENDPOINT_TYPE.library);
 			jsonObject = data.constructJSON(input);
