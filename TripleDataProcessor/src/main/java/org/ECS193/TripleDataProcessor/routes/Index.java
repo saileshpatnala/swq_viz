@@ -1,4 +1,4 @@
-package org.ECS193.TripleDataProcessor;
+package org.ECS193.TripleDataProcessor.routes;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,11 +1,8 @@
-package org.ECS193.TripleDataProcessor;
+package org.ECS193.TripleDataProcessor.routes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.File;
-import java.io.FileInputStream;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -13,14 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.ECS193.TripleDataProcessor.EndPoint.ENDPOINT_TYPE;
+import org.ECS193.TripleDataProcessor.data.Data;
+import org.ECS193.TripleDataProcessor.data.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

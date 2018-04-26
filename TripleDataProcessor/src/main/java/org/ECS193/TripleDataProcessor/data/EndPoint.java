@@ -1,7 +1,7 @@
-package org.ECS193.TripleDataProcessor;
+package org.ECS193.TripleDataProcessor.data;
 import java.util.ArrayList;
 
-import org.ECS193.TripleDataProcessor.TripleElement.TYPE;
+import org.ECS193.TripleDataProcessor.data.TripleElement.TYPE;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -9,7 +9,7 @@ public class EndPoint {
 	private ArrayList<Triple> triples;
 	private ENDPOINT_TYPE type;
 	
-	enum ENDPOINT_TYPE
+	public enum ENDPOINT_TYPE
 	{
 	    wiki, oclc, library, viaf;
 	}
