@@ -1,163 +1,255 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>Semantic Web Search</title>
-  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
-  
-  <link rel="stylesheet" href="http://jqueryui.com/jquery-wp-content/themes/jqueryui.com/style.css">
+    <meta charset="utf-8">
+    <title>Semantic Web Search</title>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="http://jqueryui.com/jquery-wp-content/themes/jqueryui.com/style.css" />
+    <!-- AutoComplete -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" /> -->
+    <!-- Latest compiled and minified CSS -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> -->
+    <!-- Optional theme -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"> -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+    <style>
+    .ui-autocomplete-loading {
+        background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;
+    }
 
-  <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" id="bootstrap-css">
+    #search {
+        width: 25em;
+    }
+    </style>
+    <script>
+    function post(message) {
+        $("#submit").click(function() {
+            $.ajax({
+                type: "POST",
+                url: 'http://localhost:8080/TripleDataProcessor/webapi/myresource',
+                data: message,
+                success: function(response) {
+                    console.log('POST successful');
+                    window.location = response;
+                },
+                contentType: 'text/plain',
+            });
 
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-
-  <!-- Optional theme -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-  
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  
-  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-  
-  <style>
-  .ui-autocomplete-loading {
-    background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;
-  }
-  #search { width: 25em; }
-  </style>
-  
-  <script>
-    function post( message ) {
-      $( "#submit" ).click(function() {
-        $.ajax({
-          type: "POST",
-          url: 'http://localhost:8080/TripleDataProcessor/webapi/myresource',
-          data: message,
-          success: function(response) { 
-            console.log('POST successful'); 
-            window.location = response;
-          },
-          contentType: 'text/plain',
         });
 
-      });
 
-        
     }
 
     $(function() {
-      $(".clear").click(function() { $(this).prev("input").val(""); });
-    }); 
-</script>
-
+        $(".clear").click(function() { $(this).prev("input").val(""); });
+    });
+    </script>
 </head>
+
 <body>
-<h1>Semantic Web Search</h1>
-
-
-<div class="ui-widget">
-    <div class="row">
-      <div class="col-xs-6 col-md-4">
-        <div class="input-group">
-          <input type="text" class="ui-widget-content" placeholder="Search" id="myViafId" name="input">
-          <div class="input-group-btn">
-            <button id="submit" class="btn btn-primary" type="submit" value="Submit">
-              <span class="glyphicon glyphicon-search"></span>
-            </button>
-          </div>
+    <div class="container-fluid">
+        <h1>Semantic Web Search</h1>
+        <!-- <div class="container-fluid"> -->
+        <div class="ui-widget">
+            <div class="row">
+                <div class="col-xs-6 col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Enter Keyword" id="myViafId" name="input">
+                        <div class="input-group-append">
+                            <button id="submit" class="btn btn-outline-primary" type="submit" value="Submit">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" checked>
+            <label class="form-check-label" for="defaultCheck1">
+                SHow Viaf ID
+            </label>
+        </div>
+        <div id="#showresults">
+        </div>
+        <form>
+            <div style="display: flex; flex-direction: row; justify-content: center;">
+                <fieldset class="form-group">
+                    <div class="row">
+                        <div style="flex-direction: column;">
+                            <legend class="col-form-label col-sm-2 pt-0">CSV Download</legend>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="CSV1" value="Yes">
+                                    <label class="form-check-label" for="CSV1">
+                                        Yes
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="CSV2" value="No" checked>
+                                    <label class="form-check-label" for="CSV2">
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div style="flex-direction: column;">
+                            <legend class="col-form-label col-sm-2 pt-0">Depth</legend>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="DepthRadios" id="Depth1" value="Yes" checked>
+                                    <label class="form-check-label" for="Depth1">
+                                        Single
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="DepthRadios" id="Depth2" value="No">
+                                    <label class="form-check-label" for="Depth2">
+                                        Full
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <br>
+                <fieldset class="form-group">
+                    <div class="row">
+                        <div style="flex-direction: column;">
+                            <legend class="col-form-label col-sm-2 pt-0">Source Options</legend>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="SourceLib" id="LibSrc" value="Library" Checked>
+                                    <label class="form-check-label" for="CSV1">
+                                        Library
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="SourceLib" id="ViafSrc" value="Viaf" checked>
+                                    <label class="form-check-label" for="CSV2">
+                                        VIAF
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="SourceLib" id="OCLCSrc" value="Oclc">
+                                    <label class="form-check-label" for="CSV2">
+                                        OCLC
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div style="flex-direction: column;">
+                            <legend class="col-form-label col-sm-2 pt-0">Display Output</legend>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="OutputDisplay" id="GraphOutput" value="Graph" checked>
+                                    <label class="form-check-label" for="Depth1">
+                                        Graph
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="OutputDisplay" id="JsonOutput" value="JSON">
+                                    <label class="form-check-label" for="Depth2">
+                                        JSON
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </form>
     </div>
-</div>
-
-<div id="#showresults">
-  
-</div>
-
-
-<script type="text/javascript">
-  $(function() {
-    $("#myViafId").viafautox( {
-        select: function(event, ui){
-            var item = ui.item;
-            var message = item.id;
-            post(message);
-            event.preventDefault();
-            event.stopPropagation();
-            $(this).val(item.value);
-        } 
+    <script type="text/javascript">
+    $(function() {
+        $("#myViafId").viafautox({
+            select: function(event, ui) {
+                var item = ui.item;
+                var message = item.id;
+                post(message);
+                event.preventDefault();
+                event.stopPropagation();
+                $(this).val(item.value);
+            }
+        });
     });
-  });
-</script>
+    </script>
+    <script type="text/javascript">
+    (function($) {
 
-<script type="text/javascript">
-  (function($) {
+        $.widget("oclc.viafautox", $.ui.autocomplete, {
+            options: {
+                // select: function(event, ui) { alert("Selected!"); return this._super(event, ui); },
+                source: function(request, response) {
+                    var term = $.trim(request.term);
+                    var url = "http://viaf.org/viaf/AutoSuggest?query=" + term;
+                    var me = this;
+                    $.ajax({
+                        url: url,
+                        dataType: "jsonp",
+                        success: function(data) {
+                            if (data.result) {
+                                response($.map(data.result, function(item) {
+                                    var retLbl = item.term + " [" + item.nametype + "]";
+                                    return {
+                                        label: retLbl,
+                                        value: item.term,
+                                        id: item.viafid,
+                                        nametype: item.nametype
+                                    }
+                                }));
+                            } else {
+                                me._trigger('nomatch', null, { term: term });
+                            }
+                        },
+                    }); // end of $.ajax()
+                }
+            }, // end of source:, options
 
-    $.widget("oclc.viafautox", $.ui.autocomplete, {
-     options: {
-   // select: function(event, ui) { alert("Selected!"); return this._super(event, ui); },
-      source: function(request, response) {
-          var term = $.trim(request.term); 
-          var url  = "http://viaf.org/viaf/AutoSuggest?query=" + term;
-          var me = this; 
-          $.ajax({
-              url: url,
-              dataType: "jsonp",
-              success: function(data) {
-                  if (data.result) {
-                      response( $.map( data.result, function(item) {
-                          var retLbl = item.term + " [" + item.nametype + "]";
-                          return {
-                              label: retLbl,
-                              value: item.term,
-                              id: item.viafid,
-                              nametype: item.nametype
-                          }
-                      }));
-                  } else {
-                      me._trigger('nomatch', null, {term: term});
-                  }
-              },
-          });  // end of $.ajax()
-      }},      // end of source:, options
-
-      /*
-       * Punt a few fundamental tasks to the parent class
-       */
-      _create: function() {
-          return this._super();
-      },
-      _setOption: function( key, value ) {
-          this._super( key, value );
-      },
-      _setOptions: function( options ) {
-          this._super( options );
-      }
-    });
-  })(jQuery);
-</script>
-
-<script type="text/javascript">
-  (function($) {
-    $.widget("oclc.viafautox", $.oclc.viafauto, {
-      _setOptions: function( options  ) { this._super( options  ); },
-      _setOption:  function(key, value) { this._super(key, value); },
-      _create:     function(          ) {    return this._super(); },
-      _init:       function() {
-          var me = this;
-          $(me.element).on("viafautoxchange", function(event, ui) {
-              $(me.element).removeClass("ui-autocomplete-loading");
-              if (! ui.item){
-               // console.log("_triggering noselect"); console.log(event.currentTarget);
-                  me._trigger("noselect", event, {});
-              }
-          });
-      }
-    });
-  })(jQuery);
-</script>
-
+            /*
+             * Punt a few fundamental tasks to the parent class
+             */
+            _create: function() {
+                return this._super();
+            },
+            _setOption: function(key, value) {
+                this._super(key, value);
+            },
+            _setOptions: function(options) {
+                this._super(options);
+            }
+        });
+    })(jQuery);
+    </script>
+    <script type="text/javascript">
+    (function($) {
+        $.widget("oclc.viafautox", $.oclc.viafauto, {
+            _setOptions: function(options) { this._super(options); },
+            _setOption: function(key, value) { this._super(key, value); },
+            _create: function() { return this._super(); },
+            _init: function() {
+                var me = this;
+                $(me.element).on("viafautoxchange", function(event, ui) {
+                    $(me.element).removeClass("ui-autocomplete-loading");
+                    if (!ui.item) {
+                        // console.log("_triggering noselect"); console.log(event.currentTarget);
+                        me._trigger("noselect", event, {});
+                    }
+                });
+            }
+        });
+    })(jQuery);
+    </script>
 </body>
+
 </html>
