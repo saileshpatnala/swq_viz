@@ -1,65 +1,154 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>Semantic Web Search</title>
-  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
-  
-  <link rel="stylesheet" href="http://jqueryui.com/jquery-wp-content/themes/jqueryui.com/style.css">
+    <meta charset="utf-8">
+    <title>Semantic Web Search</title>
+    <link rel="icon" href="data:;base64,iVBORwOKGO=" />
+    <!-- StyleSheets -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="http://jqueryui.com/jquery-wp-content/themes/jqueryui.com/style.css">
+    <!-- AutoComplete -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <!-- JS files -->
+    <script type="text/javascript" src="/TripleDataProcessor/js/jquery.viafauto.js"></script>
+    <script type="text/javascript" src="/TripleDataProcessor/js/jquery.viafauto.extended.js"></script>
+    <script type="text/javascript" src="/TripleDataProcessor/js/viaf.integration.js"></script>
+    <script type="text/javascript" src="/TripleDataProcessor/js/post.js"></script>
+    <style>
+    .ui-autocomplete-loading {
+        background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;
+    }
 
-  <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" id="bootstrap-css">
-
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-
-  <!-- Optional theme -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-  
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  
-  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
-  <script type="text/javascript" src="/TripleDataProcessor/js/jquery.viafauto.js"></script>
-
-  <script type="text/javascript" src="/TripleDataProcessor/js/jquery.viafauto.extended.js"></script>
-
-  <script type="text/javascript" src="/TripleDataProcessor/js/viaf.integration.js"></script>
-
-  <script type="text/javascript" src="/TripleDataProcessor/js/post.js"></script>
-
-  <style>
-  .ui-autocomplete-loading {
-    background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat;
-  }
-  #search { width: 25em; }
-  </style>
-  
-  <script>
+    #search {
+        width: 25em;
+    }
+    </style>
+    <script>
     $(function() {
-      $(".clear").click(function() { $(this).prev("input").val(""); });
-    }); 
-</script>
-
+        $(".clear").click(function() { $(this).prev("input").val(""); });
+    });
+    </script>
 </head>
+
 <body>
-<h1>Semantic Web Search</h1>
-
-<div class="ui-widget">
-    <div class="row">
-      <div class="col-xs-6 col-md-4">
-        <div class="input-group">
-          <input type="text" class="ui-widget-content" placeholder="Search" id="myViafId" name="input">
-          <div class="input-group-btn">
-            <button id="submit" class="btn btn-primary" type="submit" value="Submit">
-              <span class="glyphicon glyphicon-search"></span>
-            </button>
-          </div>
+    <h1>Semantic Web Search</h1>
+    <!-- <div class="container-fluid"> -->
+    <div class="ui-widget">
+        <div class="row">
+            <div class="col-xs-6 col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter Keyword" id="myViafId" name="input">
+                    <div class="input-group-append">
+                        <button id="submit" class="btn btn-outline-primary" type="submit" value="Submit">Search</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-</div>
-
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="ViafIDCheck" checked>
+        <label class="form-check-label" for="ViafIDCheck">
+            SHow Viaf ID
+        </label>
+    </div>
+    <div id="#showresults">
+    </div>
+    <form>
+        <div style="display: flex; flex-direction: row; justify-content: center;">
+            <fieldset class="form-group">
+                <div class="row">
+                    <div style="flex-direction: column;">
+                        <legend class="col-form-label col-sm-2 pt-0">CSV Download</legend>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="CSVValues" id="CSV1" value="Yes">
+                                <label class="form-check-label" for="CSV1">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="CSVValues" id="CSV2" value="No" checked>
+                                <label class="form-check-label" for="CSV2">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div style="flex-direction: column;">
+                        <legend class="col-form-label col-sm-2 pt-0">Depth</legend>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="DepthRadios" id="Depth1" value="Single" checked>
+                                <label class="form-check-label" for="Depth1">
+                                    Single
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="DepthRadios" id="Depth2" value="Full">
+                                <label class="form-check-label" for="Depth2">
+                                    Full
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <br>
+            <fieldset class="form-group">
+                <div class="row">
+                    <div style="flex-direction: column;">
+                        <legend class="col-form-label col-sm-2 pt-0">Source Options</legend>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SourceLib1" id="LibSrc" value="Library" checked>
+                                <label class="form-check-label" for="CSV1">
+                                    Library
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SourceLib2" id="ViafSrc" value="Viaf" checked>
+                                <label class="form-check-label" for="CSV2">
+                                    VIAF
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SourceLib3" id="OCLCSrc" value="Oclc">
+                                <label class="form-check-label" for="CSV2">
+                                    OCLC
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div style="flex-direction: column;">
+                        <legend class="col-form-label col-sm-2 pt-0">Display Output</legend>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="OutputDisplay" id="GraphOutput" value="Graph" checked>
+                                <label class="form-check-label" for="Depth1">
+                                    Graph
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="OutputDisplay" id="JsonOutput" value="JSON">
+                                <label class="form-check-label" for="Depth2">
+                                    JSON
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </form>
 </body>
+
 </html>
