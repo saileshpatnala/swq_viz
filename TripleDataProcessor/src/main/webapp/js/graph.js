@@ -25,55 +25,82 @@ var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
 
-d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, obj) {
+// var graphJSON;
+// jQuery.ajax({
+//     type: "GET",
+//     url: "http://localhost:8080/TripleDataProcessor/webapi/myresource",
+//     success: function(resp) {
+//         graphJSON = resp;
+//     },
+//     async: false // setting async value allows the global variable to be set
+// });
+
+d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
     if (error) throw error;
 
     var links = [];
     var nodes = [];
     var graph = {};
 
-    Object.keys(obj).forEach(function(key){
-        var triples = obj[key];
-        triples.forEach(function(key){
-        var triple = {};
-        triple["source"] = key.subject.value;
-        triple["target"] = key.object.value;
-        triple["predicate"] = key.predicate.value;
-        triple["value"] = 1;
-        links.push(triple);
+    createGraphJSON(json, nodes, links);
 
-        var node = {};
-        node["id"] = key.subject.value;
-        node["group"] = 1;
-        nodes.push(node);
-        node = {};
-        node["id"] = key.object.value;
-        node["group"] = 1;
-        nodes.push(node);
-        });
-    });
-
-    function removeDuplicates(originalArray, prop) {
-        var newArray = [];
-        var lookupObject  = {};
-
-        for(var i in originalArray) {
-        lookupObject[originalArray[i][prop]] = originalArray[i];
-        }
-
-        for(i in lookupObject) {
-            newArray.push(lookupObject[i]);
-        }
-        return newArray;
-    }
-
-    var nodes = removeDuplicates(nodes, "id");
+    nodes = removeDuplicates(nodes, "id");
 
     graph["nodes"] = nodes;
     graph["links"] = links;
 
     update(graph.links, graph.nodes);
-})
+});
+
+function parsePredicateValue(predicateURI) {
+    var lenURI = predicateURI.length;
+    var pos = predicateURI.search("#");
+    if (pos === -1) {
+        pos = predicateURI.lastIndexOf("/");
+    }
+    var predicate = predicateURI.substr(pos+1, lenURI);
+    return predicate
+}
+
+function createGraphJSON(json, nodes, links) {
+    Object.keys(json).forEach(function(key){
+        var triples = json[key];
+        triples.forEach(function(key){
+            var triple = {};
+            triple["source"] = key.subject.value;
+            triple["target"] = key.object.value;
+            // call to parse and extract predicate value
+            triple["predicate"] = parsePredicateValue(key.predicate.value);
+            triple["value"] = 1;
+            if (!(triple["predicate"] === "label" || triple["predicate"] === "sameAs")) {
+                links.push(triple);
+
+                var node = {};
+                node["id"] = key.subject.value;
+                node["group"] = 1;
+                nodes.push(node);
+                node = {};
+                node["id"] = key.object.value;
+                node["group"] = 1;
+                nodes.push(node);
+            }
+        });
+    });
+}
+
+function removeDuplicates(originalArray, prop) {
+    var newArray = [];
+    var lookupObject  = {};
+
+    for(var i in originalArray) {
+        lookupObject[originalArray[i][prop]] = originalArray[i];
+    }
+
+    for(i in lookupObject) {
+        newArray.push(lookupObject[i]);
+    }
+    return newArray;
+}
 
 function update(links, nodes) {
     
@@ -82,7 +109,7 @@ function update(links, nodes) {
         .enter()
         .append("line")
         .attr("class", "link")
-        .attr('marker-end','url(#arrowhead)')
+        .attr('marker-end','url(#arrowhead)');
 
     edgepaths = svg.selectAll(".edgepath")
         .data(links)
