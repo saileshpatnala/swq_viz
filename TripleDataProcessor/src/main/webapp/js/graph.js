@@ -62,6 +62,8 @@ function parsePredicateValue(predicateURI) {
     return predicate
 }
 
+var URIs = [];
+
 function createGraphJSON(json, nodes, links) {
     Object.keys(json).forEach(function(key){
         var triples = json[key];
@@ -77,15 +79,22 @@ function createGraphJSON(json, nodes, links) {
 
                 var node = {};
                 node["id"] = key.subject.value;
+                if (key.subject.type === "uri") {
+                    URIs.push(key.subject.value);
+                }
                 node["group"] = 1;
                 nodes.push(node);
                 node = {};
                 node["id"] = key.object.value;
+                if (key.object.type === "uri") {
+                    URIs.push(key.object.value);
+                }
                 node["group"] = 1;
                 nodes.push(node);
             }
         });
     });
+    console.log(URIs);
 }
 
 function removeDuplicates(originalArray, prop) {
