@@ -14,6 +14,7 @@ This branch produces a local semantic web application. Currently, you are able t
 * go to a browser and type `http://localhost:8080/TripleDataProcessor/webapi/search` for search UI, which will redirect to `/myresource` to display D3
 * `http://localhost:8080/TripleDataProcessor/webapi/myresource` for raw triples of returned query
 * `http://localhost:8080/TripleDataProcessor/webapi/myresource` for D3 display 
+* If error 500 (Server issue), run `mvn install` then `mvn clean` to download all dependencies
 
 ## Expected Output
 * should see D3 display based on user given input in search bar 

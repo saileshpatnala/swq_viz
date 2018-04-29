@@ -40,18 +40,34 @@ public class Helper {
 		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
 	}
 	
-	public static String generate_library_query(String input) {
-		// Wiki endpoint
-		// String url =
-		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// Jena Endpoint
-		// String url =
-		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// VIAF Endpoint
-		// String url =
-		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
+	// public static String generate_library_query(String input) {
+	// 	// Wiki endpoint
+	// 	// String url =
+	// 	// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+	// 	// Jena Endpoint
+	// 	// String url =
+	// 	// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
+	// 	// VIAF Endpoint
+	// 	// String url =
+	// 	// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
 
-		// Jena Endpoint for specific search
+	// 	// Jena Endpoint for specific search
+	// 	input = "%22"+input.replaceAll(" ", "%20")+"%22";
+	// 	String url = 
+	// 	"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+
+	// 	return url;
+	// }
+
+	// Get library ID from viaf src ID 
+	public static String generate_library_query(String input) {
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String libraryIDinput = "http://localhost:3030/ds/sparql?query=select+?subject+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+%22alma%22)+%26%26+REGEX(STR(?object),+"+input+"+)+)+}";
+		System.out.println("library ID: " + libraryIDinput);
+		return libraryIDinput;
+	}
+
+	public static String generate_final_query(String input) {
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
@@ -87,7 +103,17 @@ public class Helper {
 		
 		return libraryInput;
 	}
-	
+
+	public static String parserLibraryQuery(String input) throws IOException {
+		String finalInput = "";
+
+		finalInput = input.substring(170, input.length()-19);
+		System.out.println("finalInput: " + finalInput);
+
+		return finalInput;
+
+	}
+
 	public static String parserReconcile(String input) throws IOException {
 		String output = "";
 		String url = generate_reconcile_query(input);
