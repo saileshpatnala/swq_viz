@@ -4,6 +4,8 @@ var svg = d3.select("svg"),
 		node,
 		link;
 
+var width="80vw", height="90vh";
+
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 svg.append('defs').append('marker')
@@ -68,11 +70,52 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function 
     }
 
     var nodes = removeDuplicates(nodes, "id");
+    var baseNodes = [...nodes]
+    var baseLinks = [...links]
 
     graph["nodes"] = nodes;
     graph["links"] = links;
 
     update(graph.links, graph.nodes);
+
+    var triple = {};
+        triple["source"] = "a";
+        triple["target"] = nodes[1].id;
+        triple["predicate"] = "letter";
+        triple["value"] = 1;
+        baseLinks.push(triple);
+
+        var node = {};
+        node["id"] = "a";
+        node["group"] = 1;
+        baseNodes.push(node);
+
+    graph["nodes"] = baseNodes;
+    graph["links"] = baseLinks;
+
+    setTimeout(function() {
+    update(graph.links, graph.nodes);
+}, 12000);
+
+var triple = {};
+        triple["source"] = "b";
+        triple["target"] = nodes[0].id;
+        triple["predicate"] = "letter";
+        triple["value"] = 1;
+        baseLinks.push(triple);
+
+        var node = {};
+        node["id"] = "b";
+        node["group"] = 1;
+        baseNodes.push(node);
+
+    graph["nodes"] = baseNodes;
+    graph["links"] = baseLinks;
+
+    setTimeout(function() {
+    update(graph.links, graph.nodes);
+}, 20000);
+    
 })
 
 function update(links, nodes) {
