@@ -61,15 +61,16 @@ public class MyResource {
 		String result = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
+
 			viafInput = Helper.parserViaf(input);
 			libraryInput = Helper.generate_library_query(viafInput);
 			libraryQuery = Helper.query(libraryInput);
 			libraryID = Helper.parserLibraryQuery(libraryQuery);
 			url = Helper.generate_final_query(libraryID);
 			result = Helper.query(url);
-			System.out.println("result2_print: " + result2);
+			System.out.println("result2_print: " + result);
 
-			Data data = new Data(result2, ENDPOINT_TYPE.library);
+			Data data = new Data(result, ENDPOINT_TYPE.library);
 			jsonObject = data.constructJSON(input);
 
 		}
