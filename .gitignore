@@ -3,3 +3,5 @@
 .classpath
 .project
 .settings/*
+.idea/*
+TripleDataProcessor/src/main/main.iml
