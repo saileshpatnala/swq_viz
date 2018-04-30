@@ -1,7 +1,7 @@
-package org.ECS193.TripleDataProcessor;
+package org.ECS193.TripleDataProcessor.data;
 import java.util.ArrayList;
 
-import org.ECS193.TripleDataProcessor.EndPoint.ENDPOINT_TYPE;
+import org.ECS193.TripleDataProcessor.data.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

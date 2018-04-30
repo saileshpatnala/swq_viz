@@ -1,6 +1,6 @@
-package org.ECS193.TripleDataProcessor;
+package org.ECS193.TripleDataProcessor.data;
 
-import org.ECS193.TripleDataProcessor.TripleElement.TYPE;
+import org.ECS193.TripleDataProcessor.data.TripleElement.TYPE;
 
 public class Triple {
 	private TripleElement subject;

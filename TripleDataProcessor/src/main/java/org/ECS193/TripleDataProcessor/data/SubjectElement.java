@@ -1,4 +1,4 @@
-package org.ECS193.TripleDataProcessor;
+package org.ECS193.TripleDataProcessor.data;
 
 public class SubjectElement extends TripleElement{
 	
