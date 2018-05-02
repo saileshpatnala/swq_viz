@@ -50,7 +50,43 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function 
     graph["links"] = links;
 
     update(graph.links, graph.nodes);
+
+    setTimeout(function() {console.log("waiting")}, 5000);
+
+    requery();
 });
+
+function requery() {
+    while(URIs.length > 0) {
+        console.log(URIs[0]);
+        var nodes = [];
+        var links = [];
+        var graph = {};
+        jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/query",
+            data: URIs[0],
+            contentType: "application/json",
+            success:
+                function (json) {
+                    console.log(json);
+                    createGraphJSON(json, nodes, links);
+
+                    graph["nodes"] = nodes;
+                    graph["links"] = links;
+
+                    nodes = removeDuplicates(nodes, "id");
+
+                    update(graph.links, graph.nodes);
+
+                    setTimeout(function () {
+                        console.log("waiting");
+                    }, 5000);
+                }
+        });
+        URIs.pop();
+    }
+}
 
 function parsePredicateValue(predicateURI) {
     var lenURI = predicateURI.length;
@@ -64,9 +100,19 @@ function parsePredicateValue(predicateURI) {
 
 var URIs = [];
 
+function doesExist(stringArray, string) {
+    stringArray.forEach(function(item) {
+        if (item == string) {
+            return 1;
+        }
+    });
+    return 0;
+}
+
 function createGraphJSON(json, nodes, links) {
     Object.keys(json).forEach(function(key){
         var triples = json[key];
+        var searchParameter = key;
         triples.forEach(function(key){
             var triple = {};
             triple["source"] = key.subject.value;
@@ -80,21 +126,24 @@ function createGraphJSON(json, nodes, links) {
                 var node = {};
                 node["id"] = key.subject.value;
                 if (key.subject.type === "uri") {
-                    URIs.push(key.subject.value);
+                    if (!doesExist(URIs, key.subject.value)) {
+                        URIs.push(key.subject.value);
+                    }
                 }
                 node["group"] = 1;
                 nodes.push(node);
                 node = {};
                 node["id"] = key.object.value;
                 if (key.object.type === "uri") {
-                    URIs.push(key.object.value);
+                    if (!doesExist(URIs, key.object.value)) {
+                        URIs.push(key.object.value);
+                    }
                 }
                 node["group"] = 1;
                 nodes.push(node);
             }
         });
     });
-    console.log(URIs);
 }
 
 function removeDuplicates(originalArray, prop) {
