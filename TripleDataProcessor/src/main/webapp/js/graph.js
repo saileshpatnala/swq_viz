@@ -35,6 +35,9 @@ var simulation = d3.forceSimulation()
 //     async: false // setting async value allows the global variable to be set
 // });
 
+var baseNodes = [];
+var baseLinks = [];
+
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
     if (error) throw error;
 
@@ -45,14 +48,20 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function 
     createGraphJSON(json, nodes, links);
 
     nodes = removeDuplicates(nodes, "id");
+    baseNodes = nodes;
+    baseLinks = links;
 
-    graph["nodes"] = nodes;
-    graph["links"] = links;
+    console.log("nodes");
+    console.log(nodes);
+    
+    graph["nodes"] = baseNodes;
+    graph["links"] = baseLinks;
 
     update(graph.links, graph.nodes);
 
     setTimeout(function() {console.log("waiting")}, 5000);
 
+    requery();
     requery();
 });
 
@@ -72,10 +81,17 @@ function requery() {
                     console.log(json);
                     createGraphJSON(json, nodes, links);
 
-                    graph["nodes"] = nodes;
-                    graph["links"] = links;
+                    baseNodes.concat(nodes);
+                    baseLinks.concat(links);
 
-                    nodes = removeDuplicates(nodes, "id");
+                    console.log("nodes1");
+                    console.log(baseLinks);
+                    // baseNodes = removeDuplicates(baseNodes, "id");
+                    console.log("nodes2");
+                    console.log(baseLinks);
+                        
+                    graph["nodes"] = baseNodes;
+                    graph["links"] = baseLinks;
 
                     update(graph.links, graph.nodes);
 
@@ -121,7 +137,7 @@ function createGraphJSON(json, nodes, links) {
             triple["predicate"] = parsePredicateValue(key.predicate.value);
             triple["value"] = 1;
             if (!(triple["predicate"] === "label" || triple["predicate"] === "sameAs")) {
-                links.push(triple);
+                baseLinks.push(triple);
 
                 var node = {};
                 node["id"] = key.subject.value;
@@ -131,7 +147,7 @@ function createGraphJSON(json, nodes, links) {
                     }
                 }
                 node["group"] = 1;
-                nodes.push(node);
+                baseNodes.push(node);
                 node = {};
                 node["id"] = key.object.value;
                 if (key.object.type === "uri") {
@@ -140,7 +156,7 @@ function createGraphJSON(json, nodes, links) {
                     }
                 }
                 node["group"] = 1;
-                nodes.push(node);
+                baseNodes.push(node);
             }
         });
     });
@@ -149,10 +165,15 @@ function createGraphJSON(json, nodes, links) {
 function removeDuplicates(originalArray, prop) {
     var newArray = [];
     var lookupObject  = {};
+ 
 
     for(var i in originalArray) {
         lookupObject[originalArray[i][prop]] = originalArray[i];
     }
+if(originalArray[0]){
+    console.log("orgAr0");
+    console.log(originalArray[0].id);
+}
 
     for(i in lookupObject) {
         newArray.push(lookupObject[i]);
