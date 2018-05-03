@@ -32,24 +32,26 @@ public class Helper {
 		return resp.toString();
 	}
 	
-	// PREFIX passagedt: <http://18.218.102.193/prop/direct/>
-	// PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-	// PREFIX passagee: <http://18.218.102.193/entity/>
-	// PREFIX wikibase: <http://wikiba.se/ontology#>
-	// PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	/*
+		PREFIX passagedt: <http://18.218.102.193/prop/direct/>
+		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX passagee: <http://18.218.102.193/entity/>
+		PREFIX wikibase: <http://wikiba.se/ontology#>
+		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-	// SELECT ?personURL ?viafID ?locID ?wikiID ?fastID ?isniID ?imdbID ?author 
-	// WHERE {
-	//   ?personURL passagedt:P5 passagee:Q7;
-	//              passagedt:P6 ?viafID;
-	//              passagedt:P105 ?locID; 
-	//              passagedt:P8 ?wikiID; 
-	//              passagedt:P7 ?fastID; 
-	//              passagedt:P40 ?isniID; 
-	//              passagedt:P116 ?imdbID; 
-	//              rdfs:label ?author.
-	//  FILTER(LANG(?author)="en" && REGEX(STR(?locID),"n79032879")).
-	// }
+		SELECT ?personURL ?viafID ?locID ?wikiID ?fastID ?isniID ?imdbID ?author 
+		WHERE {
+		  ?personURL passagedt:P5 passagee:Q7;
+		             passagedt:P6 ?viafID;
+		             passagedt:P105 ?locID; 
+		             passagedt:P8 ?wikiID; 
+		             passagedt:P7 ?fastID; 
+		             passagedt:P40 ?isniID; 
+		             passagedt:P116 ?imdbID; 
+		             rdfs:label ?author.
+		 FILTER(LANG(?author)="en" && REGEX(STR(?locID),"n79032879")).
+		}
+	*/
 
 	// NOTE: generates mapped URIs (above) from reconciler DB for a specific library of congress ID from library DS. If you want output in xml, get rid of &format=json
 	// OUTPUT: JSON data of all IDs 
@@ -57,24 +59,26 @@ public class Helper {
 		return "http://query.projectpassage.org/sparql/?query=PREFIX%20passagedt%3A%20%3Chttp%3A%2F%2F18.218.102.193%2Fprop%2Fdirect%2F%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20passagee%3A%20%3Chttp%3A%2F%2F18.218.102.193%2Fentity%2F%3E%0APREFIX%20wikibase%3A%20%3Chttp%3A%2F%2Fwikiba.se%2Fontology%23%3E%0APREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0A%0ASELECT%20%3FpersonURL%20%3FviafID%20%3FlocID%20%3FwikiID%20%3FfastID%20%3FisniID%20%3FimdbID%20%3Fauthor%20WHERE%20%7B%3FpersonURL%20passagedt%3AP5%20passagee%3AQ7%3B%0A%20passagedt%3AP6%20%3FviafID%3B%20passagedt%3AP105%20%3FlocID%3B%20passagedt%3AP8%20%3FwikiID%3B%20passagedt%3AP7%20%3FfastID%3B%20passagedt%3AP40%20%3FisniID%3B%20passagedt%3AP116%20%3FimdbID%3B%20rdfs%3Alabel%20%3Fauthor.%0A%20FILTER%28LANG%28%3Fauthor%29%3D%22en%22%20%26%26%20REGEX%28STR%28%3FlocID%29%2C%22"+loc_id+"%22%29%29.%0A%7D&format=json";
 	}
 
-	// PREFIX passagedt: <http://18.218.102.193/prop/direct/>
-	// PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-	// PREFIX passagee: <http://18.218.102.193/entity/>
-	// PREFIX wikibase: <http://wikiba.se/ontology#>
-	// PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	/*
+		PREFIX passagedt: <http://18.218.102.193/prop/direct/>
+		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX passagee: <http://18.218.102.193/entity/>
+		PREFIX wikibase: <http://wikiba.se/ontology#>
+		PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-	// SELECT ?personURL ?viafID ?locID ?wikiID ?fastID ?isniID ?imdbID ?author
-	// WHERE {
-	//          ?personURL passagedt:P5 passagee:Q7;
-	//           passagedt:P6 ?viafID;
-	//           passagedt:P105 ?locID;
-	//           passagedt:P8 ?wikiID;
-	//           passagedt:P7 ?fastID;
-	//           passagedt:P40 ?isniID;
-	//           passagedt:P116 ?imdbID;
-	//           rdfs:label ?author.
-	//   FILTER(LANG(?author)="en")
-	// }
+		SELECT ?personURL ?viafID ?locID ?wikiID ?fastID ?isniID ?imdbID ?author
+		WHERE {
+		         ?personURL passagedt:P5 passagee:Q7;
+		          passagedt:P6 ?viafID;
+		          passagedt:P105 ?locID;
+		          passagedt:P8 ?wikiID;
+		          passagedt:P7 ?fastID;
+		          passagedt:P40 ?isniID;
+		          passagedt:P116 ?imdbID;
+		          rdfs:label ?author.
+		  FILTER(LANG(?author)="en")
+		}
+	*/
 
 	// NOTE: will generate all authors and mapped IDs (above) from reconciler DB. If you want output in xml, get rid of &format=json
 	// OUTPUT: JSON data of all IDs 
@@ -82,12 +86,13 @@ public class Helper {
 		return "http://query.projectpassage.org/sparql/?query=PREFIX%20passagedt%3A%20%3Chttp%3A%2F%2F18.218.102.193%2Fprop%2Fdirect%2F%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20passagee%3A%20%3Chttp%3A%2F%2F18.218.102.193%2Fentity%2F%3E%0APREFIX%20wikibase%3A%20%3Chttp%3A%2F%2Fwikiba.se%2Fontology%23%3E%0APREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0ASELECT%20%3FpersonURL%20%3FviafID%20%3FlocID%20%3FwikiID%20%3FfastID%20%3FisniID%20%3FimdbID%20%3Fauthor%20WHERE%20%7B%3FpersonURL%20passagedt%3AP5%20passagee%3AQ7%3B%20passagedt%3AP6%20%3FviafID%3B%20passagedt%3AP105%20%3FlocID%3B%20passagedt%3AP8%20%3FwikiID%3B%0A%20passagedt%3AP7%20%3FfastID%3B%20passagedt%3AP40%20%3FisniID%3B%20passagedt%3AP116%20%3FimdbID%3B%20rdfs%3Alabel%20%3Fauthor.%20FILTER%28LANG%28%3Fauthor%29%3D%22en%22%29%7D%0A%0A%0A&format=json";
 	}
 
+	// generate proper URI to query and get jsonld data from
 	public static String generate_URI(String type, String id) {
 		id = input.replaceAll(" ", "%20"); 
 		
 		// VIAF ID
 		if type == "viafID" {
-			return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+			return "http://viaf.org/viaf/" + id;
 		}
 
 		// Library of Congress ID
@@ -110,17 +115,59 @@ public class Helper {
 		elif type == "isniID" {
 			return "http://www.isni.org/" + id;
 		}
+
+		// OCLC ID 
 		else {
-			// OCLC ID 
-			return "http://www.worldcat.org/oclc/" + id + ".jsonld";
-			// for n-triples 
-			// return "http://www.worldcat.org/oclc/" + id + ".nt";
+			return "http://www.worldcat.org/oclc/" + id;
 		}
 
 	}
 	
-	public static String generate_viaf_query(String id) {
-		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+	// public static String generate_viaf_query(String id) {
+	// 	return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+	// }
+
+	// NOTE: returning data in n-triples, except for VIAF
+	public static String generate_URI_query(string uri) {
+		id = input.replaceAll(" ", "%20"); 
+		
+		// VIAF ID
+		if type == "viafID" {
+			return "http://viaf.org/viaf/" + id + "/viaf.jsonld"; 
+		}
+
+		// Library of Congress ID
+		elif type == "locID" {
+			return "http://id.loc.gov/authorities/names/" + id + ".nt";
+			// if you want json replace ".nt" with ".json"
+		}
+
+		// Wiki Data ID
+		// SOURCE: https://www.wikidata.org/wiki/Wikidata:Data_access
+		elif type == "wikiID" {
+			return "https://www.wikidata.org/wiki/Special:EntityData/" + id + ".nt"; 
+			// this will download a file instead of displaying it 
+			// if you want json replace ".nt" with ".json"
+		}
+
+		/* UNAVAILABLE */
+		// // FAST ID
+		// elif type == "fastID" {
+		// 	return "http://id.worldcat.org/fast/" + id;
+
+		// }
+
+		// // ISNI ID
+		// elif type == "isniID" {
+		// 	return "http://www.isni.org/isni/" + id;
+		// }
+
+		// OCLC ID 
+		else {
+			return "http://www.worldcat.org/oclc/" + id + ".nt";
+			// if you want in jsonld replace ".nt" with ".jsonld"
+		}
+
 	}
 	
 	// public static String generate_library_query(String input) {
@@ -160,7 +207,7 @@ public class Helper {
 	
 	public static String parserViaf(String id) throws IOException {
 		String libraryInput = "";
-		String url = generate_viaf_query(id);
+		String url = generate_URI_query(id);
 		String rawJSON = query(url);
 		
 		JSONObject temp;
@@ -199,7 +246,7 @@ public class Helper {
 
 	public static String parserReconcile(String input) throws IOException {
 		String output = "";
-		String url = generate_reconciler_query(input);
+		String url = generate_reconciler_query(input); // input = locID
 		String rawJSON = query(url);
 		
 		
