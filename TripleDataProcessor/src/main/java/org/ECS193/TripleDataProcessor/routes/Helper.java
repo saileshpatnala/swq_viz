@@ -91,28 +91,28 @@ public class Helper {
 		id = input.replaceAll(" ", "%20"); 
 		
 		// VIAF ID
-		if type == "viafID" {
+		if (type == "viafID") {
 			return "http://viaf.org/viaf/" + id;
 		}
 
 		// Library of Congress ID
-		elif type == "locID" {
+		else if (type == "locID") {
 			return "http://id.loc.gov/authorities/names/" + id;
 		}
 
 		// Wiki Data ID
-		elif type == "wikiID" {
+		else if (type == "wikiID") {
 			return "http://www.wikidata.org/entity/" + id;
 		}
 
 		// FAST ID
-		elif type == "fastID" {
+		else if (type == "fastID") {
 			return "http://id.worldcat.org/fast/" + id;
 
 		}
 
 		// ISNI ID
-		elif type == "isniID" {
+		else if (type == "isniID") {
 			return "http://www.isni.org/" + id;
 		}
 
@@ -137,14 +137,14 @@ public class Helper {
 		}
 
 		// Library of Congress ID
-		elif type == "locID" {
+		else if (type == "locID") {
 			return "http://id.loc.gov/authorities/names/" + id + ".nt";
 			// if you want json replace ".nt" with ".json"
 		}
 
 		// Wiki Data ID
 		// SOURCE: https://www.wikidata.org/wiki/Wikidata:Data_access
-		elif type == "wikiID" {
+		else if (type == "wikiID") {
 			return "https://www.wikidata.org/wiki/Special:EntityData/" + id + ".nt"; 
 			// this will download a file instead of displaying it 
 			// if you want json replace ".nt" with ".json"
