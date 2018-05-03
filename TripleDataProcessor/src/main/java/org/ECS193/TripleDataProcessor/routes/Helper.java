@@ -248,9 +248,13 @@ public class Helper {
 		String output = "";
 		String url = generate_reconciler_query(input); // input = locID
 		String rawJSON = query(url);
-		
-		
+
 		JSONObject jsonObject = new JSONObject(rawJSON);
+
+		// @Mithun: parse through JSONObject and pass in each "value" and ID object into below calls
+
+			String uri = generate_URI(type_id, id);
+			String uri_query = generate_URI_query(uri);
 		
 		
 		return "";
