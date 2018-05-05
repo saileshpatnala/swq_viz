@@ -44,7 +44,26 @@ public class Helper {
 
 	
 	public static String generate_viaf_query(String id) {
+		id = id.replaceAll(" ", "%20"); 
 		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
+	}
+	
+	public static String generate_wiki_query(String id) {
+		// SOURCE: https://www.wikidata.org/wiki/Wikidata:Data_access
+		id = id.replaceAll(" ", "%20"); 
+		return "https://www.wikidata.org/wiki/Special:EntityData/" + id + ".nt"; 
+	}
+	
+	public static String generate_lc_query(String id) {
+		// Library of Congress ID
+		id = id.replaceAll(" ", "%20"); 
+		return "http://id.loc.gov/authorities/names/" + id + ".nt";
+	}
+			
+	public static String generate_oclc_query(String id) {
+		// OCLC ID 
+		id = id.replaceAll(" ", "%20"); 
+		return "http://www.worldcat.org/oclc/" + id + ".nt";
 	}
 	
 	public static String generate_library_query(String input) {
@@ -54,9 +73,6 @@ public class Helper {
 		// Jena Endpoint
 		// String url =
 		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// VIAF Endpoint
-		// String url =
-		// "http://viaf.org/viaf/search?query=cql.any+%3D+%22Chekhov%22&httpAccept=application/json";
 
 		// Jena Endpoint for specific search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
@@ -96,47 +112,24 @@ public class Helper {
 	}
 	
 	// NOTE: returning data in n-triples, except for VIAF
-		public static String generate_URI_query(String uri, String type) {
-			String id = uri.replaceAll(" ", "%20"); 
-			
-			// VIAF ID
-			if (type.equals("viafID")) {
-				return "http://viaf.org/viaf/" + id + "/viaf.jsonld"; 
-			}
+	public static String generate_URI_query(String uri, String type) {
+		String id = uri.replaceAll(" ", "%20"); 
 
-			// Library of Congress ID
-			else if (type.equals("locID")) {
-				return "http://id.loc.gov/authorities/names/" + id + ".nt";
-				// if you want json replace ".nt" with ".json"
-			}
+		/* UNAVAILABLE */
+		// // FAST ID
+		// elif type == "fastID" {
+		// 	return "http://id.worldcat.org/fast/" + id;
 
-			// Wiki Data ID
-			// SOURCE: https://www.wikidata.org/wiki/Wikidata:Data_access
-			else if (type.equals("wikiID")) {
-				return "https://www.wikidata.org/wiki/Special:EntityData/" + id + ".nt"; 
-				// this will download a file instead of displaying it 
-				// if you want json replace ".nt" with ".json"
-			}
+		// }
 
-			/* UNAVAILABLE */
-			// // FAST ID
-			// elif type == "fastID" {
-			// 	return "http://id.worldcat.org/fast/" + id;
+		// // ISNI ID
+		// elif type == "isniID" {
+		// 	return "http://www.isni.org/isni/" + id;
+		// }
+		
+		return "";
 
-			// }
-
-			// // ISNI ID
-			// elif type == "isniID" {
-			// 	return "http://www.isni.org/isni/" + id;
-			// }
-
-			// OCLC ID 
-			else {
-				return "http://www.worldcat.org/oclc/" + id + ".nt";
-				// if you want in jsonld replace ".nt" with ".jsonld"
-			}
-
-		}
+	}
 	
 	public static String parserReconcile(String input) throws IOException {
 		String output = "";
