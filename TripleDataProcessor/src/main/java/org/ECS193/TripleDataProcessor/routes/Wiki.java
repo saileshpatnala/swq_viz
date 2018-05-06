@@ -18,36 +18,33 @@ import org.ECS193.TripleDataProcessor.data.Data;
 import org.ECS193.TripleDataProcessor.data.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONObject;
 
-@Path("libraryofcongress")
-public class LibraryOfCongress {
+@Path("wiki")
+public class Wiki {
 
 	@POST   
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	public String post(String input) {
 		System.out.println("POST request: " + input);
+	  
+		return parserWiki(input);
+	}
+	
+	public static String parserWiki(String input) {
 		String output = "";
+		JSONObject jsonObject = new JSONObject();
+
 		try {
-			output = parserLC(input);
-		}
+			String url = Helper.generate_wiki_query(input);
+			String rawJSON = Helper.query(url);
+			
+			Data data = new Data(rawJSON, ENDPOINT_TYPE.wiki);
+			jsonObject = data.constructJSON(input);		
+		}	
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-	  
-		return output;
-		
-	}
-	
-	public static String parserLC(String input) throws IOException {
-		String output = "";
-		String url = Helper.generate_lc_query(input);
-		String rawJSON = Helper.query(url);
-		
-		
-		JSONObject jsonObject = new JSONObject(rawJSON);
-		
-		
-		return "";
+		return jsonObject.toString();
 	}
 	
 }
