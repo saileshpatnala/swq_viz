@@ -1,8 +1,6 @@
 var svg = d3.select("svg"),
 		width = +svg.attr("width"),
-		height = +svg.attr("height"),
-		node,
-		link;
+		height = +svg.attr("height");
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -25,69 +23,51 @@ var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
 
-// var graphJSON;
-// jQuery.ajax({
-//     type: "GET",
-//     url: "http://localhost:8080/TripleDataProcessor/webapi/myresource",
-//     success: function(resp) {
-//         graphJSON = resp;
-//     },
-//     async: false // setting async value allows the global variable to be set
-// });
+// initializing all global variables
+var URIs = [];
+var finalLinks = [];
+var finalNodes = [];
+var finalGraph = {};
 
-d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
-    if (error) throw error;
+// removing duplicate nodes to that they don't appear on the
+function removeDuplicateNodes(origNodeArray) {
+    var newNodes = [];
+    var lookupObject  = {};
 
-    var links = [];
-    var nodes = [];
-    var graph = {};
-
-    createGraphJSON(json, nodes, links);
-
-    nodes = removeDuplicates(nodes, "id");
-
-    graph["nodes"] = nodes;
-    graph["links"] = links;
-
-    update(graph.links, graph.nodes);
-
-    setTimeout(function() {console.log("waiting")}, 5000);
-
-    requery();
-});
-
-function requery() {
-    while(URIs.length > 0) {
-        console.log(URIs[0]);
-        var nodes = [];
-        var links = [];
-        var graph = {};
-        jQuery.ajax({
-            type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/query",
-            data: URIs[0],
-            contentType: "application/json",
-            success:
-                function (json) {
-                    console.log(json);
-                    createGraphJSON(json, nodes, links);
-
-                    graph["nodes"] = nodes;
-                    graph["links"] = links;
-
-                    nodes = removeDuplicates(nodes, "id");
-
-                    update(graph.links, graph.nodes);
-
-                    setTimeout(function () {
-                        console.log("waiting");
-                    }, 5000);
-                }
-        });
-        URIs.pop();
+    for(var i in origNodeArray) {
+        lookupObject[origNodeArray[i]["id"]] = origNodeArray[i];
     }
+
+    for(i in lookupObject) {
+        newNodes.push(lookupObject[i]);
+    }
+    return newNodes;
 }
 
+function doesLinkExist(linkArray, link) {
+    linkArray.forEach(function(item) {
+        if (item.source === link.source && item.target === link.target
+            && item.predicate === link.predicate) {
+            return 1;
+        }
+    });
+    return 0;
+}
+
+function removeDuplicateLinks(origLinkArray) {
+    var newLinks = [];
+
+    origLinkArray.forEach(function(linkObj) {
+        if (!doesLinkExist(newLinks, linkObj)) {
+            newLinks.push(linkObj);
+        }
+    });
+
+    return newLinks;
+}
+
+// converting the predicate URI into string
+// parsing the URI from last occurrence of # or /
 function parsePredicateValue(predicateURI) {
     var lenURI = predicateURI.length;
     var pos = predicateURI.search("#");
@@ -98,9 +78,10 @@ function parsePredicateValue(predicateURI) {
     return predicate
 }
 
-var URIs = [];
-
-function doesExist(stringArray, string) {
+// return 1 if string exists in array
+// return 0 if string doesn't exist in array
+// going to be used to avoid duplicates in URIs array
+function doesStringExist(stringArray, string) {
     stringArray.forEach(function(item) {
         if (item == string) {
             return 1;
@@ -109,6 +90,10 @@ function doesExist(stringArray, string) {
     return 0;
 }
 
+// convert the JSON returned from backend into new JSON for D3
+// involves removing duplicate links, nodes and appending to global
+// graph JSON properly
+// basically has the business logic for the aggregation
 function createGraphJSON(json, nodes, links) {
     Object.keys(json).forEach(function(key){
         var triples = json[key];
@@ -120,13 +105,13 @@ function createGraphJSON(json, nodes, links) {
             // call to parse and extract predicate value
             triple["predicate"] = parsePredicateValue(key.predicate.value);
             triple["value"] = 1;
-            if (!(triple["predicate"] === "label" || triple["predicate"] === "sameAs")) {
+            if (!(triple["predicate"] === "sameAs")){
                 links.push(triple);
 
                 var node = {};
                 node["id"] = key.subject.value;
                 if (key.subject.type === "uri") {
-                    if (!doesExist(URIs, key.subject.value)) {
+                    if (!doesStringExist(URIs, key.subject.value)) {
                         URIs.push(key.subject.value);
                     }
                 }
@@ -134,11 +119,11 @@ function createGraphJSON(json, nodes, links) {
                 nodes.push(node);
                 node = {};
                 node["id"] = key.object.value;
-                if (key.object.type === "uri") {
-                    if (!doesExist(URIs, key.object.value)) {
-                        URIs.push(key.object.value);
-                    }
-                }
+                // if (key.object.type === "uri") {
+                //     if (!doesExist(URIs, key.object.value)) {
+                //         URIs.push(key.object.value);
+                //     }
+                // }
                 node["group"] = 1;
                 nodes.push(node);
             }
@@ -146,22 +131,88 @@ function createGraphJSON(json, nodes, links) {
     });
 }
 
-function removeDuplicates(originalArray, prop) {
-    var newArray = [];
-    var lookupObject  = {};
+function restart(nodes, links) {
+    // Apply the general update pattern to the nodes.
+    node = node.data(nodes, function(d) { return d.id;});
+    node.exit().remove();
+    node = node.enter().append("circle").attr("fill", function(d) { return color(d.id); }).attr("r", 8).merge(node);
 
-    for(var i in originalArray) {
-        lookupObject[originalArray[i][prop]] = originalArray[i];
-    }
+    // Apply the general update pattern to the links.
+    link = link.data(links, function(d) { return d.source.id + "-" + d.target.id; });
+    link.exit().remove();
+    link = link.enter().append("line").merge(link);
 
-    for(i in lookupObject) {
-        newArray.push(lookupObject[i]);
-    }
-    return newArray;
+    // Update and restart the simulation.
+    simulation.nodes(nodes);
+    simulation.force("link").links(links);
+    simulation.alpha(1).restart();
 }
 
+function requery() {
+    while(URIs.length > 0) {
+        console.log(URIs[URIs.length-1]);
+        var newNodes = [];
+        var newLinks = [];
+        jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/query",
+            data: URIs.pop(),
+            contentType: "application/json",
+            success:
+                function (json) {
+                    console.log("POST successful");
+                    createGraphJSON(json, newNodes, newLinks);
+
+                    newNodes.forEach(function(node){
+                        finalNodes.push(node);
+                    });
+                    newLinks.forEach(function(link){
+                        finalLinks.push(link);
+                    });
+
+                    // console.log(newGraph);
+
+                    finalNodes = removeDuplicateNodes(finalNodes);
+                    finalLinks = removeDuplicateLinks(finalLinks);
+
+                    finalGraph["nodes"] = finalNodes;
+                    finalGraph["links"] = finalLinks;
+
+                    console.log(finalGraph);
+
+                    update(finalLinks, finalNodes)
+
+                    setTimeout(function () {
+                        console.log("waiting");
+                    }, 10000);
+                }
+        });
+    }
+}
+
+d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
+    if (error) throw error;
+
+    createGraphJSON(json, finalNodes, finalLinks);
+
+    finalNodes = removeDuplicateNodes(finalNodes);
+    finalLinks = removeDuplicateLinks(finalLinks);
+
+    finalGraph["nodes"] = finalNodes;
+    finalGraph["links"] = finalLinks;
+
+    console.log(finalGraph);
+    console.log(URIs);
+
+    update(finalGraph.links, finalGraph.nodes);
+
+    setTimeout(function() {}, 10000);
+
+    requery();
+});
+
 function update(links, nodes) {
-    
+
     link = svg.selectAll(".link")
         .data(links)
         .enter()
@@ -203,7 +254,7 @@ function update(links, nodes) {
         .call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
-                //.on("end", dragended)
+                // .on("end", dragended)
         );
 
     link.append("title")
@@ -229,7 +280,7 @@ function update(links, nodes) {
         .style("font-family", "sans-serif")
         .style("font-size", "0.7em")
         .text(function (d) {return d.id;});
-    
+
     simulation
         .nodes(nodes)
         .on("tick", ticked);
@@ -239,7 +290,7 @@ function update(links, nodes) {
 }
 
 function ticked() {
-    
+
     link
         .attr("x1", function (d) {return d.source.x;})
         .attr("y1", function (d) {return d.source.y;})
@@ -261,6 +312,8 @@ function ticked() {
             return 'rotate(0)';
         }
     });
+
+    svg.select()
 }
 
 function dragstarted(d) {
