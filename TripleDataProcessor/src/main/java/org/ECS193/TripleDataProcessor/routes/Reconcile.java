@@ -28,7 +28,7 @@ public class Reconcile {
 		System.out.println("POST request: " + input);
 		String output = "";
 		try {
-			output = Helper.parserReconcile(input);
+			output = parserReconcile(input);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -36,6 +36,17 @@ public class Reconcile {
 	  
 		return output;
 		
+	}
+	
+	public static String parserReconcile(String input) throws IOException {
+		String output = "";
+		String url = Helper.generate_reconcile_query();
+		String rawJSON = Helper.query(url);
+		
+		
+		JSONObject jsonObject = new JSONObject(rawJSON);
+		
+		return "";
 	}
 	
 }

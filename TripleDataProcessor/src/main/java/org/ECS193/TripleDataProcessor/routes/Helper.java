@@ -130,16 +130,4 @@ public class Helper {
 		return "";
 
 	}
-	
-	public static String parserReconcile(String input) throws IOException {
-		String output = "";
-		String url = generate_reconcile_query();
-		String rawJSON = query(url);
-		
-		
-		JSONObject jsonObject = new JSONObject(rawJSON);
-		
-		
-		return "";
-	}
 }

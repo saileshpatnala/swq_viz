@@ -10,22 +10,22 @@ import org.ECS193.TripleDataProcessor.data.Data;
 import org.ECS193.TripleDataProcessor.data.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONObject;
 
-@Path("query")
-public class Query {
+@Path("library")
+public class Library {
 	
 	@POST   
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String post(String uri) {
-		System.out.println("POST request: " + uri);
+	public String post(String input) {
+		System.out.println("POST request: " + input);
 		String result = "";
 		String url = "";
 		JSONObject jsonObject = new JSONObject();
 		try {
-			url = Helper.generate_library_query(uri);
+			url = Helper.generate_library_query(input);
 			result = Helper.query(url);
 			Data data = new Data(result, ENDPOINT_TYPE.library);
-			jsonObject = data.constructJSON(uri);
+			jsonObject = data.constructJSON(input);
 
 		}
 		catch(Exception e) {
