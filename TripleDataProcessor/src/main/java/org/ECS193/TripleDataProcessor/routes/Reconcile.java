@@ -59,11 +59,15 @@ public class Reconcile {
         for(int i = 0; i < endPoints.length(); i++) {
             	
         		if(possiblePoints.contains(endPoints.get(i))) {
-        			JSONObject temp = new JSONObject();
+        			JSONObject temp = new JSONObject();        			JSONObject temp = new JSONObject();
+        			JSONObject temp2 = new JSONObject();
+
         			String key = endPoints.get(i).toString();
-        			String value = bindingPoints.getJSONObject(i).get("value").toString();
-        			temp.put(key, value);
-        			array.put(temp);
+        			temp = (JSONObject) bindingPoints.get(i);
+        			String value = temp.getString("value");
+        					        					
+        			temp2.put(key, value);
+        			array.put(temp2);
         		}
         }
         jsonOut.put("Reconciler", array);
