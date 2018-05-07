@@ -25,23 +25,20 @@ var simulation = d3.forceSimulation()
 
 // initializing all global variables
 var URIs = [];
-var finalLinks = [];
-var finalNodes = [];
-var finalGraph = {};
 
-// removing duplicate nodes to that they don't appear on the
-function removeDuplicateNodes(origNodeArray) {
-    var newNodes = [];
+// returns new list of nodes that doesn't contain any duplicates
+function removeDuplicateNodes(originalArray) {
+    var newArray = [];
     var lookupObject  = {};
 
-    for(var i in origNodeArray) {
-        lookupObject[origNodeArray[i]["id"]] = origNodeArray[i];
+    for(var i in originalArray) {
+        lookupObject[originalArray[i]["id"]] = originalArray[i];
     }
 
     for(i in lookupObject) {
-        newNodes.push(lookupObject[i]);
+        newArray.push(lookupObject[i]);
     }
-    return newNodes;
+    return newArray;
 }
 
 function doesLinkExist(linkArray, link) {
@@ -54,16 +51,27 @@ function doesLinkExist(linkArray, link) {
     return 0;
 }
 
-function removeDuplicateLinks(origLinkArray) {
-    var newLinks = [];
-
-    origLinkArray.forEach(function(linkObj) {
-        if (!doesLinkExist(newLinks, linkObj)) {
-            newLinks.push(linkObj);
+function doesNodeExist(nodeArray, node) {
+    if (nodeArray.length === 0) {
+        return 0;
+    }
+    nodeArray.forEach(function(item) {
+        if (item.id === node.id) {
+            return 1;
         }
     });
+    return 0;
+}
 
-    return newLinks;
+// returns new list of links that does not contain duplicates
+function removeDuplicateLinks(origLinkArray) {
+
+    var filtered = origLinkArray.filter(function (a) {
+        return a.source !== this.source && a.target !== this.target
+            && a.predicate !== this.predicate;
+    });
+
+    return filtered;
 }
 
 // converting the predicate URI into string
@@ -83,7 +91,7 @@ function parsePredicateValue(predicateURI) {
 // going to be used to avoid duplicates in URIs array
 function doesStringExist(stringArray, string) {
     stringArray.forEach(function(item) {
-        if (item == string) {
+        if (item === string) {
             return 1;
         }
     });
@@ -94,7 +102,10 @@ function doesStringExist(stringArray, string) {
 // involves removing duplicate links, nodes and appending to global
 // graph JSON properly
 // basically has the business logic for the aggregation
-function createGraphJSON(json, nodes, links) {
+function createGraph(json) {
+    var nodes = [];
+    var links = [];
+    var graph = {};
     Object.keys(json).forEach(function(key){
         var triples = json[key];
         var searchParameter = key;
@@ -111,7 +122,7 @@ function createGraphJSON(json, nodes, links) {
                 var node = {};
                 node["id"] = key.subject.value;
                 if (key.subject.type === "uri") {
-                    if (!doesStringExist(URIs, key.subject.value)) {
+                    if (URIs.indexOf(key.subject.value) === -1) {
                         URIs.push(key.subject.value);
                     }
                 }
@@ -129,86 +140,84 @@ function createGraphJSON(json, nodes, links) {
             }
         });
     });
+
+    nodes = removeDuplicateNodes(nodes);
+    links = removeDuplicateLinks(links);
+
+    graph["nodes"] = nodes;
+    graph["links"] = links;
+    return graph;
 }
 
-function restart(nodes, links) {
-    // Apply the general update pattern to the nodes.
-    node = node.data(nodes, function(d) { return d.id;});
-    node.exit().remove();
-    node = node.enter().append("circle").attr("fill", function(d) { return color(d.id); }).attr("r", 8).merge(node);
+function concatGraph(origGraph, newGraph) {
+    var concatGraph = {};
+    var baseLinks = origGraph.links;
+    var baseNodes = origGraph.nodes;
+    var newLinks = newGraph.links;
+    var newNodes = newGraph.nodes;
+    var concatLinks = baseLinks;
+    var concatNodes = baseNodes;
 
-    // Apply the general update pattern to the links.
-    link = link.data(links, function(d) { return d.source.id + "-" + d.target.id; });
-    link.exit().remove();
-    link = link.enter().append("line").merge(link);
+    // appending links from origGraph to newLinks
+    newLinks.forEach(function(item){
+        concatLinks.push(item);
+    });
 
-    // Update and restart the simulation.
-    simulation.nodes(nodes);
-    simulation.force("link").links(links);
-    simulation.alpha(1).restart();
+    newNodes.forEach(function(item){
+        concatNodes.push(item);
+    });
+
+    concatNodes = removeDuplicateNodes(concatNodes);
+    concatLinks = removeDuplicateLinks(concatLinks);
+
+    concatGraph["nodes"] = concatNodes;
+    concatGraph["links"] = concatLinks;
+    return concatGraph;
 }
 
-function requery() {
-    while(URIs.length > 0) {
-        console.log(URIs[URIs.length-1]);
-        var newNodes = [];
-        var newLinks = [];
+function requery(origGraph) {
+    var i = 0;
+    while(1) {
+        if (i === URIs.length) {
+            break;
+        }
+        console.log(URIs[i]);
         jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/query",
-            data: URIs.pop(),
+            data: URIs[i],
             contentType: "application/json",
             success:
                 function (json) {
                     console.log("POST successful");
-                    createGraphJSON(json, newNodes, newLinks);
+                    console.log(json);
+                    var newGraph = createGraph(json);
+                    console.log("NewGraph");
+                    console.log(newGraph);
+                    var nextGraph = concatGraph(origGraph, newGraph);
+                    console.log("FinalGraph");
+                    // console.log(nextGraph);
+                    update(nextGraph.links, nextGraph.nodes);
 
-                    newNodes.forEach(function(node){
-                        finalNodes.push(node);
-                    });
-                    newLinks.forEach(function(link){
-                        finalLinks.push(link);
-                    });
-
-                    // console.log(newGraph);
-
-                    finalNodes = removeDuplicateNodes(finalNodes);
-                    finalLinks = removeDuplicateLinks(finalLinks);
-
-                    finalGraph["nodes"] = finalNodes;
-                    finalGraph["links"] = finalLinks;
-
-                    console.log(finalGraph);
-
-                    update(finalLinks, finalNodes)
-
-                    setTimeout(function () {
-                        console.log("waiting");
-                    }, 10000);
                 }
         });
+        i++;
     }
 }
 
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
     if (error) throw error;
 
-    createGraphJSON(json, finalNodes, finalLinks);
+    var graph = createGraph(json);
 
-    finalNodes = removeDuplicateNodes(finalNodes);
-    finalLinks = removeDuplicateLinks(finalLinks);
-
-    finalGraph["nodes"] = finalNodes;
-    finalGraph["links"] = finalLinks;
-
-    console.log(finalGraph);
+    console.log(graph);
     console.log(URIs);
 
-    update(finalGraph.links, finalGraph.nodes);
+    update(graph.links, graph.nodes);
 
     setTimeout(function() {}, 10000);
 
-    requery();
+    requery(graph);
 });
 
 function update(links, nodes) {
