@@ -67,6 +67,12 @@ public class Helper {
 		return "http://www.worldcat.org/oclc/" + id + ".nt";
 	}
 	
+	public static String generate_imdb_query(String id) {
+		// IMDB ID 
+		id = id.replaceAll(" ", "%20"); 
+		return "";
+	}
+	
 	public static String generate_library_query(String input) {
 		// Wiki endpoint
 		// String url =
