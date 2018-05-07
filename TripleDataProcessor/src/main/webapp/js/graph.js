@@ -161,7 +161,7 @@ function requery(origGraph) {
         console.log(URIs[i]);
         jQuery.ajax({
             type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/query",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/library",
             data: URIs[i],
             contentType: "application/json",
             success:
