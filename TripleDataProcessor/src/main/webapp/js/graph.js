@@ -24,9 +24,14 @@ var simulation = d3.forceSimulation()
     .force("center", d3.forceCenter(width / 2, height / 2));
 
 // initializing all global variables
+// we are no longer popping off of this array, instead we are
+// indexing one by one until we have reached the end and only new URIs are
+// going to be pushed
+// realized that popping off URIs would be we could query same URI again
+// in a later iteration
 var URIs = [];
 
-// returns new list of nodes that doesn't contain any duplicates
+// returns new list of nodes that does not contain duplicates
 function removeDuplicateNodes(originalArray) {
     var newArray = [];
     var lookupObject  = {};
@@ -39,28 +44,6 @@ function removeDuplicateNodes(originalArray) {
         newArray.push(lookupObject[i]);
     }
     return newArray;
-}
-
-function doesLinkExist(linkArray, link) {
-    linkArray.forEach(function(item) {
-        if (item.source === link.source && item.target === link.target
-            && item.predicate === link.predicate) {
-            return 1;
-        }
-    });
-    return 0;
-}
-
-function doesNodeExist(nodeArray, node) {
-    if (nodeArray.length === 0) {
-        return 0;
-    }
-    nodeArray.forEach(function(item) {
-        if (item.id === node.id) {
-            return 1;
-        }
-    });
-    return 0;
 }
 
 // returns new list of links that does not contain duplicates
@@ -86,29 +69,16 @@ function parsePredicateValue(predicateURI) {
     return predicate
 }
 
-// return 1 if string exists in array
-// return 0 if string doesn't exist in array
-// going to be used to avoid duplicates in URIs array
-function doesStringExist(stringArray, string) {
-    stringArray.forEach(function(item) {
-        if (item === string) {
-            return 1;
-        }
-    });
-    return 0;
-}
-
 // convert the JSON returned from backend into new JSON for D3
 // involves removing duplicate links, nodes and appending to global
 // graph JSON properly
-// basically has the business logic for the aggregation
+// basically has the logic for the aggregation
 function createGraph(json) {
     var nodes = [];
     var links = [];
     var graph = {};
     Object.keys(json).forEach(function(key){
         var triples = json[key];
-        var searchParameter = key;
         triples.forEach(function(key){
             var triple = {};
             triple["source"] = key.subject.value;
@@ -149,6 +119,9 @@ function createGraph(json) {
     return graph;
 }
 
+// this function is supposed to add the nodes and links from the newGraph
+// to the origGraph making sure not to add duplicates
+// note: objects are passed by reference in javascript
 function concatGraph(origGraph, newGraph) {
     var concatGraph = {};
     var baseLinks = origGraph.links;
@@ -158,23 +131,27 @@ function concatGraph(origGraph, newGraph) {
     var concatLinks = baseLinks;
     var concatNodes = baseNodes;
 
-    // appending links from origGraph to newLinks
+    // appending links from newGraph to origGraph
     newLinks.forEach(function(item){
         concatLinks.push(item);
     });
 
+    // appending nodes from newGraph to origGraph
     newNodes.forEach(function(item){
         concatNodes.push(item);
     });
 
+    // removing any duplicate nodes and links we might have pushed
     concatNodes = removeDuplicateNodes(concatNodes);
     concatLinks = removeDuplicateLinks(concatLinks);
 
+    // creating the appended graph and returning for next iteration
     concatGraph["nodes"] = concatNodes;
     concatGraph["links"] = concatLinks;
     return concatGraph;
 }
 
+// requerying the unresolved URIs using, appending to the origGraph and updating D3
 function requery(origGraph) {
     var i = 0;
     while(1) {
