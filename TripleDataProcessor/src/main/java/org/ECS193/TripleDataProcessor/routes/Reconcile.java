@@ -54,7 +54,7 @@ public class Reconcile {
         JSONArray endPoints = headObject.getJSONArray("vars");
         
 		JSONObject resultObject = jsonObject.getJSONObject("results");
-        JSONArray bindingPoints = resultObject.getJSONArray("bindings");
+		JSONObject bindingPoints = (JSONObject)resultObject.getJSONArray("bindings").get(0);
         
         for(int i = 0; i < endPoints.length(); i++) {
             	
@@ -63,7 +63,7 @@ public class Reconcile {
         			JSONObject temp2 = new JSONObject();
 
         			String key = endPoints.get(i).toString();
-        			temp = (JSONObject) bindingPoints.get(i);
+        			temp = (JSONObject) bindingPoints.get(key);
         			String value = temp.getString("value");
         					        					
         			temp2.put(key, value);
