@@ -49,12 +49,21 @@ function removeDuplicateNodes(originalArray) {
 // returns new list of links that does not contain duplicates
 function removeDuplicateLinks(origLinkArray) {
 
-    var filtered = origLinkArray.filter(function (a) {
-        return a.source !== this.source && a.target !== this.target
-            && a.predicate !== this.predicate;
+    var map = {};
+    origLinkArray.forEach(function(value, index){
+        var obj = JSON.stringify({
+            source: value.source.id,
+            target: value.target.id,
+            predicate: value.predicate
+        });
+        if (!map[obj]) {
+            map[obj] = true;
+        }
+        else {
+            origLinkArray.splice(index, 1);
+        }
     });
-
-    return filtered;
+    return origLinkArray;
 }
 
 // converting the predicate URI into string
