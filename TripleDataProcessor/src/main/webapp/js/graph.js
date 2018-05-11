@@ -78,50 +78,85 @@ function parsePredicateValue(predicateURI) {
     return predicate
 }
 
+    var nodes = [];
+    var links = [];
+    var graph = {};
+
 // convert the JSON returned from backend into new JSON for D3
 // involves removing duplicate links, nodes and appending to global
 // graph JSON properly
 // basically has the logic for the aggregation
 function createGraph(json) {
-    var nodes = [];
-    var links = [];
-    var graph = {};
+    // console.log(json);
     Object.keys(json).forEach(function(key){
         var triples = json[key];
-        triples.forEach(function(key){
-            var triple = {};
-            triple["source"] = key.subject.value;
-            triple["target"] = key.object.value;
+        var exists = false;
+        var triple = {};
+        triples.forEach(function(keyf){
+            // console.log(keyf);
+            triple = {};
+            triple["source"] = keyf.subject.value;
+            triple["target"] = keyf.object.value;
             // call to parse and extract predicate value
-            triple["predicate"] = parsePredicateValue(key.predicate.value);
+            triple["predicate"] = parsePredicateValue(keyf.predicate.value);
             triple["value"] = 1;
-            if (!(triple["predicate"] === "sameAs")){
+            for (var i = 0; i <= links.length - 1; i++) {
+                if(links[i].source == triple.source && links[i].target == triple.target && links[i].predicate == triple.predicate){
+                    exists = true;
+                    break;
+                }
+            }
+            if(!exists && !(triple["predicate"] === "sameAs")){
                 links.push(triple);
+            }
+            exists = false;
+            
+            if (!(triple["predicate"] === "sameAs")){
+                // links.push(triple);
 
                 var node = {};
-                node["id"] = key.subject.value;
-                if (key.subject.type === "uri") {
-                    if (URIs.indexOf(key.subject.value) === -1) {
-                        URIs.push(key.subject.value);
+                node["id"] = keyf.subject.value;
+                if (keyf.subject.type === "uri") {
+                    if (URIs.indexOf(keyf.subject.value) === -1) {
+                        URIs.push(keyf.subject.value);
                     }
                 }
                 node["group"] = 1;
-                nodes.push(node);
+                // console.log("node1", node);
+                for (var i = 0; i < nodes.length; i++) {
+                    if(nodes[i].id == node.id){
+                        exists = true;
+                        break;
+                    }
+                }
+                if(!exists){nodes.push(node);}
+                exists = false;
                 node = {};
-                node["id"] = key.object.value;
+                node["id"] = keyf.object.value;
                 // if (key.object.type === "uri") {
                 //     if (!doesExist(URIs, key.object.value)) {
                 //         URIs.push(key.object.value);
                 //     }
                 // }
                 node["group"] = 1;
-                nodes.push(node);
+                // console.log("node2", node);
+                for (var i = 0; i < nodes.length; i++) {
+                    if(nodes[i].id == node.id){
+                        exists = true;
+                        break;
+                    }
+                }
+                if(!exists){nodes.push(node);}
+                exists = false;
             }
         });
     });
 
-    nodes = removeDuplicateNodes(nodes);
-    links = removeDuplicateLinks(links);
+    // nodes = removeDuplicateNodes(nodes);
+    // links = removeDuplicateLinks(links);
+
+    // console.log("nodes",nodes);
+    // console.log("links",links);
 
     graph["nodes"] = nodes;
     graph["links"] = links;
@@ -151,8 +186,8 @@ function concatGraph(origGraph, newGraph) {
     });
 
     // removing any duplicate nodes and links we might have pushed
-    concatNodes = removeDuplicateNodes(concatNodes);
-    concatLinks = removeDuplicateLinks(concatLinks);
+    // concatNodes = removeDuplicateNodes(concatNodes);
+    // concatLinks = removeDuplicateLinks(concatLinks);
 
     // creating the appended graph and returning for next iteration
     concatGraph["nodes"] = concatNodes;
@@ -176,10 +211,10 @@ function requery(origGraph) {
             success:
                 function (json) {
                     console.log("POST successful");
-                    console.log(json);
+                    // console.log(json);
                     var newGraph = createGraph(json);
                     console.log("NewGraph");
-                    console.log(newGraph);
+                    // console.log(newGraph);
                     var nextGraph = concatGraph(origGraph, newGraph);
                     console.log("FinalGraph");
                     // console.log(nextGraph);
@@ -197,26 +232,28 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function 
     var graph = createGraph(json);
 
     console.log(graph);
-    console.log(URIs);
+    // console.log(URIs);
 
     update(graph.links, graph.nodes);
 
     setTimeout(function() {}, 10000);
 
     requery(graph);
+
+    console.log("Last",graph);
 });
 
-function update(links, nodes) {
+function update(llinks, lnodes) {
 
     link = svg.selectAll(".link")
-        .data(links)
+        .data(llinks)
         .enter()
         .append("line")
         .attr("class", "link")
         .attr('marker-end','url(#arrowhead)');
 
     edgepaths = svg.selectAll(".edgepath")
-        .data(links)
+        .data(llinks)
         .enter()
         .append('path')
         .attrs({
@@ -228,7 +265,7 @@ function update(links, nodes) {
         .style("pointer-events", "none");
 
     edgelabels = svg.selectAll(".edgelabel")
-        .data(links)
+        .data(llinks)
         .enter()
         .append('text')
         .style("pointer-events", "none")
@@ -242,7 +279,7 @@ function update(links, nodes) {
         });
 
     node = svg.selectAll(".node")
-        .data(nodes)
+        .data(lnodes)
         .enter()
         .append("g")
         .attr("class", "node")
@@ -277,11 +314,13 @@ function update(links, nodes) {
         .text(function (d) {return d.id;});
 
     simulation
-        .nodes(nodes)
+        .nodes(lnodes)
         .on("tick", ticked);
 
     simulation.force("link")
-        .links(links);
+        .links(llinks);
+
+    simulation.restart();
 }
 
 function ticked() {
