@@ -23,7 +23,7 @@ public class LibraryOfCongress {
 
 	@POST   
 	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public String post(String input) {
 		System.out.println("POST request: " + input);
 		String output = "";
@@ -40,14 +40,16 @@ public class LibraryOfCongress {
 	
 	public static String parserLC(String input) throws IOException {
 		String output = "";
+		JSONObject jsonObject = new JSONObject();
+
 		String url = Helper.generate_lc_query(input);
-		String rawJSON = Helper.query(url);
+		Data data = new Data(url, ENDPOINT_TYPE.lcongress);
+
+//		String rawJSON = Helper.query(url);
+		jsonObject = data.constructJSON(input);		
+
 		
-		
-		JSONObject jsonObject = new JSONObject(rawJSON);
-		
-		
-		return "";
+		return jsonObject.toString();
 	}
 	
 }

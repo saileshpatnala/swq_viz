@@ -1,5 +1,15 @@
 package org.ECS193.TripleDataProcessor.data;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import org.ECS193.TripleDataProcessor.data.TripleElement.TYPE;
 import org.json.JSONArray;
@@ -11,7 +21,7 @@ public class EndPoint {
 	
 	public enum ENDPOINT_TYPE
 	{
-	    wiki, oclc, library, viaf;
+	    wiki, oclc, library, viaf, lcongress;
 	}
 	
 	public EndPoint(String data, ENDPOINT_TYPE type_) {
@@ -26,6 +36,13 @@ public class EndPoint {
 		}
 		else if (type == ENDPOINT_TYPE.oclc) {
 			// use differnt parse if needed
+		}
+		else if (type == ENDPOINT_TYPE.lcongress) {
+			try {
+				this.parserText(data);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -53,7 +70,7 @@ public class EndPoint {
         JSONObject jsonObject = new JSONObject(data);
         jsonObject = jsonObject.getJSONObject("results");
         JSONArray triples = jsonObject.getJSONArray("bindings");
-        
+
         for(int i = 0; i < triples.length(); i++) {
         		temp = (JSONObject) triples.get(i);
         		
@@ -91,4 +108,39 @@ public class EndPoint {
         		this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
         }  
     	}
+	public void parserText(String data) throws Exception {
+        String subject = "";
+        String predicate = ""; 
+        String object = "";
+        TYPE subjectType = null;
+        TYPE predicateType = null;
+        TYPE objectType = null;
+        
+        URL link = new URL(data);
+		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+
+		String str;
+		int i = 0;
+		while ((str = in.readLine()) != null) {
+		    System.out.println("Triple Line: " + str);
+		    String[] splitStr = str.split("\\s+");
+		   
+		    subject = splitStr[0];
+		    predicate = splitStr[1];
+		    object = splitStr[2];
+		    
+		    System.out.println("Triple " + (++i) + ": ");
+	    		System.out.println(subject);
+	    	    System.out.println(predicate);
+	    	    System.out.println(object);
+	    		System.out.println();
+		
+        		this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
+		}
+		
+		
+		
+	}
 }
