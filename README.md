@@ -6,6 +6,7 @@ This branch produces a local semantic web application. Currently, you are able t
 ## Environment Setup
 * *verify that your environment is set to run on java 8*
 * need to have your own local Apache Jena Fuseki with dataset name `ds` and upload file `strict_query_fixed.jsonld` seen under folder data 
+* D3.js version 4
 
 ## How to run Program
 * clone the repo

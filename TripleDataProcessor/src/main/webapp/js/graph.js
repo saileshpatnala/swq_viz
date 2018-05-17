@@ -104,26 +104,28 @@ function createGraph(json) {
             if (!(triple["predicate"] === "sameAs")) {
                 var node = {};
                 node["id"] = key.subject.value;
-                if (key.subject.type === "uri") {
-                    if (URIs.indexOf(key.subject.value) === -1) {
-                        URIs.push(key.subject.value);
-                    }
-                }
+                console.log("***SUBJECT***", key.subject.value);
                 node["group"] = 1;
                 if(addNode(node)){
+                    if (key.subject.type === "uri") {
+                        if (URIs.indexOf(key.subject.value) === -1) {
+                            URIs.push(key.subject.value);
+                        }
+                    }
                     nodes.push(node);
                     UniversalN.push(node);
                 }
 
                 node = {};
                 node["id"] = key.object.value;
-                // if (key.object.type === "uri") {
-                //     if (!doesExist(URIs, key.object.value)) {
-                //         URIs.push(key.object.value);
-                //     }
-                // }
+                console.log("***OBJECT***", key.object.value);
                 node["group"] = 1;
                 if(addNode(node)){
+                    if (key.object.type === "uri") {
+                        if (URIs.indexOf(key.object.value) === -1) {
+                            URIs.push(key.object.value);
+                        }
+                    }
                     nodes.push(node);
                     UniversalN.push(node);
                 }
@@ -141,8 +143,8 @@ function createGraph(json) {
 
     // console.log(nodes, links);
 
-    nodes = removeDuplicateNodes(nodes);
-    links = removeDuplicateLinks(links);
+    // nodes = removeDuplicateNodes(nodes);
+    // links = removeDuplicateLinks(links);
 
     // GraphNodes = GraphNodes.add(nodes);
 
@@ -156,6 +158,8 @@ function createGraph(json) {
 
     graph["nodes"] = nodes;
     graph["links"] = links;
+    console.log("~~~~~NODES~~~~~~", nodes);
+    console.log("~~~~~~LINKS~~~~~", links);
 
     return graph;
 }
@@ -207,13 +211,13 @@ function concatGraph(origGraph, newGraph) {
 }
 
 // requerying the unresolved URIs using, appending to the origGraph and updating D3
+var i = 0;
 function requery(origGraph) {
-    var i = 0;
     while (1) {
         if (i === URIs.length) {
             break;
         }
-        // console.log(URIs[i]);
+        console.log(URIs);
         jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/library",
@@ -241,14 +245,19 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(
 
     var graph = createGraph(json);
 
-    // console.log(graph);
-    // console.log(URIs);
+    console.log("***** GRAPH ******", graph);
+    console.log("***** URIs *****", URIs);
+    console.log("***** UniversaLN *****", UniversalN);
 
     update(graph.links, UniversalN);
 
     setTimeout(function() {}, 10000);
+    var temp = 0;
+    while (temp != 3) {
+        requery(graph);
+        temp++;
 
-    requery(graph);
+    }
 });
 
 function update(links, nodes) {
