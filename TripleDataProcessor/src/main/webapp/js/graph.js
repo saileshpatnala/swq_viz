@@ -1,27 +1,33 @@
 var svg = d3.select("svg"),
-		width = +svg.attr("width"),
-		height = +svg.attr("height");
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 svg.append('defs').append('marker')
-    .attrs({'id':'arrowhead',
-        'viewBox':'-0 -5 10 10',
-        'refX':13,
-        'refY':0,
-        'orient':'auto',
-        'markerWidth':13,
-        'markerHeight':13,
-        'xoverflow':'visible'})
+    .attrs({
+        'id': 'arrowhead',
+        'viewBox': '-0 -5 10 10',
+        'refX': 13,
+        'refY': 0,
+        'orient': 'auto',
+        'markerWidth': 13,
+        'markerHeight': 13,
+        'xoverflow': 'visible'
+    })
     .append('svg:path')
     .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
     .attr('fill', '#000')
-    .style('stroke','none');
+    .style('stroke', 'none');
 
 var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(200))
+    .force("link", d3.forceLink().distance(200))
     .force("charge", d3.forceManyBody())
-    .force("center", d3.forceCenter(width / 2, height / 2));
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("x", d3.forceX())
+    .force("y", d3.forceY())
+    .alphaTarget(0.3)
+    .on("tick", ticked);
 
 // initializing all global variables
 // we are no longer popping off of this array, instead we are
@@ -30,17 +36,17 @@ var simulation = d3.forceSimulation()
 // realized that popping off URIs would be we could query same URI again
 // in a later iteration
 var URIs = [];
-
+var GraphNodes = {};
 // returns new list of nodes that does not contain duplicates
 function removeDuplicateNodes(originalArray) {
     var newArray = [];
-    var lookupObject  = {};
+    var lookupObject = {};
 
-    for(var i in originalArray) {
+    for (var i in originalArray) {
         lookupObject[originalArray[i]["id"]] = originalArray[i];
     }
 
-    for(i in lookupObject) {
+    for (i in lookupObject) {
         newArray.push(lookupObject[i]);
     }
     return newArray;
@@ -50,19 +56,20 @@ function removeDuplicateNodes(originalArray) {
 function removeDuplicateLinks(origLinkArray) {
 
     var map = {};
-    origLinkArray.forEach(function(value, index){
+    origLinkArray.forEach(function(value, index) {
         var obj = JSON.stringify({
-            source: value.source.id,
-            target: value.target.id,
+            source: value.source.index,
+            target: value.target.index,
             predicate: value.predicate
         });
-        if (!map[obj]) {
-            map[obj] = true;
-        }
-        else {
+        // console.log("dupLink", obj);
+        if (map[obj]) {
             origLinkArray.splice(index, 1);
+        } else {
+            map[obj] = true; 
         }
     });
+
     return origLinkArray;
 }
 
@@ -74,7 +81,7 @@ function parsePredicateValue(predicateURI) {
     if (pos === -1) {
         pos = predicateURI.lastIndexOf("/");
     }
-    var predicate = predicateURI.substr(pos+1, lenURI);
+    var predicate = predicateURI.substr(pos + 1, lenURI);
     return predicate
 }
 
@@ -82,22 +89,19 @@ function parsePredicateValue(predicateURI) {
 // involves removing duplicate links, nodes and appending to global
 // graph JSON properly
 // basically has the logic for the aggregation
+var UniversalN = [];
 function createGraph(json) {
     var nodes = [];
     var links = [];
     var graph = {};
-    Object.keys(json).forEach(function(key){
+    Object.keys(json).forEach(function(key) {
         var triples = json[key];
-        triples.forEach(function(key){
+        triples.forEach(function(key) {
             var triple = {};
-            triple["source"] = key.subject.value;
-            triple["target"] = key.object.value;
             // call to parse and extract predicate value
             triple["predicate"] = parsePredicateValue(key.predicate.value);
             triple["value"] = 1;
-            if (!(triple["predicate"] === "sameAs")){
-                links.push(triple);
-
+            if (!(triple["predicate"] === "sameAs")) {
                 var node = {};
                 node["id"] = key.subject.value;
                 if (key.subject.type === "uri") {
@@ -106,7 +110,11 @@ function createGraph(json) {
                     }
                 }
                 node["group"] = 1;
-                nodes.push(node);
+                if(addNode(node)){
+                    nodes.push(node);
+                    UniversalN.push(node);
+                }
+
                 node = {};
                 node["id"] = key.object.value;
                 // if (key.object.type === "uri") {
@@ -115,17 +123,55 @@ function createGraph(json) {
                 //     }
                 // }
                 node["group"] = 1;
-                nodes.push(node);
+                if(addNode(node)){
+                    nodes.push(node);
+                    UniversalN.push(node);
+                }
+
+                // if((nodes.findIndex(x => x.id == key.subject.value) || nodes.findIndex(x => x.id == key.object.value)) == 13 )
+                console.log("hi\n",UniversalN.findIndex(x => x.id == key.subject.value), key.subject.value);
+                console.log(UniversalN.findIndex(x => x.id == key.object.value), key.object.value)
+                // console.log(node.id);
+                triple["source"] = UniversalN.findIndex(function(x){ return x.id === key.subject.value});
+                triple["target"] = UniversalN.findIndex(function(x){ return x.id === key.object.value});
+                links.push(triple);
             }
         });
     });
 
+    // console.log(nodes, links);
+
     nodes = removeDuplicateNodes(nodes);
     links = removeDuplicateLinks(links);
 
+    // GraphNodes = GraphNodes.add(nodes);
+
+    
+    // for(var elem of (new Set(nodes))){
+    //     GraphNodes.add(elem);
+    // }
+    
+
+    console.log("GraphNodes", UniversalN);
+
     graph["nodes"] = nodes;
     graph["links"] = links;
+
     return graph;
+}
+
+
+function addNode(node){
+    // console.log(GraphNodes[node.id] == null);
+    // console.log(GraphNodes[node.id]);
+    // let temp = GraphNodes[node.id];
+    if(GraphNodes[node.id] == null){
+     GraphNodes[node.id] = node;
+    // if(GraphNodes[node.id] != temp){
+        return true;
+    }
+    
+    return false;
 }
 
 // this function is supposed to add the nodes and links from the newGraph
@@ -141,12 +187,12 @@ function concatGraph(origGraph, newGraph) {
     var concatNodes = baseNodes;
 
     // appending links from newGraph to origGraph
-    newLinks.forEach(function(item){
+    newLinks.forEach(function(item) {
         concatLinks.push(item);
     });
 
     // appending nodes from newGraph to origGraph
-    newNodes.forEach(function(item){
+    newNodes.forEach(function(item) {
         concatNodes.push(item);
     });
 
@@ -163,43 +209,42 @@ function concatGraph(origGraph, newGraph) {
 // requerying the unresolved URIs using, appending to the origGraph and updating D3
 function requery(origGraph) {
     var i = 0;
-    while(1) {
+    while (1) {
         if (i === URIs.length) {
             break;
         }
-        console.log(URIs[i]);
+        // console.log(URIs[i]);
         jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/library",
             data: URIs[i],
             contentType: "application/json",
-            success:
-                function (json) {
-                    console.log("POST successful");
-                    console.log(json);
-                    var newGraph = createGraph(json);
-                    console.log("NewGraph");
-                    console.log(newGraph);
-                    var nextGraph = concatGraph(origGraph, newGraph);
-                    console.log("FinalGraph");
-                    // console.log(nextGraph);
-                    update(nextGraph.links, nextGraph.nodes);
+            success: function(json) {
+                console.log("POST successful");
+                // console.log(json);
+                var newGraph = createGraph(json);
+                console.log("NewGraph");
+                // console.log(newGraph);
+                var nextGraph = concatGraph(origGraph, newGraph);
+                console.log("FinalGraph");
+                // console.log(nextGraph);
+                update(nextGraph.links, UniversalN);
 
-                }
+            }
         });
         i++;
     }
 }
 
-d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
+d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
     if (error) throw error;
 
     var graph = createGraph(json);
 
-    console.log(graph);
-    console.log(URIs);
+    // console.log(graph);
+    // console.log(URIs);
 
-    update(graph.links, graph.nodes);
+    update(graph.links, UniversalN);
 
     setTimeout(function() {}, 10000);
 
@@ -208,102 +253,122 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function 
 
 function update(links, nodes) {
 
+    console.log("lnk", links, "nds", UniversalN);
+
     link = svg.selectAll(".link")
-        .data(links)
-        .enter()
+        .data(links, function(d) { return d.source.id + "-" + d.target.id; });
+
+    link.exit().remove();
+
+    link = link.enter()
         .append("line")
         .attr("class", "link")
-        .attr('marker-end','url(#arrowhead)');
+        .attr('marker-end', 'url(#arrowhead)')
+        .merge(link);
 
     edgepaths = svg.selectAll(".edgepath")
-        .data(links)
-        .enter()
+        .data(links);
+
+    edgepaths.exit().remove();
+    edgepaths = edgepaths.enter()
         .append('path')
         .attrs({
             'class': 'edgepath',
             'fill-opacity': 0,
             'stroke-opacity': 0,
-            'id': function (d, i) {return 'edgepath' + i}
+            'id': function(d, i) { return 'edgepath' + i }
         })
-        .style("pointer-events", "none");
+        .style("pointer-events", "none")
+        .merge(edgepaths);
 
     edgelabels = svg.selectAll(".edgelabel")
-        .data(links)
-        .enter()
+        .data(links);
+
+    edgelabels.exit().remove();
+
+    edgelabels = edgelabels.enter()
         .append('text')
         .style("pointer-events", "none")
         .style("font-family", "sans-serif")
         .style("font-size", "0.7em")
         .attrs({
             'class': 'edgelabel',
-            'id': function (d, i) {return 'edgelabel' + i},
+            'id': function(d, i) { return 'edgelabel' + i },
             'font-size': 12,
             'fill': '#aaa'
-        });
+        })
+        .merge(edgelabels);
 
     node = svg.selectAll(".node")
-        .data(nodes)
-        .enter()
-        .append("g")
-        .attr("class", "node")
+        .data(nodes, function(d) {return d.id;});
+
+    node.exit().remove();
+
+    node = node.enter()
+        .append("circle")
+        .attr("r", 15)
+        .style("fill", function(d) { return colors(d.group); })
+        .merge(node);
+
+    node = node.attr("class", "node")
         .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                // .on("end", dragended)
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            // .on("end", dragended)
         );
 
+
+
+    // node.
+        
+
     link.append("title")
-        .text(function (d) {return d.predicate;});
+        .text(function(d) { return d.predicate; });
 
     edgelabels.append('textPath')
-        .attr('xlink:href', function (d, i) {return '#edgepath' + i})
+        .attr('xlink:href', function(d, i) { return '#edgepath' + i })
         .style("text-anchor", "middle")
         .style("pointer-events", "none")
         .attr("startOffset", "50%")
-        .text(function (d) {return d.predicate});
+        .text(function(d) { return d.predicate });
 
-    node.append("circle")
-        .attr("r", 15)
-        .style("fill", function (d) {return colors(d.group);})
-        //.style("fill", function (d, i) {return colors(i);})
+    //.style("fill", function (d, i) {return colors(i);})
 
     node.append("title")
-        .text(function (d) {return d.id;});
+        .text(function(d) { return d.id; });
 
     node.append("text")
         .attr("dy", -3)
         .style("font-family", "sans-serif")
         .style("font-size", "0.7em")
-        .text(function (d) {return d.id;});
+        .text(function(d) { return d.id; });
 
-    simulation
-        .nodes(nodes)
-        .on("tick", ticked);
+    simulation.nodes(nodes);
+    simulation.force("link").links(links);
+    // simulation.restart();
 
-    simulation.force("link")
-        .links(links);
+    simulation.alpha(0.3).restart()
 }
 
 function ticked() {
 
-    link
-        .attr("x1", function (d) {return d.source.x;})
-        .attr("y1", function (d) {return d.source.y;})
-        .attr("x2", function (d) {return d.target.x;})
-        .attr("y2", function (d) {return d.target.y;});
-    node
-        .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
-    edgepaths.attr('d', function (d) {
+    link = svg.selectAll(".link")
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+    node = svg.selectAll(".node")
+        .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; });
+    edgepaths.attr('d', function(d) {
         return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
     });
-    edgelabels.attr('transform', function (d) {
+    edgelabels.attr('transform', function(d) {
         if (d.target.x < d.source.x) {
             var bbox = this.getBBox();
             rx = bbox.x + bbox.width / 2;
             ry = bbox.y + bbox.height / 2;
             return 'rotate(180 ' + rx + ' ' + ry + ')';
-        }
-        else {
+        } else {
             return 'rotate(0)';
         }
     });
