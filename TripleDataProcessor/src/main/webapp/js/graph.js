@@ -26,8 +26,8 @@ var simulation = d3.forceSimulation()
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("x", d3.forceX())
     .force("y", d3.forceY())
-    .alphaTarget(0.3)
-    .on("tick", ticked);
+    .alphaTarget(0.3);
+    // .on("tick", ticked);
 
 // initializing all global variables
 // we are no longer popping off of this array, instead we are
@@ -129,8 +129,8 @@ function createGraph(json) {
                 }
 
                 // if((nodes.findIndex(x => x.id == key.subject.value) || nodes.findIndex(x => x.id == key.object.value)) == 13 )
-                console.log("hi\n",UniversalN.findIndex(x => x.id == key.subject.value), key.subject.value);
-                console.log(UniversalN.findIndex(x => x.id == key.object.value), key.object.value)
+                // console.log("hi\n",UniversalN.findIndex(x => x.id == key.subject.value), key.subject.value);
+                // console.log(UniversalN.findIndex(x => x.id == key.object.value), key.object.value)
                 // console.log(node.id);
                 triple["source"] = UniversalN.findIndex(function(x){ return x.id === key.subject.value});
                 triple["target"] = UniversalN.findIndex(function(x){ return x.id === key.object.value});
@@ -152,7 +152,7 @@ function createGraph(json) {
     // }
     
 
-    console.log("GraphNodes", UniversalN);
+    // console.log("GraphNodes", UniversalN);
 
     graph["nodes"] = nodes;
     graph["links"] = links;
@@ -299,23 +299,60 @@ function update(links, nodes) {
         })
         .merge(edgelabels);
 
-    node = svg.selectAll(".node")
-        .data(nodes, function(d) {return d.id;});
+        var g = svg.append("g")
+            .attr("class", "everything");
 
-    node.exit().remove();
+    var nodesd = g.append("g")
+        .attr("class", "nodes");
 
-    node = node.enter()
-        .append("circle")
+var node = nodesd.selectAll("g")
+        .data(nodes)
+        .enter()
+        .append("g")
+            .attr('class', 'node');
+
+var circle = node.append("circle")
         .attr("r", 15)
-        .style("fill", function(d) { return colors(d.group); })
-        .merge(node);
+        .attr("fill", function(d) { return colors(d.group); })
+        .attr("cx", 0)
+        .attr("cy", 0);
 
-    node = node.attr("class", "node")
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            // .on("end", dragended)
-        );
+var text = node.append("text")
+        .style("text-anchor", "middle");
+
+// Add drag capabilities
+var drag_handler = d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged);
+    // .on("end", drag_end);
+
+drag_handler(node);
+
+    // node = svg.selectAll("g")
+    //     .data(nodes)
+    //     .text(function(d) {return d.id;});
+
+    // node.exit().remove();
+
+    // node = node.enter()
+    //     .append("circle")
+    //     .attr("r", 15)
+    //     .style("fill", function(d) { return colors(d.group); })
+    //     .merge(node);
+
+    // node = node.enter()
+    //     .append("g")
+    //     .attr("r", 15)
+    //     .style("fill", function(d) { return colors(d.group); })
+    //     .merge(node);
+
+
+    // node = node.attr("class", "node")
+    //     .call(d3.drag()
+    //         .on("start", dragstarted)
+    //         .on("drag", dragged)
+    //         // .on("end", dragended)
+    //     );
 
 
 
@@ -343,7 +380,7 @@ function update(links, nodes) {
         .style("font-size", "0.7em")
         .text(function(d) { return d.id; });
 
-    simulation.nodes(nodes);
+    simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
     // simulation.restart();
 
