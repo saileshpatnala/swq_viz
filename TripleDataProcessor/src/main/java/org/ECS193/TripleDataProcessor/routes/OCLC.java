@@ -39,15 +39,14 @@ public class OCLC {
 	}
 	
 	public static String parserOCLC(String input) throws IOException {
-		String output = "";
+		JSONObject jsonObject = new JSONObject();
+
 		String url = Helper.generate_oclc_query(input);
-		String rawJSON = Helper.query(url);
-		
-		
-		JSONObject jsonObject = new JSONObject(rawJSON);
-		
-		
-		return "";
+		Data data = new Data(url, ENDPOINT_TYPE.oclc);
+
+		jsonObject = data.constructJSON(input);		
+
+		return jsonObject.toString();
 	}
 	
 }
