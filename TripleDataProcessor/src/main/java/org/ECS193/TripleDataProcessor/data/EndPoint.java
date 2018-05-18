@@ -34,10 +34,7 @@ public class EndPoint {
 				e.printStackTrace();
 			}
 		}
-		else if (type == ENDPOINT_TYPE.oclc) {
-			// use differnt parse if needed
-		}
-		else if (type == ENDPOINT_TYPE.lcongress) {
+		else if (type == ENDPOINT_TYPE.lcongress || type == ENDPOINT_TYPE.oclc) {
 			try {
 				this.parserText(data);
 			} catch (Exception e) {

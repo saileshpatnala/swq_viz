@@ -26,8 +26,14 @@ public class Wiki {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String post(String input) {
 		System.out.println("POST request: " + input);
-	  
-		return parserWiki(input);
+		String output = "";
+
+		try {
+			return parserWiki1(input);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return output;
 	}
 	
 	public static String parserWiki(String input) {
@@ -44,6 +50,17 @@ public class Wiki {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+		return jsonObject.toString();
+	}
+	public static String parserWiki1(String input) throws IOException {
+		String output = "";
+		JSONObject jsonObject = new JSONObject();
+
+		String url = Helper.generate_lc_query(input);
+		Data data = new Data(url, ENDPOINT_TYPE.wiki);
+
+		jsonObject = data.constructJSON(input);		
+
 		return jsonObject.toString();
 	}
 	

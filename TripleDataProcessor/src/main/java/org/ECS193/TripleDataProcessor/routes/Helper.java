@@ -60,7 +60,9 @@ public class Helper {
 		id = id.replaceAll(" ", "%20"); 
 		return "http://id.loc.gov/authorities/names/" + id + ".nt";
 	}
-			
+	
+	// worldcat.org/oclc doesn't exist in reconciler DB
+	// client side initiates query call when it sees worldcat/oclc URI in base graph
 	public static String generate_oclc_query(String id) {
 		// OCLC ID 
 		id = id.replaceAll(" ", "%20"); 

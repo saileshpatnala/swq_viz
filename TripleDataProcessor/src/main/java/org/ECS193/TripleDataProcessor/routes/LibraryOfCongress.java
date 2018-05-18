@@ -45,10 +45,8 @@ public class LibraryOfCongress {
 		String url = Helper.generate_lc_query(input);
 		Data data = new Data(url, ENDPOINT_TYPE.lcongress);
 
-//		String rawJSON = Helper.query(url);
 		jsonObject = data.constructJSON(input);		
 
-		
 		return jsonObject.toString();
 	}
 	
