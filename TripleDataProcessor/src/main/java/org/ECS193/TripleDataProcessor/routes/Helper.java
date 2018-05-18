@@ -32,10 +32,6 @@ public class Helper {
 		return resp.toString();
 	}
 	
-//	public static String generate_reconcile_query(String id) {
-//		return "";
-//	}
-	
 	// NOTE: will generate all authors and mapped IDs (above) from reconciler DB. If you want output in xml, get rid of &format=json
 	// OUTPUT: JSON data of all IDs 
 	public static String generate_reconciler_query(String loc_id) {
@@ -72,6 +68,8 @@ public class Helper {
 	public static String generate_imdb_query(String id) {
 		// IMDB ID 
 		id = id.replaceAll(" ", "%20"); 
+		
+		// http://www.omdbapi.com/?i=nm0000807&plot=full&r=json&apikey=10729f07
 		return "";
 	}
 	
