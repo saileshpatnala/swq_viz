@@ -39,7 +39,6 @@ public class OCLC {
 	}
 	
 	public static String parserOCLC(String input) throws IOException {
-		String output = "";
 		JSONObject jsonObject = new JSONObject();
 
 		String url = Helper.generate_oclc_query(input);

@@ -21,20 +21,20 @@ public class EndPoint {
 	
 	public enum ENDPOINT_TYPE
 	{
-	    wiki, oclc, library, viaf, lcongress;
+	    wiki, oclc, library, viaf, lcongress, dbpedia;
 	}
 	
 	public EndPoint(String data, ENDPOINT_TYPE type_) {
 		this.setTriples(new ArrayList<Triple>());
 		this.type = type_;
-		if (type == ENDPOINT_TYPE.wiki || type == ENDPOINT_TYPE.library) {
+		if (type == ENDPOINT_TYPE.library || type == ENDPOINT_TYPE.dbpedia) {
 			try {
 				this.parser(data);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		else if (type == ENDPOINT_TYPE.lcongress || type == ENDPOINT_TYPE.oclc) {
+		else if (type == ENDPOINT_TYPE.lcongress || type == ENDPOINT_TYPE.oclc || type == ENDPOINT_TYPE.wiki ) {
 			try {
 				this.parserText(data);
 			} catch (Exception e) {

@@ -29,14 +29,14 @@ public class Wiki {
 		String output = "";
 
 		try {
-			return parserWiki1(input);
+			return parserWiki(input);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return output;
 	}
 	
-	public static String parserWiki(String input) {
+	public static String parserDBpedia(String input) {
 		String output = "";
 		JSONObject jsonObject = new JSONObject();
 
@@ -44,7 +44,7 @@ public class Wiki {
 			String url = Helper.generate_wiki_query(input);
 			String rawJSON = Helper.query(url);
 			
-			Data data = new Data(rawJSON, ENDPOINT_TYPE.wiki);
+			Data data = new Data(rawJSON, ENDPOINT_TYPE.dbpedia);
 			jsonObject = data.constructJSON(input);		
 		}	
 		catch(Exception e) {
@@ -52,8 +52,8 @@ public class Wiki {
 		}
 		return jsonObject.toString();
 	}
-	public static String parserWiki1(String input) throws IOException {
-		String output = "";
+	
+	public static String parserWiki(String input) throws IOException {
 		JSONObject jsonObject = new JSONObject();
 
 		String url = Helper.generate_lc_query(input);

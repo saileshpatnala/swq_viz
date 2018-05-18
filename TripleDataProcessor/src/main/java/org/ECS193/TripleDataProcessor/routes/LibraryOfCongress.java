@@ -33,13 +33,10 @@ public class LibraryOfCongress {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-	  
 		return output;
-		
 	}
 	
 	public static String parserLC(String input) throws IOException {
-		String output = "";
 		JSONObject jsonObject = new JSONObject();
 
 		String url = Helper.generate_lc_query(input);
