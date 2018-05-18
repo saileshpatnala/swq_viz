@@ -253,7 +253,7 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(
 
     setTimeout(function() {}, 10000);
     var temp = 0;
-    while (temp != 3) {
+    while (temp != 10) {
         requery(graph);
         temp++;
 
