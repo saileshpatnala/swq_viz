@@ -93,27 +93,6 @@ public class Helper {
 		String name = elements.get(4);
 		System.out.println("---- name from DBpedia ------ " + name);
 
-		// {
-		//   "head": {
-		//     "link": [],
-		//     "vars": [
-		//       "person"
-		//     ]
-		//   },
-		//   "results": {
-		//     "distinct": false,
-		//     "ordered": true,
-		//     "bindings": [
-		//       {
-		//         "person": {
-		//           "type": "uri",
-		//           "value": "http://dbpedia.org/resource/Jane_Austen"
-		//         }
-		//       }
-		//     ]
-		//   }
-		// }
-
 		/* STEP 2 - get n-triples dataset from foaf:name literal */
 		return "dbpedia.org/data/" + name + ".ntriples ";
 	}
@@ -196,10 +175,4 @@ public class Helper {
 		return libraryInput;
 	}
 	
-
-	// @MITHUN - delete if not planning to use later
-	public static String generate_URI_query(String uri, String type) {
-		String id = uri.replaceAll(" ", "%20"); 
-		return "";
-	}
 }

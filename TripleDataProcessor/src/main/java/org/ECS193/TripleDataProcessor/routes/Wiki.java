@@ -30,27 +30,11 @@ public class Wiki {
 
 		try {
 			return parserWiki(input);
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 		return output;
-	}
-	
-	public static String parserDBpedia(String input) {
-		String output = "";
-		JSONObject jsonObject = new JSONObject();
-
-		try {
-			String url = Helper.generate_wiki_query(input);
-			String rawJSON = Helper.query(url);
-			
-			Data data = new Data(rawJSON, ENDPOINT_TYPE.dbpedia);
-			jsonObject = data.constructJSON(input);		
-		}	
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		return jsonObject.toString();
 	}
 	
 	public static String parserWiki(String input) throws IOException {
