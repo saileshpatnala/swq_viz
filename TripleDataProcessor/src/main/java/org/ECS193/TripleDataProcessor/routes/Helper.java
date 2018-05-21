@@ -87,7 +87,6 @@ public class Helper {
 		return "http://viaf.org/viaf/" + id + "/viaf.jsonld";
 	}
 
-	
 	/* WikiData - metadata */
 	public static String generate_wiki_query(String id) {
 		id = id.replaceAll(" ", "%20"); 
@@ -99,7 +98,6 @@ public class Helper {
 	public static String generate_wikidbpedia_query(String id) {
 		id = id.replaceAll(" ", "%20"); 
 		return "http://wikidata.dbpedia.org/data/" + id + ".ntriples";
-
 	}
 	
 
@@ -170,7 +168,6 @@ public class Helper {
 
 		return url;
 	}
-
 	
 	/* NOTE: 
 		- Parse JSON array object returned from VIAF DB query
@@ -204,5 +201,4 @@ public class Helper {
 		
 		return libraryInput;
 	}
-	
 }
