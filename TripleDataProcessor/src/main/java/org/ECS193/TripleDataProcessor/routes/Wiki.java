@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.ECS193.TripleDataProcessor.data.Data;
+import org.ECS193.TripleDataProcessor.data.EndPoint;
 import org.ECS193.TripleDataProcessor.data.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONObject;
 
@@ -47,6 +48,7 @@ public class Wiki {
 		String rawJSON2 = Helper.query2(url2);
 		
 		Data data = new Data(url, ENDPOINT_TYPE.wiki);
+		data.addEndPoint(new EndPoint(url2, ENDPOINT_TYPE.wiki));		
 
 		jsonObject = data.constructJSON(input);		
 

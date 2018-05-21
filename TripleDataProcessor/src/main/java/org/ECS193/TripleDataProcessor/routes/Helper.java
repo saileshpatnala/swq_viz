@@ -152,7 +152,9 @@ public class Helper {
      */
 	public static String generate_imdb_query(String id) {
 		id = id.replaceAll(" ", "%20"); 
-		return "http://www.omdbapi.com/?i=" + id + "&plot=full&r=json&apikey=10729f07";
+		// THIS QUERY DOES NOT RETURN TRIPLE== DOES NOT WORK
+		// return "http://www.omdbapi.com/?i=" + id + "&plot=full&r=json&apikey=10729f07";
+		return "";
 	}
 	
 
