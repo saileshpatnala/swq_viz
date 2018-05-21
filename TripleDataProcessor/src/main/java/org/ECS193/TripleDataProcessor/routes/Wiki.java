@@ -40,7 +40,8 @@ public class Wiki {
 	public static String parserWiki(String input) throws IOException {
 		JSONObject jsonObject = new JSONObject();
 
-		String url = Helper.generate_lc_query(input);
+		String url = Helper.generate_wiki_query(input);
+		String url2 = Helper.generate_wikidbpedia_query(input);
 		Data data = new Data(url, ENDPOINT_TYPE.wiki);
 
 		jsonObject = data.constructJSON(input);		
