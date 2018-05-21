@@ -39,6 +39,8 @@ var URIs = []; //Store all incoming URIs to be queried
 var UniversalN = []; //Hold all unique graph nodes
 var UniversalL = []; // Hold all unique graph links
 var GraphNodes = {}; //A map to hold all the nodes currently in graph
+var RQreps = 0; // current number of requery NEED TO MAKE BOOLEAN
+var MAXRQ = 5; // max number of reps
 
 // converting the predicate URI into string
 // parsing the URI from last occurrence of # or /
@@ -71,11 +73,9 @@ function createGraph(json) {
 
                 node["group"] = 1;
                 if (addNode(node)) {
-                    if (key.subject.type === "uri") {
-                        if (URIs.indexOf(key.subject.value) === -1) {
+                    if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
                             URIs.push(key.subject.value);
                         }
-                    }
                     UniversalN.push(node);
                 }
 
@@ -83,11 +83,9 @@ function createGraph(json) {
                 node["id"] = key.object.value;
 
                 node["group"] = 1;
-                if (addNode(node)) {
-                    if (key.object.type === "uri") {
-                        if (URIs.indexOf(key.object.value) === -1) {
+                if(addNode(node)) {
+                    if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
                             URIs.push(key.object.value);
-                        }
                     }
                     UniversalN.push(node);
                 }
@@ -99,6 +97,12 @@ function createGraph(json) {
         });
     });
 
+}
+
+function URI_filter(uri){
+	if(uri.search("/oclc/") !== -1 || uri.search("/names/") !== -1  || uri.search("/bibs/") !== -1)
+		return true;
+	return false;
 }
 
 // This function takes a new nodes that is to be inserted and checks to
@@ -135,6 +139,7 @@ function requery() {
         });
         i++;
     }
+RQreps++;
 }
 
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
@@ -143,8 +148,6 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(
 	createGraph(json);
 
 	update();
-
-    requery();
 });
 
 function update() {
@@ -249,6 +252,10 @@ function update() {
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
     simulation.alpha(0.3).restart()
+
+	if(RQreps < MAXRQ){
+		requery();
+	}
 }
 
 function ticked() {
