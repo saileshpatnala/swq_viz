@@ -82,8 +82,11 @@ public class Helper {
 		return url;
 	}
 
+	/* UC Davis Library Catalog */
+	/* NOTE: 
+		- called from librarysubject route only for "/subjects/" nodes from D3
+	 */
 	public static String generate_librarysubject_query(String input) {
-		// jena endpoint for library subject search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";

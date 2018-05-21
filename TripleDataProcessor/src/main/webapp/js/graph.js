@@ -1,8 +1,22 @@
+/* GLOBALS */
+/* NOTE:
+    - we are no longer popping off of this array, instead we are indexing one by one until we have reached the end and only new URIs are going to be pushed realized that popping off URIs would be we could query same URI again in a later iteration
+ */
+var URIs = [];          // Store all incoming URIs to be queried
+var UniversalN = [];    // Hold all unique graph nodes
+var UniversalL = [];    // Hold all unique graph links
+var GraphNodes = {};    // A map to hold all the nodes currently in graph
+var RQreps = 0;         // current number of requery NEED TO MAKE BOOLEAN
+var MAXRQ = 5;          // max number of reps
+
+
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
+
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
+
 
 svg.append('defs').append('marker')
     .attrs({
@@ -20,7 +34,10 @@ svg.append('defs').append('marker')
     .attr('fill', '#000')
     .style('stroke', 'none');
 
-// set up simulation to gravitate to center of svg component
+
+/* NOTE:
+    - set up simulation to gravitate to center of svg component
+ */
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().distance(200))
 	.force("collide",d3.forceCollide(20).iterations(16))
@@ -29,21 +46,10 @@ var simulation = d3.forceSimulation()
 	.force("y", d3.forceY(0))
 	.force("x", d3.forceX(0));
 
-// initializing all global variables
-// we are no longer popping off of this array, instead we are
-// indexing one by one until we have reached the end and only new URIs are
-// going to be pushed
-// realized that popping off URIs would be we could query same URI again
-// in a later iteration
-var URIs = []; //Store all incoming URIs to be queried
-var UniversalN = []; //Hold all unique graph nodes
-var UniversalL = []; // Hold all unique graph links
-var GraphNodes = {}; //A map to hold all the nodes currently in graph
-var RQreps = 0; // current number of requery NEED TO MAKE BOOLEAN
-var MAXRQ = 5; // max number of reps
 
-// converting the predicate URI into string
-// parsing the URI from last occurrence of # or /
+/* NOTE:
+    - converting the predicate URI into string parsing the URI from last occurrence of # or /
+ */
 function parsePredicateValue(predicateURI) {
     var lenURI = predicateURI.length;
     var pos = predicateURI.search("#");
@@ -54,17 +60,17 @@ function parsePredicateValue(predicateURI) {
     return predicate
 }
 
-// convert the JSON returned from backend into new JSON for D3
-// involves removing duplicate links, nodes and appending to global
-// graph JSON properly
-// basically has the logic for the aggregation
-// && URI_filter(key.object.value)
+
+/* NOTE:
+    - convert the JSON returned from backend into new JSON for D3 involves removing duplicate links, nodes and appending to global graph JSON properly
+    - Basically has the logic for the aggregation && URI_filter(key.object.value)
+ */
 function createGraph(json) {
     Object.keys(json).forEach(function(key) {
         var triples = json[key];
         triples.forEach(function(key) {
             var triple = {};
-            // call to parse and extract predicate value
+            /* call to parse and extract predicate value */
             triple["predicate"] = parsePredicateValue(key.predicate.value);
             triple["value"] = 1;
             if (!(triple["predicate"] === "sameAs")) {
@@ -99,26 +105,30 @@ function createGraph(json) {
 
 }
 
+
 function URI_filter(uri){
 	if(uri.search("/oclc/") !== -1 || uri.search("/names/") !== -1  || uri.search("/bibs/") !== -1 || uri.search("/subjects/") !== -1)
 		return true;
 	return false;
 }
 
-// This function takes a new nodes that is to be inserted and checks to
-// see if it is in the GraphNodes map. If it isn't it is saved.
-function addNode(node) {
 
-// If node exists in map then return false, else save new node
+/* NOTE:
+    - This function takes a new nodes that is to be inserted and checks to see if it is in the GraphNodes map. If it isn't it is saved.
+ */
+function addNode(node) {
+    /* If node exists in map then return false, else save new node */
     if (GraphNodes[node.id] == null) {
         GraphNodes[node.id] = node;
-
         return true;
     }
     return false;
 }
 
-// requerying the unresolved URIs using, appending to the origGraph and updating D3
+
+/* NOTE:
+    - requerying the unresolved URIs using, appending to the origGraph and updating D3
+ */
 function requery() {
 	var i = 0;
     while (1) {
@@ -127,6 +137,7 @@ function requery() {
         }
         console.log(URIs[i]);
 
+        /* subject nodes */
         if (URIs[i].search("/subjects/")) {
             jQuery.ajax({
             type: "POST",
@@ -140,6 +151,7 @@ function requery() {
             }
             });
         }
+        /* all other nodes */
         else {
             jQuery.ajax({
             type: "POST",
@@ -239,7 +251,7 @@ function update() {
     var text = node.append("text")
         .style("text-anchor", "middle");
 
-    // Add drag capabilities
+    /* Add drag capabilities */
     var drag_handler = d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged);
