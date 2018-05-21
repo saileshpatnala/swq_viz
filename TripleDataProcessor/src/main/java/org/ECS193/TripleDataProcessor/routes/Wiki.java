@@ -42,6 +42,10 @@ public class Wiki {
 
 		String url = Helper.generate_wiki_query(input);
 		String url2 = Helper.generate_wikidbpedia_query(input);
+
+		String rawJSON = Helper.query2(url);
+		String rawJSON2 = Helper.query2(url2);
+		
 		Data data = new Data(url, ENDPOINT_TYPE.wiki);
 
 		jsonObject = data.constructJSON(input);		

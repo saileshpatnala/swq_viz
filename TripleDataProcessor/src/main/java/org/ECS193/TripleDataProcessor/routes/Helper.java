@@ -40,6 +40,24 @@ public class Helper {
 
 		return resp.toString();
 	}
+
+	public static String query2(String url) throws IOException {
+		URL link = new URL(url);
+		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+		httpLink.setRequestMethod("GET");
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+		String inputLine;
+		StringBuffer resp = new StringBuffer();
+		while ((inputLine = in.readLine()) != null) {
+			resp.append(inputLine);
+		}
+
+		System.out.println("Raw Output: " + resp);
+		System.out.println();
+
+		return resp.toString();
+	}
 	
 
 	/* NOTE:
