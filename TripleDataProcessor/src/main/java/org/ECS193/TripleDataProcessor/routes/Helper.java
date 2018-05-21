@@ -32,10 +32,6 @@ public class Helper {
 		return resp.toString();
 	}
 	
-//	public static String generate_reconcile_query(String id) {
-//		return "";
-//	}
-	
 	// NOTE: will generate all authors and mapped IDs (above) from reconciler DB. If you want output in xml, get rid of &format=json
 	// OUTPUT: JSON data of all IDs 
 	public static String generate_reconciler_query(String loc_id) {
@@ -60,7 +56,9 @@ public class Helper {
 		id = id.replaceAll(" ", "%20"); 
 		return "http://id.loc.gov/authorities/names/" + id + ".nt";
 	}
-			
+	
+	// worldcat.org/oclc doesn't exist in reconciler DB
+	// client side initiates query call when it sees worldcat/oclc URI in base graph
 	public static String generate_oclc_query(String id) {
 		// OCLC ID 
 		id = id.replaceAll(" ", "%20"); 
@@ -70,21 +68,29 @@ public class Helper {
 	public static String generate_imdb_query(String id) {
 		// IMDB ID 
 		id = id.replaceAll(" ", "%20"); 
+	
+		// lack of decent, public movie data APIs (IMDB doesn't offer a API, Netflix removed their API, Rotten Tomatoes' API requires an approval process, etc). OMDB requires API key with 1k queries/day
+		// http://www.omdbapi.com/?i=nm0000807&plot=full&r=json&apikey=10729f07
 		return "";
 	}
 	
 	public static String generate_library_query(String input) {
-		// Wiki endpoint
-		// String url =
-		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// Jena Endpoint
-		// String url =
-		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-
 		// Jena Endpoint for specific search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+
+		return url;
+	}
+
+	/* UC Davis Library Catalog */
+	/* NOTE: 
+		- called from librarysubject route only for "/subjects/" nodes from D3
+	 */
+	public static String generate_librarysubject_query(String input) {
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";
 
 		return url;
 	}
