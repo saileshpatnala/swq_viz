@@ -58,7 +58,7 @@ function parsePredicateValue(predicateURI) {
 // involves removing duplicate links, nodes and appending to global
 // graph JSON properly
 // basically has the logic for the aggregation
-
+// && URI_filter(key.object.value)
 function createGraph(json) {
     Object.keys(json).forEach(function(key) {
         var triples = json[key];
@@ -100,7 +100,7 @@ function createGraph(json) {
 }
 
 function URI_filter(uri){
-	if(uri.search("/oclc/") !== -1 || uri.search("/names/") !== -1  || uri.search("/bibs/") !== -1)
+	if(uri.search("/oclc/") !== -1 || uri.search("/names/") !== -1  || uri.search("/bibs/") !== -1 || uri.search("/subjects/") !== -1)
 		return true;
 	return false;
 }
@@ -126,17 +126,35 @@ function requery() {
             break;
         }
         console.log(URIs[i]);
-        jQuery.ajax({
+
+        if (URIs[i].search("/subjects/")) {
+            jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/librarysubject",
+            data: URIs[i],
+            contentType: "application/json",
+            success: function(json) {
+                console.log("POST successful");
+                createGraph(json);
+                update();
+            }
+            });
+        }
+        else {
+            jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/library",
             data: URIs[i],
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
-				createGraph(json);
-				update();
+                createGraph(json);
+                update();
             }
         });
+
+        }
+
         i++;
     }
 RQreps++;

@@ -74,17 +74,19 @@ public class Helper {
 	}
 	
 	public static String generate_library_query(String input) {
-		// Wiki endpoint
-		// String url =
-		// "http://dbpedia.org/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-		// Jena Endpoint
-		// String url =
-		// "http://localhost:3030/ds/sparql?query=SELECT+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+}+LIMIT+3&format=json";
-
 		// Jena Endpoint for specific search
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+
+		return url;
+	}
+
+	public static String generate_librarysubject_query(String input) {
+		// jena endpoint for library subject search
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";
 
 		return url;
 	}
