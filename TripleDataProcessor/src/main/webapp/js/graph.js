@@ -253,13 +253,19 @@ function update() {
 
 function ticked() {
 
-    link = svg.selectAll(".link")
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-    node = svg.selectAll(".node")
-        .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; });
+	let radius = 15;
+
+   link = svg.selectAll(".link")
+		.attr("x1", function (d) {return Math.max(radius, Math.min(width-radius, d.source.x));})
+        .attr("y1", function (d) {return Math.max(radius, Math.min(width-radius, d.source.y));})
+        .attr("x2", function (d) {return Math.max(radius, Math.min(height-radius, d.target.x));})
+        .attr("y2", function (d) {return Math.max(radius, Math.min(height-radius, d.target.y));});
+
+   node = svg.selectAll(".node")
+        .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; })
+		.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
+        .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+
     edgepaths.attr('d', function(d) {
         return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
     });
