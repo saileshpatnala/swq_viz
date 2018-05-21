@@ -20,14 +20,14 @@ svg.append('defs').append('marker')
     .attr('fill', '#000')
     .style('stroke', 'none');
 
+// set up simulation to gravitate to center of svg component
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().distance(200))
+	.force("collide",d3.forceCollide(20).iterations(16))
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("x", d3.forceX())
-    .force("y", d3.forceY())
-    .alphaTarget(0.3);
-    // .on("tick", ticked);
+	.force("y", d3.forceY(0))
+	.force("x", d3.forceX(0));
 
 // initializing all global variables
 // we are no longer popping off of this array, instead we are
@@ -35,43 +35,10 @@ var simulation = d3.forceSimulation()
 // going to be pushed
 // realized that popping off URIs would be we could query same URI again
 // in a later iteration
-var URIs = [];
-var GraphNodes = {};
-// returns new list of nodes that does not contain duplicates
-function removeDuplicateNodes(originalArray) {
-    var newArray = [];
-    var lookupObject = {};
-
-    for (var i in originalArray) {
-        lookupObject[originalArray[i]["id"]] = originalArray[i];
-    }
-
-    for (i in lookupObject) {
-        newArray.push(lookupObject[i]);
-    }
-    return newArray;
-}
-
-// returns new list of links that does not contain duplicates
-function removeDuplicateLinks(origLinkArray) {
-
-    var map = {};
-    origLinkArray.forEach(function(value, index) {
-        var obj = JSON.stringify({
-            source: value.source.index,
-            target: value.target.index,
-            predicate: value.predicate
-        });
-        // console.log("dupLink", obj);
-        if (map[obj]) {
-            origLinkArray.splice(index, 1);
-        } else {
-            map[obj] = true; 
-        }
-    });
-
-    return origLinkArray;
-}
+var URIs = []; //Store all incoming URIs to be queried
+var UniversalN = []; //Hold all unique graph nodes
+var UniversalL = []; // Hold all unique graph links
+var GraphNodes = {}; //A map to hold all the nodes currently in graph
 
 // converting the predicate URI into string
 // parsing the URI from last occurrence of # or /
@@ -89,11 +56,8 @@ function parsePredicateValue(predicateURI) {
 // involves removing duplicate links, nodes and appending to global
 // graph JSON properly
 // basically has the logic for the aggregation
-var UniversalN = [];
+
 function createGraph(json) {
-    var nodes = [];
-    var links = [];
-    var graph = {};
     Object.keys(json).forEach(function(key) {
         var triples = json[key];
         triples.forEach(function(key) {
@@ -104,116 +68,60 @@ function createGraph(json) {
             if (!(triple["predicate"] === "sameAs")) {
                 var node = {};
                 node["id"] = key.subject.value;
-                if (key.subject.type === "uri") {
-                    if (URIs.indexOf(key.subject.value) === -1) {
-                        URIs.push(key.subject.value);
-                    }
-                }
+
                 node["group"] = 1;
-                if(addNode(node)){
-                    nodes.push(node);
+                if (addNode(node)) {
+                    if (key.subject.type === "uri") {
+                        if (URIs.indexOf(key.subject.value) === -1) {
+                            URIs.push(key.subject.value);
+                        }
+                    }
                     UniversalN.push(node);
                 }
 
                 node = {};
                 node["id"] = key.object.value;
-                // if (key.object.type === "uri") {
-                //     if (!doesExist(URIs, key.object.value)) {
-                //         URIs.push(key.object.value);
-                //     }
-                // }
+
                 node["group"] = 1;
-                if(addNode(node)){
-                    nodes.push(node);
+                if (addNode(node)) {
+                    if (key.object.type === "uri") {
+                        if (URIs.indexOf(key.object.value) === -1) {
+                            URIs.push(key.object.value);
+                        }
+                    }
                     UniversalN.push(node);
                 }
 
-                // if((nodes.findIndex(x => x.id == key.subject.value) || nodes.findIndex(x => x.id == key.object.value)) == 13 )
-                // console.log("hi\n",UniversalN.findIndex(x => x.id == key.subject.value), key.subject.value);
-                // console.log(UniversalN.findIndex(x => x.id == key.object.value), key.object.value)
-                // console.log(node.id);
-                triple["source"] = UniversalN.findIndex(function(x){ return x.id === key.subject.value});
-                triple["target"] = UniversalN.findIndex(function(x){ return x.id === key.object.value});
-                links.push(triple);
+                triple["source"] = UniversalN.findIndex(function(x) { return x.id === key.subject.value });
+                triple["target"] = UniversalN.findIndex(function(x) { return x.id === key.object.value });
+                UniversalL.push(triple);
             }
         });
     });
 
-    // console.log(nodes, links);
-
-    nodes = removeDuplicateNodes(nodes);
-    links = removeDuplicateLinks(links);
-
-    // GraphNodes = GraphNodes.add(nodes);
-
-    
-    // for(var elem of (new Set(nodes))){
-    //     GraphNodes.add(elem);
-    // }
-    
-
-    // console.log("GraphNodes", UniversalN);
-
-    graph["nodes"] = nodes;
-    graph["links"] = links;
-
-    return graph;
 }
 
+// This function takes a new nodes that is to be inserted and checks to
+// see if it is in the GraphNodes map. If it isn't it is saved.
+function addNode(node) {
 
-function addNode(node){
-    // console.log(GraphNodes[node.id] == null);
-    // console.log(GraphNodes[node.id]);
-    // let temp = GraphNodes[node.id];
-    if(GraphNodes[node.id] == null){
-     GraphNodes[node.id] = node;
-    // if(GraphNodes[node.id] != temp){
+// If node exists in map then return false, else save new node
+    if (GraphNodes[node.id] == null) {
+        GraphNodes[node.id] = node;
+
         return true;
     }
-    
     return false;
 }
 
-// this function is supposed to add the nodes and links from the newGraph
-// to the origGraph making sure not to add duplicates
-// note: objects are passed by reference in javascript
-function concatGraph(origGraph, newGraph) {
-    var concatGraph = {};
-    var baseLinks = origGraph.links;
-    var baseNodes = origGraph.nodes;
-    var newLinks = newGraph.links;
-    var newNodes = newGraph.nodes;
-    var concatLinks = baseLinks;
-    var concatNodes = baseNodes;
-
-    // appending links from newGraph to origGraph
-    newLinks.forEach(function(item) {
-        concatLinks.push(item);
-    });
-
-    // appending nodes from newGraph to origGraph
-    newNodes.forEach(function(item) {
-        concatNodes.push(item);
-    });
-
-    // removing any duplicate nodes and links we might have pushed
-    concatNodes = removeDuplicateNodes(concatNodes);
-    concatLinks = removeDuplicateLinks(concatLinks);
-
-    // creating the appended graph and returning for next iteration
-    concatGraph["nodes"] = concatNodes;
-    concatGraph["links"] = concatLinks;
-    return concatGraph;
-}
-
 // requerying the unresolved URIs using, appending to the origGraph and updating D3
-function requery(origGraph) {
-    var i = 0;
+function requery() {
+	var i = 0;
     while (1) {
         if (i === URIs.length) {
             break;
         }
-        // console.log(URIs[i]);
+        console.log(URIs[i]);
         jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/library",
@@ -221,15 +129,8 @@ function requery(origGraph) {
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
-                // console.log(json);
-                var newGraph = createGraph(json);
-                console.log("NewGraph");
-                // console.log(newGraph);
-                var nextGraph = concatGraph(origGraph, newGraph);
-                console.log("FinalGraph");
-                // console.log(nextGraph);
-                update(nextGraph.links, UniversalN);
-
+				createGraph(json);
+				update();
             }
         });
         i++;
@@ -239,21 +140,18 @@ function requery(origGraph) {
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
     if (error) throw error;
 
-    var graph = createGraph(json);
+	createGraph(json);
 
-    // console.log(graph);
-    // console.log(URIs);
+	update();
 
-    update(graph.links, UniversalN);
-
-    setTimeout(function() {}, 10000);
-
-    requery(graph);
+    requery();
 });
 
-function update(links, nodes) {
+function update() {
+	var links = UniversalL;
+	var nodes = UniversalN;
 
-    console.log("lnk", links, "nds", UniversalN);
+	console.log("lnks", UniversalL, "nds", UniversalN);
 
     link = svg.selectAll(".link")
         .data(links, function(d) { return d.source.id + "-" + d.target.id; });
@@ -299,65 +197,34 @@ function update(links, nodes) {
         })
         .merge(edgelabels);
 
-        var g = svg.append("g")
-            .attr("class", "everything");
+    var g = svg.append("g")
+        .attr("class", "everything");
 
     var nodesd = g.append("g")
         .attr("class", "nodes");
 
-var node = nodesd.selectAll("g")
+    var node = nodesd.selectAll("g")
         .data(nodes)
         .enter()
         .append("g")
-            .attr('class', 'node');
+        .attr('class', 'node');
 
-var circle = node.append("circle")
+    var circle = node.append("circle")
         .attr("r", 15)
         .attr("fill", function(d) { return colors(d.group); })
         .attr("cx", 0)
         .attr("cy", 0);
 
-var text = node.append("text")
+    var text = node.append("text")
         .style("text-anchor", "middle");
 
-// Add drag capabilities
-var drag_handler = d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged);
+    // Add drag capabilities
+    var drag_handler = d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged);
     // .on("end", drag_end);
 
-drag_handler(node);
-
-    // node = svg.selectAll("g")
-    //     .data(nodes)
-    //     .text(function(d) {return d.id;});
-
-    // node.exit().remove();
-
-    // node = node.enter()
-    //     .append("circle")
-    //     .attr("r", 15)
-    //     .style("fill", function(d) { return colors(d.group); })
-    //     .merge(node);
-
-    // node = node.enter()
-    //     .append("g")
-    //     .attr("r", 15)
-    //     .style("fill", function(d) { return colors(d.group); })
-    //     .merge(node);
-
-
-    // node = node.attr("class", "node")
-    //     .call(d3.drag()
-    //         .on("start", dragstarted)
-    //         .on("drag", dragged)
-    //         // .on("end", dragended)
-    //     );
-
-
-
-    // node.
-        
+    drag_handler(node);
 
     link.append("title")
         .text(function(d) { return d.predicate; });
@@ -369,7 +236,6 @@ drag_handler(node);
         .attr("startOffset", "50%")
         .text(function(d) { return d.predicate });
 
-    //.style("fill", function (d, i) {return colors(i);})
 
     node.append("title")
         .text(function(d) { return d.id; });
@@ -382,8 +248,6 @@ drag_handler(node);
 
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
-    // simulation.restart();
-
     simulation.alpha(0.3).restart()
 }
 
@@ -423,9 +287,3 @@ function dragged(d) {
     d.fx = d3.event.x;
     d.fy = d3.event.y;
 }
-
-// function dragended(d) {
-//     if (!d3.event.active) simulation.alphaTarget(0);
-//     d.fx = undefined;
-//     d.fy = undefined;
-// }
