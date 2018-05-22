@@ -15,12 +15,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.ECS193.TripleDataProcessor.data.Data;
-import org.ECS193.TripleDataProcessor.data.EndPoint;
 import org.ECS193.TripleDataProcessor.data.EndPoint.ENDPOINT_TYPE;
 import org.json.JSONObject;
 
-@Path("wiki")
-public class Wiki {
+@Path("dbpedia")
+public class DBpedia {
 
 	@POST   
 	@Consumes(MediaType.TEXT_PLAIN)
@@ -30,7 +29,7 @@ public class Wiki {
 		String output = "";
 
 		try {
-			return parserWiki(input);
+			return parserDBpedia(input);
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
@@ -38,21 +37,20 @@ public class Wiki {
 		return output;
 	}
 	
-	public static String parserWiki(String input) throws IOException {
+	public static String parserDBpedia(String input) throws IOException {
+		String output = "";
 		JSONObject jsonObject = new JSONObject();
 
-		String url = Helper.generate_wiki_query(input);
-		String url2 = Helper.generate_wikidbpedia_query(input);
-
-		String rawJSON = Helper.query2(url);
-		String rawJSON2 = Helper.query2(url2);
-		
-		Data data = new Data(url, ENDPOINT_TYPE.wiki);
-		data.addEndPoint(new EndPoint(url2, ENDPOINT_TYPE.wiki));		
-
-		jsonObject = data.constructJSON(input);		
-
+		try {
+			String url = Helper.generate_dbpedia_query(input);
+			String rawJSON = Helper.query2(url);
+			
+			Data data = new Data(rawJSON, ENDPOINT_TYPE.dbpedia);
+			jsonObject = data.constructJSON(input);		
+		}	
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return jsonObject.toString();
 	}
-	
 }
