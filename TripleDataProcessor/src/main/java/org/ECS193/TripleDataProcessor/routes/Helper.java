@@ -45,28 +45,27 @@ public class Helper {
 	public static String query2(String url) throws IOException {
 		URL link = new URL(url);
 
-		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
-		httpLink.setRequestMethod("GET");
+		// HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+		// httpLink.setRequestMethod("GET");
 
-		String disposition = httpLink.getHeaderField("Content-Disposition");
-        String contentType = httpLink.getContentType();
+		// String disposition = httpLink.getHeaderField("Content-Disposition");
+  //       String contentType = httpLink.getContentType();
 
-        StringBuffer resp = new StringBuffer();
-        InputStream inputStream = httpLink.getInputStream();
+  //       StringBuffer resp = new StringBuffer();
+  //       InputStream inputStream = httpLink.getInputStream();
 
 
+		// BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+		// String inputLine;
 
-		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
-		String inputLine;
+		// while ((inputLine = in.readLine()) != null) {
+		// 	resp.append(inputLine);
+		// }
 
-		while ((inputLine = in.readLine()) != null) {
-			resp.append(inputLine);
-		}
+		// System.out.println("Raw Output: " + resp);
+		// System.out.println();
 
-		System.out.println("Raw Output: " + resp);
-		System.out.println();
-
-		return resp.toString();
+		return "";
 	}
 	
 
@@ -165,6 +164,18 @@ public class Helper {
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+
+		return url;
+	}
+
+	/* UC Davis Library Catalog */ 
+	/* NOTE:
+		- initial process, query on: LOC ID -> LIBRARY ID -> URIs
+	 */
+	public static String generate_librarysubject_query(String input) {
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";
 
 		return url;
 	}
