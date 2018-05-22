@@ -169,6 +169,22 @@ public class Helper {
 		return url;
 	}
 	
+	public static String generate_librarysubject_query(String input) {	
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";	
+		String url = 	
+				"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";	
+		
+		return url;	
+	}
+	
+	public static String generate_final_query(String input) {
+        input = "%22"+input.replaceAll(" ", "%20")+"%22";
+        String url = 
+        "http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+
+        return url;
+    }
+	
 	/* NOTE: 
 		- Parse JSON array object returned from VIAF DB query
 		- Return LOC ID from VIAF return object, used to query UCD library catalog
@@ -201,4 +217,15 @@ public class Helper {
 		
 		return libraryInput;
 	}
+	
+	public static String parserLibraryQuery(String input) throws IOException {
+        String finalInput = "";
+
+        finalInput = input.substring(170, input.length()-19);
+        System.out.println("finalInput: " + finalInput);
+
+        return finalInput;
+
+    }
+
 }
