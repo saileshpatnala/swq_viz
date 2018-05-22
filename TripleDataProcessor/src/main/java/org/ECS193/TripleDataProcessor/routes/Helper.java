@@ -54,8 +54,6 @@ public class Helper {
         StringBuffer resp = new StringBuffer();
         InputStream inputStream = httpLink.getInputStream();
 
-
-
 		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
 		String inputLine;
 
