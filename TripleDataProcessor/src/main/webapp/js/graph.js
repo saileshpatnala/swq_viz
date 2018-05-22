@@ -8,6 +8,7 @@ var UniversalL = [];    // Hold all unique graph links
 var GraphNodes = {};    // A map to hold all the nodes currently in graph
 var RQreps = 0;         // current number of requery NEED TO MAKE BOOLEAN
 var MAXRQ = 5;          // max number of reps
+var nodeRadius = 10; // nodeRadius of the d3 nodes displayed
 
 
 var svg = d3.select("svg"),
@@ -41,9 +42,9 @@ svg.append('defs').append('marker')
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().distance(200))
 	.force("collide",d3.forceCollide(20).iterations(16))
-    .force("charge", d3.forceManyBody())
+    .force("charge", d3.forceManyBody().strength(-1400))
     .force("center", d3.forceCenter(width / 2, height / 2))
-	.force("y", d3.forceY(0))
+    .force("y", d3.forceY(0))
 	.force("x", d3.forceX(0));
 
 
@@ -77,7 +78,7 @@ function createGraph(json) {
                 var node = {};
                 node["id"] = key.subject.value;
 
-                node["group"] = 1;
+                node["group"] = RQreps;
                 if (addNode(node)) {
                     if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
                             URIs.push(key.subject.value);
@@ -88,7 +89,7 @@ function createGraph(json) {
                 node = {};
                 node["id"] = key.object.value;
 
-                node["group"] = 1;
+                node["group"] = RQreps;
                 if(addNode(node)) {
                     if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
                             URIs.push(key.object.value);
@@ -243,7 +244,7 @@ function update() {
         .attr('class', 'node');
 
     var circle = node.append("circle")
-        .attr("r", 15)
+        .attr("r", nodeRadius)
         .attr("fill", function(d) { return colors(d.group); })
         .attr("cx", 0)
         .attr("cy", 0);
@@ -290,18 +291,16 @@ function update() {
 
 function ticked() {
 
-	let radius = 15;
-
    link = svg.selectAll(".link")
-		.attr("x1", function (d) {return Math.max(radius, Math.min(width-radius, d.source.x));})
-        .attr("y1", function (d) {return Math.max(radius, Math.min(width-radius, d.source.y));})
-        .attr("x2", function (d) {return Math.max(radius, Math.min(height-radius, d.target.x));})
-        .attr("y2", function (d) {return Math.max(radius, Math.min(height-radius, d.target.y));});
+		.attr("x1", function (d) {return Math.max(nodeRadius, Math.min(width-nodeRadius, d.source.x));})
+        .attr("y1", function (d) {return Math.max(nodeRadius, Math.min(width-nodeRadius, d.source.y));})
+        .attr("x2", function (d) {return Math.max(nodeRadius, Math.min(height-nodeRadius, d.target.x));})
+        .attr("y2", function (d) {return Math.max(nodeRadius, Math.min(height-nodeRadius, d.target.y));});
 
    node = svg.selectAll(".node")
         .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; })
-		.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-        .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+		.attr("cx", function(d) { return d.x = Math.max(nodeRadius, Math.min(width - nodeRadius, d.x)); })
+        .attr("cy", function(d) { return d.y = Math.max(nodeRadius, Math.min(height - nodeRadius, d.y)); });
 
     edgepaths.attr('d', function(d) {
         return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
