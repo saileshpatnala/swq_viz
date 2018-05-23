@@ -78,7 +78,8 @@ function createGraph(json) {
                 var node = {};
                 node["id"] = key.subject.value;
 
-                node["group"] = RQreps;
+                // node["group"] = RQreps;
+                node["group"] = 1;
                 if (addNode(node)) {
                     if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
                             URIs.push(key.subject.value);
@@ -89,7 +90,8 @@ function createGraph(json) {
                 node = {};
                 node["id"] = key.object.value;
 
-                node["group"] = RQreps;
+                // node["group"] = RQreps;
+                node["group"] = 1;
                 if(addNode(node)) {
                     if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
                             URIs.push(key.object.value);
