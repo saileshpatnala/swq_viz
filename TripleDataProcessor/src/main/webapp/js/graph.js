@@ -130,20 +130,21 @@ function addNode(node) {
 /* NOTE:
     - requerying the unresolved URIs using, appending to the origGraph and updating D3
  */
+
+var itr = 0;
 function requery() {
-	var i = 0;
     while (1) {
-        if (i === URIs.length) {
+        if (itr === URIs.length) {
             break;
         }
-        console.log(URIs[i]);
+        console.log(URIs[itr]);
 
         /* subject nodes */
-        if (URIs[i].search("/subjects/")) {
+        if (URIs[itr].search("/subjects/")) {
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/librarysubject",
-            data: URIs[i],
+            data: URIs[itr],
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
@@ -157,7 +158,7 @@ function requery() {
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/library",
-            data: URIs[i],
+            data: URIs[itr],
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
@@ -168,7 +169,7 @@ function requery() {
 
         }
 
-        i++;
+        itr++;
     }
 RQreps++;
 }
@@ -285,7 +286,7 @@ function update() {
     simulation.alpha(0.3).restart()
 
 	if(RQreps < MAXRQ){
-		requery();
+		setTimeout(function(){requery();},3000);
 	}
 }
 
