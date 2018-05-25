@@ -15,6 +15,8 @@ var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
+   var g = svg.append("g")
+        .attr("class", "everything");
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -77,7 +79,7 @@ function createGraph(json) {
             if (!(triple["predicate"] === "sameAs")) {
                 var node = {};
                 node["id"] = key.subject.value;
-
+                node["uri"] = key.subject.value;
                 // node["group"] = RQreps;
                 node["group"] = 1;
                 if (addNode(node)) {
@@ -89,7 +91,7 @@ function createGraph(json) {
 
                 node = {};
                 node["id"] = key.object.value;
-
+                node["uri"] = key.object.value;
                 // node["group"] = RQreps;
                 node["group"] = 1;
                 if(addNode(node)) {
@@ -99,8 +101,14 @@ function createGraph(json) {
                     UniversalN.push(node);
                 }
 
-                triple["source"] = UniversalN.findIndex(function(x) { return x.id === key.subject.value });
-                triple["target"] = UniversalN.findIndex(function(x) { return x.id === key.object.value });
+               let sourceIndex = UniversalN.findIndex(function(x) { return x.uri === key.subject.value });
+
+                if(triple["predicate"] === "title" || triple["predicate"] === "label"){
+                    UniversalN[sourceIndex].id = key.object.value;
+                }
+                triple["source"] = sourceIndex;
+
+                triple["target"] = UniversalN.findIndex(function(x) { return x.uri === key.object.value });
                 UniversalL.push(triple);
             }
         });
@@ -190,6 +198,9 @@ function update() {
 
 	console.log("lnks", UniversalL, "nds", UniversalN);
 
+    var node = svg.select("g").selectAll("g")
+    .data(nodes);
+
     link = svg.selectAll(".link")
         .data(links, function(d) { return d.source.id + "-" + d.target.id; });
 
@@ -234,17 +245,13 @@ function update() {
         })
         .merge(edgelabels);
 
-    var g = svg.append("g")
-        .attr("class", "everything");
 
-    var nodesd = g.append("g")
-        .attr("class", "nodes");
+    node.exit().remove();
 
-    var node = nodesd.selectAll("g")
-        .data(nodes)
-        .enter()
+    node = node.enter()
         .append("g")
         .attr('class', 'node');
+        // .merge(node);
 
     var circle = node.append("circle")
         .attr("r", nodeRadius)
@@ -252,8 +259,10 @@ function update() {
         .attr("cx", 0)
         .attr("cy", 0);
 
-    var text = node.append("text")
-        .style("text-anchor", "middle");
+    // var text = node.append("text")
+    //     .style("text-anchor", "middle");
+
+        // d3.selectAll("text").text(function(d){return d.id;}).style("text-anchor", "middle");;
 
     /* Add drag capabilities */
     var drag_handler = d3.drag()
@@ -274,14 +283,17 @@ function update() {
         .text(function(d) { return d.predicate });
 
 
-    node.append("title")
-        .text(function(d) { return d.id; });
+    // node.append("title")
+    //     .text(function(d) { return d.id; });
 
     node.append("text")
+        .attr("class", "ndtext")
         .attr("dy", -3)
         .style("font-family", "sans-serif")
         .style("font-size", "0.7em")
-        .text(function(d) { return d.id; });
+        .text(function(d) {return d.id; });
+
+    d3.selectAll(".ndtext").text(function(d){return d.id;});
 
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
@@ -304,6 +316,7 @@ function ticked() {
         .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; })
 		.attr("cx", function(d) { return d.x = Math.max(nodeRadius, Math.min(width - nodeRadius, d.x)); })
         .attr("cy", function(d) { return d.y = Math.max(nodeRadius, Math.min(height - nodeRadius, d.y)); });
+        // .attr("text", function(d) { return d.id});
 
     edgepaths.attr('d', function(d) {
         return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
