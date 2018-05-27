@@ -42,9 +42,9 @@ svg.append('defs').append('marker')
     - set up simulation to gravitate to center of svg component
  */
 var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().distance(200))
+    .force("link", d3.forceLink().distance(100))
 	.force("collide",d3.forceCollide(20).iterations(16))
-    .force("charge", d3.forceManyBody().strength(-1400))
+    .force("charge", d3.forceManyBody().strength(-2000))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("y", d3.forceY(0))
 	.force("x", d3.forceX(0));
@@ -251,7 +251,6 @@ function update() {
     node = node.enter()
         .append("g")
         .attr('class', 'node');
-        // .merge(node);
 
     var circle = node.append("circle")
         .attr("r", nodeRadius)
@@ -259,16 +258,10 @@ function update() {
         .attr("cx", 0)
         .attr("cy", 0);
 
-    // var text = node.append("text")
-    //     .style("text-anchor", "middle");
-
-        // d3.selectAll("text").text(function(d){return d.id;}).style("text-anchor", "middle");;
-
     /* Add drag capabilities */
     var drag_handler = d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged);
-    // .on("end", drag_end);
 
     drag_handler(node);
 
@@ -282,18 +275,16 @@ function update() {
         .attr("startOffset", "50%")
         .text(function(d) { return d.predicate });
 
-
-    // node.append("title")
-    //     .text(function(d) { return d.id; });
-
     node.append("text")
         .attr("class", "ndtext")
-        .attr("dy", -3)
+        .attr("dy", -1)
         .style("font-family", "sans-serif")
         .style("font-size", "0.7em")
         .text(function(d) {return d.id; });
 
-    d3.selectAll(".ndtext").text(function(d){return d.id;});
+    d3.selectAll(".ndtext")
+        .text(function(d){return d.id;})
+        .call(wrap, 200);
 
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
@@ -307,16 +298,15 @@ function update() {
 function ticked() {
 
    link = svg.selectAll(".link")
-		.attr("x1", function (d) {return Math.max(nodeRadius, Math.min(width-nodeRadius, d.source.x));})
-        .attr("y1", function (d) {return Math.max(nodeRadius, Math.min(width-nodeRadius, d.source.y));})
-        .attr("x2", function (d) {return Math.max(nodeRadius, Math.min(height-nodeRadius, d.target.x));})
-        .attr("y2", function (d) {return Math.max(nodeRadius, Math.min(height-nodeRadius, d.target.y));});
+		.attr("x1", function (d) {return d.source.x })
+        .attr("y1", function (d) {return d.source.y })
+        .attr("x2", function (d) {return d.target.x })
+        .attr("y2", function (d) {return d.target.y });
 
    node = svg.selectAll(".node")
         .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; })
-		.attr("cx", function(d) { return d.x = Math.max(nodeRadius, Math.min(width - nodeRadius, d.x)); })
-        .attr("cy", function(d) { return d.y = Math.max(nodeRadius, Math.min(height - nodeRadius, d.y)); });
-        // .attr("text", function(d) { return d.id});
+		.attr("cx", function(d) { return d.x })
+        .attr("cy", function(d) { return d.y });
 
     edgepaths.attr('d', function(d) {
         return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
@@ -333,6 +323,30 @@ function ticked() {
     });
 
     svg.select()
+}
+
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", 0).attr("dy", dy + "em")
+    while (word = words.pop()) {
+      line.push(word)
+      tspan.text(line.join(" "))
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop()
+        tspan.text(line.join(" "))
+        line = [word]
+        tspan = text.append("tspan").attr("x", 0).attr("y", 0).attr("dy", `${++lineNumber * lineHeight + dy}em`).text(word)
+      }
+    }
+  });
 }
 
 function dragstarted(d) {
