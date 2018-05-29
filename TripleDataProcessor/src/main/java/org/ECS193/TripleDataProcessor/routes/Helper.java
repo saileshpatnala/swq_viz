@@ -78,7 +78,6 @@ public class Helper {
 	public static String generate_reconciler_query(String loc_id) {
 		return "http://query.projectpassage.org/sparql/?query=PREFIX%20passagedt%3A%20%3Chttp%3A%2F%2F18.218.102.193%2Fprop%2Fdirect%2F%3E%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20passagee%3A%20%3Chttp%3A%2F%2F18.218.102.193%2Fentity%2F%3E%0APREFIX%20wikibase%3A%20%3Chttp%3A%2F%2Fwikiba.se%2Fontology%23%3E%0APREFIX%20rdf%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0A%0ASELECT%20%3FpersonURL%20%3FviafID%20%3FlocID%20%3FwikiID%20%3FfastID%20%3FisniID%20%3FimdbID%20%3Fauthor%20WHERE%20%7B%3FpersonURL%20passagedt%3AP5%20passagee%3AQ7%3B%0A%20passagedt%3AP6%20%3FviafID%3B%20passagedt%3AP105%20%3FlocID%3B%20passagedt%3AP8%20%3FwikiID%3B%20passagedt%3AP7%20%3FfastID%3B%20passagedt%3AP40%20%3FisniID%3B%20passagedt%3AP116%20%3FimdbID%3B%20rdfs%3Alabel%20%3Fauthor.%0A%20FILTER%28LANG%28%3Fauthor%29%3D%22en%22%20%26%26%20REGEX%28STR%28%3FlocID%29%2C%22"+loc_id+"%22%29%29.%0A%7D&format=json";
 	}
-	
 
 	/* VIAF */
 	public static String generate_viaf_query(String id) {
@@ -92,13 +91,11 @@ public class Helper {
 		return "https://www.wikidata.org/wiki/Special:EntityData/" + id + ".nt"; 
 	}
 
-
 	/* Wiki/DBpedia - metadata */
 	public static String generate_wikidbpedia_query(String id) {
 		id = id.replaceAll(" ", "%20"); 
 		return "http://wikidata.dbpedia.org/data/" + id + ".ntriples";
 	}
-	
 
 	/* DBpedia */
 	public static String generate_dbpedia_query(String id) throws IOException {
@@ -128,7 +125,6 @@ public class Helper {
 		id = id.replaceAll(" ", "%20"); 
 		return "http://id.loc.gov/authorities/names/" + id + ".nt";
 	}
-	
 
 	/* OCLC */	
 	/* NOTE:
@@ -139,7 +135,6 @@ public class Helper {
 		id = id.replaceAll(" ", "%20"); 
 		return "http://www.worldcat.org/oclc/" + id + ".nt";
 	}
-	
 
 	/* OMDB (+IMDB) */
 	/* NOTE:
@@ -154,7 +149,6 @@ public class Helper {
 		// return "http://www.omdbapi.com/?i=" + id + "&plot=full&r=json&apikey=10729f07";
 		return "";
 	}
-	
 
 	/* UC Davis Library Catalog */ 
 	/* NOTE:
