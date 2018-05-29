@@ -10,7 +10,7 @@
   <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" id="bootstrap-css">
 
   <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
   <!-- Optional theme -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
@@ -40,26 +40,88 @@
     $(function() {
       $(".clear").click(function() { $(this).prev("input").val(""); });
     }); 
-</script>
+  </script>
+
+  <style>
+    html, body {
+    height:100%;
+    width:100%;
+    margin:0;
+    padding:0;
+    }
+    #container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+    #header {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center; 
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    #search {
+      display: flex;
+      flex: 2;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+    }
+    #search-middle {
+      display: flex;
+      flex: 2;
+      border-color: #daaa00;
+    }
+    #search-left, #search-right {
+      display: flex;
+      flex: 1;
+    }
+    #footer {
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    #myViafId {
+      border-radius: 6px 0 0 6px;
+      border: 1px solid #daaa00;
+    }
+  </style>
 
 </head>
 <body>
-<h1>Semantic Web Search</h1>
-
-<div class="ui-widget">
-    <div class="row">
-      <div class="col-xs-6 col-md-4">
-        <div class="input-group">
-          <input type="text" class="ui-widget-content" placeholder="Search" id="myViafId" name="input">
-          <div class="input-group-btn">
-            <button id="submit" class="btn btn-primary" type="submit" value="Submit">
-              <span class="glyphicon glyphicon-search"></span>
-            </button>
-          </div>
-        </div>
+<div id="container">
+  <div id="header">
+    <h1 style="font-size: auto;">Semantic Web Search</h1>  
+  </div>
+  <div id="search">
+    <div id="search-left">
+      
+    </div>
+    <div id="search-middle">
+      <div class="input-group input-group-lg" id="search-input">
+      <input type="text" class="form-control" placeholder="Search" id="myViafId" name="input" aria-describedby="sizing-addon1"/>
+      <div class="input-group-btn">
+        <button id="submit" class="btn btn-primary" type="submit" value="Submit">
+          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+        </button>
       </div>
     </div>
+    </div>
+    <div id="search-right">
+      
+    </div>
+  </div>
+    <div id="footer">
+      <p align="center"> All rights belong to the Data Science Initiative at UC Davis. <br/> Please contact for private or public use of this website.</p>
+  </div>
 </div>
+
 
 </body>
 </html>

@@ -11,12 +11,17 @@ var MAXRQ = 5;          // max number of reps
 var nodeRadius = 10; // nodeRadius of the d3 nodes displayed
 
 
-var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
 
-   var g = svg.append("g")
-        .attr("class", "everything");
+var svg = d3.select("body")
+    .append("svg")
+    .style("width", window.innerWidth)
+    .style("height", window.innerHeight)
+    .call(d3.zoom()
+      .scaleExtent([0.5, 10])
+      .on("zoom", zoomed));;
+
+width = window.innerWidth;
+height = window.innerHeight;
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -36,6 +41,14 @@ svg.append('defs').append('marker')
     .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
     .attr('fill', '#000')
     .style('stroke', 'none');
+
+
+var g = svg.append("g")
+    .attr("class", "everything");
+
+  function zoomed() {
+    g.attr("transform", d3.event.transform);
+  }
 
 
 /* NOTE:
@@ -196,12 +209,12 @@ function update() {
 	var links = UniversalL;
 	var nodes = UniversalN;
 
+    g = svg.select("g");
+
 	console.log("lnks", UniversalL, "nds", UniversalN);
 
-    var node = svg.select("g").selectAll("g")
-    .data(nodes);
 
-    link = svg.selectAll(".link")
+    link = svg.select("g").selectAll(".link")
         .data(links, function(d) { return d.source.id + "-" + d.target.id; });
 
     link.exit().remove();
@@ -212,7 +225,7 @@ function update() {
         .attr('marker-end', 'url(#arrowhead)')
         .merge(link);
 
-    edgepaths = svg.selectAll(".edgepath")
+    edgepaths = svg.select("g").selectAll(".edgepath")
         .data(links);
 
     edgepaths.exit().remove();
@@ -227,7 +240,7 @@ function update() {
         .style("pointer-events", "none")
         .merge(edgepaths);
 
-    edgelabels = svg.selectAll(".edgelabel")
+    edgelabels = svg.select("g").selectAll(".edgelabel")
         .data(links);
 
     edgelabels.exit().remove();
@@ -245,6 +258,8 @@ function update() {
         })
         .merge(edgelabels);
 
+    var node = svg.select("g").selectAll("g")
+    .data(nodes);
 
     node.exit().remove();
 
