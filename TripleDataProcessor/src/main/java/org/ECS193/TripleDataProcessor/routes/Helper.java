@@ -45,25 +45,25 @@ public class Helper {
 	public static String query2(String url) throws IOException {
 		URL link = new URL(url);
 
-		// HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
-		// httpLink.setRequestMethod("GET");
+		 HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+		 httpLink.setRequestMethod("GET");
 
-		// String disposition = httpLink.getHeaderField("Content-Disposition");
-  //       String contentType = httpLink.getContentType();
+		 String disposition = httpLink.getHeaderField("Content-Disposition");
+         String contentType = httpLink.getContentType();
 
-  //       StringBuffer resp = new StringBuffer();
-  //       InputStream inputStream = httpLink.getInputStream();
+         StringBuffer resp = new StringBuffer();
+         InputStream inputStream = httpLink.getInputStream();
 
 
-		// BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
-		// String inputLine;
+		 BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+		 String inputLine;
 
-		// while ((inputLine = in.readLine()) != null) {
-		// 	resp.append(inputLine);
-		// }
+		 while ((inputLine = in.readLine()) != null) {
+		 	resp.append(inputLine);
+		 }
 
-		// System.out.println("Raw Output: " + resp);
-		// System.out.println();
+		 System.out.println("Raw Output: " + resp);
+		 System.out.println();
 
 		return "";
 	}
