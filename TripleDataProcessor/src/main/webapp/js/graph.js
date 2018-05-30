@@ -14,8 +14,8 @@ var nodeRadius = 10; // nodeRadius of the d3 nodes displayed
 
 var svg = d3.select("body")
     .append("svg")
-    .style("width", window.innerWidth)
-    .style("height", window.innerHeight)
+    .style("width", window.innerWidth + "px")
+    .style("height", window.innerHeight + "px")
     .call(d3.zoom()
       .scaleExtent([0.5, 10])
       .on("zoom", zoomed));;
