@@ -206,7 +206,7 @@ function requery() {
             contentType: "text/plain",
             success: function(json) {
                 console.log("POST successful");
-                endptColor = 3
+                endptColor = 3;
                 createGraph(JSON.parse(json));
                 update();
             }
