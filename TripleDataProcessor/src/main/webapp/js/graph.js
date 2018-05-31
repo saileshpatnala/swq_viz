@@ -8,12 +8,20 @@ var UniversalL = [];    // Hold all unique graph links
 var GraphNodes = {};    // A map to hold all the nodes currently in graph
 var RQreps = 0;         // current number of requery NEED TO MAKE BOOLEAN
 var MAXRQ = 5;          // max number of reps
+var nodeRadius = 10; // nodeRadius of the d3 nodes displayed
 
 
-var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
 
+var svg = d3.select("body")
+    .append("svg")
+    .style("width", window.innerWidth + "px")
+    .style("height", window.innerHeight + "px")
+    .call(d3.zoom()
+      .scaleExtent([0.5, 10])
+      .on("zoom", zoomed));;
+
+width = window.innerWidth;
+height = window.innerHeight;
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -35,15 +43,23 @@ svg.append('defs').append('marker')
     .style('stroke', 'none');
 
 
+var g = svg.append("g")
+    .attr("class", "everything");
+
+  function zoomed() {
+    g.attr("transform", d3.event.transform);
+  }
+
+
 /* NOTE:
     - set up simulation to gravitate to center of svg component
  */
 var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().distance(200))
+    .force("link", d3.forceLink().distance(100))
 	.force("collide",d3.forceCollide(20).iterations(16))
-    .force("charge", d3.forceManyBody())
+    .force("charge", d3.forceManyBody().strength(-2000))
     .force("center", d3.forceCenter(width / 2, height / 2))
-	.force("y", d3.forceY(0))
+    .force("y", d3.forceY(0))
 	.force("x", d3.forceX(0));
 
 
@@ -76,7 +92,8 @@ function createGraph(json) {
             if (!(triple["predicate"] === "sameAs")) {
                 var node = {};
                 node["id"] = key.subject.value;
-
+                node["uri"] = key.subject.value;
+                // node["group"] = RQreps;
                 node["group"] = 1;
                 if (addNode(node)) {
                     if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
@@ -87,7 +104,8 @@ function createGraph(json) {
 
                 node = {};
                 node["id"] = key.object.value;
-
+                node["uri"] = key.object.value;
+                // node["group"] = RQreps;
                 node["group"] = 1;
                 if(addNode(node)) {
                     if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
@@ -96,8 +114,14 @@ function createGraph(json) {
                     UniversalN.push(node);
                 }
 
-                triple["source"] = UniversalN.findIndex(function(x) { return x.id === key.subject.value });
-                triple["target"] = UniversalN.findIndex(function(x) { return x.id === key.object.value });
+               let sourceIndex = UniversalN.findIndex(function(x) { return x.uri === key.subject.value });
+
+                if(triple["predicate"] === "title" || triple["predicate"] === "label"){
+                    UniversalN[sourceIndex].id = key.object.value;
+                }
+                triple["source"] = sourceIndex;
+
+                triple["target"] = UniversalN.findIndex(function(x) { return x.uri === key.object.value });
                 UniversalL.push(triple);
             }
         });
@@ -129,23 +153,24 @@ function addNode(node) {
 /* NOTE:
     - requerying the unresolved URIs using, appending to the origGraph and updating D3
  */
+
+var itr = 0;
 function requery() {
-	var i = 0;
     while (1) {
-        if (i === URIs.length) {
+        if (itr === URIs.length) {
             break;
         }
-        console.log(URIs[i]);
+        console.log(URIs[itr]);
 
         /* subject nodes */
-        if (URIs[i].search("/subjects/")) {
+        if (URIs[itr].includes("/subjects/")) {
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/librarysubject",
-            data: URIs[i],
+            data: URIs[itr],
             contentType: "application/json",
             success: function(json) {
-                console.log("POST successful");
+                console.log("POST successful SUBJECT");
                 createGraph(json);
                 update();
             }
@@ -155,11 +180,11 @@ function requery() {
         else {
             jQuery.ajax({
             type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/library",
-            data: URIs[i],
+            url: "http://localhost:8080/TripleDataProcessor/webapi/libraryall",
+            data: URIs[itr],
             contentType: "application/json",
             success: function(json) {
-                console.log("POST successful");
+                console.log("POST successful OTHER");
                 createGraph(json);
                 update();
             }
@@ -167,7 +192,7 @@ function requery() {
 
         }
 
-        i++;
+        itr++;
     }
 RQreps++;
 }
@@ -184,9 +209,12 @@ function update() {
 	var links = UniversalL;
 	var nodes = UniversalN;
 
+    g = svg.select("g");
+
 	console.log("lnks", UniversalL, "nds", UniversalN);
 
-    link = svg.selectAll(".link")
+
+    link = svg.select("g").selectAll(".link")
         .data(links, function(d) { return d.source.id + "-" + d.target.id; });
 
     link.exit().remove();
@@ -197,7 +225,7 @@ function update() {
         .attr('marker-end', 'url(#arrowhead)')
         .merge(link);
 
-    edgepaths = svg.selectAll(".edgepath")
+    edgepaths = svg.select("g").selectAll(".edgepath")
         .data(links);
 
     edgepaths.exit().remove();
@@ -212,7 +240,7 @@ function update() {
         .style("pointer-events", "none")
         .merge(edgepaths);
 
-    edgelabels = svg.selectAll(".edgelabel")
+    edgelabels = svg.select("g").selectAll(".edgelabel")
         .data(links);
 
     edgelabels.exit().remove();
@@ -230,32 +258,25 @@ function update() {
         })
         .merge(edgelabels);
 
-    var g = svg.append("g")
-        .attr("class", "everything");
+    var node = svg.select("g").selectAll("g")
+    .data(nodes);
 
-    var nodesd = g.append("g")
-        .attr("class", "nodes");
+    node.exit().remove();
 
-    var node = nodesd.selectAll("g")
-        .data(nodes)
-        .enter()
+    node = node.enter()
         .append("g")
         .attr('class', 'node');
 
     var circle = node.append("circle")
-        .attr("r", 15)
+        .attr("r", nodeRadius)
         .attr("fill", function(d) { return colors(d.group); })
         .attr("cx", 0)
         .attr("cy", 0);
-
-    var text = node.append("text")
-        .style("text-anchor", "middle");
 
     /* Add drag capabilities */
     var drag_handler = d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged);
-    // .on("end", drag_end);
 
     drag_handler(node);
 
@@ -269,39 +290,38 @@ function update() {
         .attr("startOffset", "50%")
         .text(function(d) { return d.predicate });
 
-
-    node.append("title")
-        .text(function(d) { return d.id; });
-
     node.append("text")
-        .attr("dy", -3)
+        .attr("class", "ndtext")
+        .attr("dy", -1)
         .style("font-family", "sans-serif")
         .style("font-size", "0.7em")
-        .text(function(d) { return d.id; });
+        .text(function(d) {return d.id; });
+
+    d3.selectAll(".ndtext")
+        .text(function(d){return d.id;})
+        .call(wrap, 200);
 
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
     simulation.alpha(0.3).restart()
 
 	if(RQreps < MAXRQ){
-		requery();
+		setTimeout(function(){requery();},3000);
 	}
 }
 
 function ticked() {
 
-	let radius = 15;
-
    link = svg.selectAll(".link")
-		.attr("x1", function (d) {return Math.max(radius, Math.min(width-radius, d.source.x));})
-        .attr("y1", function (d) {return Math.max(radius, Math.min(width-radius, d.source.y));})
-        .attr("x2", function (d) {return Math.max(radius, Math.min(height-radius, d.target.x));})
-        .attr("y2", function (d) {return Math.max(radius, Math.min(height-radius, d.target.y));});
+		.attr("x1", function (d) {return d.source.x })
+        .attr("y1", function (d) {return d.source.y })
+        .attr("x2", function (d) {return d.target.x })
+        .attr("y2", function (d) {return d.target.y });
 
    node = svg.selectAll(".node")
         .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; })
-		.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
-        .attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
+		.attr("cx", function(d) { return d.x })
+        .attr("cy", function(d) { return d.y });
 
     edgepaths.attr('d', function(d) {
         return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
@@ -318,6 +338,30 @@ function ticked() {
     });
 
     svg.select()
+}
+
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", 0).attr("dy", dy + "em")
+    while (word = words.pop()) {
+      line.push(word)
+      tspan.text(line.join(" "))
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop()
+        tspan.text(line.join(" "))
+        line = [word]
+        tspan = text.append("tspan").attr("x", 0).attr("y", 0).attr("dy", `${++lineNumber * lineHeight + dy}em`).text(word)
+      }
+    }
+  });
 }
 
 function dragstarted(d) {

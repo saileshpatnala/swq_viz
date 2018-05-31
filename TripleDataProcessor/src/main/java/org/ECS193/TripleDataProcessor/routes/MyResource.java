@@ -48,7 +48,30 @@ public class MyResource {
 		}
 		return null;
 	}
- 
+ 	
+ 	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String get(@CookieParam(COOKIE_PARAM) String input) {
+		System.out.println("GET request: " + input);
+		String result = "";
+		String libraryInput = "";
+		String url = "";
+		JSONObject jsonObject = new JSONObject();
+		try {
+			libraryInput = Helper.parserViaf(input);
+			url = Helper.generate_library_query(libraryInput);
+			result = Helper.query(url);
+			Data data = new Data(result, ENDPOINT_TYPE.library);
+			jsonObject = data.constructJSON(input);
+
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	  
+		return jsonObject.toString();
+	}
+ 	/*
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@CookieParam(COOKIE_PARAM) String input) {
@@ -80,5 +103,6 @@ public class MyResource {
 	  
 		return jsonObject.toString();
 	}
+	*/
 	
 }

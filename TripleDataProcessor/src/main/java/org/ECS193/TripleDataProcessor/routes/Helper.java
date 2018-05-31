@@ -45,26 +45,27 @@ public class Helper {
 	public static String query2(String url) throws IOException {
 		URL link = new URL(url);
 
-		HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
-		httpLink.setRequestMethod("GET");
+		// HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
+		// httpLink.setRequestMethod("GET");
 
-		String disposition = httpLink.getHeaderField("Content-Disposition");
-        String contentType = httpLink.getContentType();
+		// String disposition = httpLink.getHeaderField("Content-Disposition");
+  //       String contentType = httpLink.getContentType();
 
-        StringBuffer resp = new StringBuffer();
-        InputStream inputStream = httpLink.getInputStream();
+  //       StringBuffer resp = new StringBuffer();
+  //       InputStream inputStream = httpLink.getInputStream();
 
-		BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
-		String inputLine;
 
-		while ((inputLine = in.readLine()) != null) {
-			resp.append(inputLine);
-		}
+		// BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
+		// String inputLine;
 
-		System.out.println("Raw Output: " + resp);
-		System.out.println();
+		// while ((inputLine = in.readLine()) != null) {
+		// 	resp.append(inputLine);
+		// }
 
-		return resp.toString();
+		// System.out.println("Raw Output: " + resp);
+		// System.out.println();
+
+		return "";
 	}
 	
 
@@ -147,12 +148,14 @@ public class Helper {
 		- Set up your own API key on OMDBAPI website if needed.
 		- lack of decent, public movie data APIs (IMDB doesn't offer a API, Netflix removed their API, Rotten Tomatoes' API requires an approval process, etc). 
      */
+	/*
 	public static String generate_imdb_query(String id) {
 		id = id.replaceAll(" ", "%20"); 
 		// THIS QUERY DOES NOT RETURN TRIPLE== DOES NOT WORK
 		// return "http://www.omdbapi.com/?i=" + id + "&plot=full&r=json&apikey=10729f07";
 		return "";
 	}
+	*/
 	
 
 	/* UC Davis Library Catalog */ 
@@ -163,6 +166,30 @@ public class Helper {
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
 		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+%7C%7C+REGEX(STR(?predicate),+"+input+"+)+%7C%7C+REGEX(STR(?object),+"+input+"+)+)+}";
+
+		return url;
+	}
+
+	/* UC Davis Library Catalog */ 
+	/* NOTE:
+		- used for d3 graph growth 
+	 */
+	public static String generate_libraryall_query(String input) {
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";
+
+		return url;
+	}
+
+	/* UC Davis Library Catalog */ 
+	/* NOTE:
+		- used for d3 graph growth only for "/subjects/" URIs
+	 */
+	public static String generate_librarysubject_query(String input) {
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}+limit+1";
 
 		return url;
 	}
