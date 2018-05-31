@@ -170,12 +170,24 @@ public class Helper {
 
 	/* UC Davis Library Catalog */ 
 	/* NOTE:
-		- initial process, query on: LOC ID -> LIBRARY ID -> URIs
+		- used for d3 graph growth 
+	 */
+	public static String generate_libraryall_query(String input) {
+		input = "%22"+input.replaceAll(" ", "%20")+"%22";
+		String url = 
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";
+
+		return url;
+	}
+
+	/* UC Davis Library Catalog */ 
+	/* NOTE:
+		- used for d3 graph growth only for "/subjects/" URIs
 	 */
 	public static String generate_librarysubject_query(String input) {
 		input = "%22"+input.replaceAll(" ", "%20")+"%22";
 		String url = 
-		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}";
+		"http://localhost:3030/ds/sparql?query=select+?subject+?predicate+?object+WHERE+{+?subject+?predicate+?object+.+FILTER+(+REGEX(STR(?subject),+" + input + "+)+)+}+limit+1";
 
 		return url;
 	}

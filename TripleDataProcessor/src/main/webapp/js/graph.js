@@ -163,14 +163,14 @@ function requery() {
         console.log(URIs[itr]);
 
         /* subject nodes */
-        if (URIs[itr].search("/subjects/")) {
+        if (URIs[itr].includes("/subjects/")) {
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/librarysubject",
             data: URIs[itr],
             contentType: "application/json",
             success: function(json) {
-                console.log("POST successful");
+                console.log("POST successful SUBJECT");
                 createGraph(json);
                 update();
             }
@@ -180,11 +180,11 @@ function requery() {
         else {
             jQuery.ajax({
             type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/library",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/libraryall",
             data: URIs[itr],
             contentType: "application/json",
             success: function(json) {
-                console.log("POST successful");
+                console.log("POST successful OTHER");
                 createGraph(json);
                 update();
             }
