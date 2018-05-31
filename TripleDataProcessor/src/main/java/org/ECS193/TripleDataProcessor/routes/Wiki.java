@@ -28,13 +28,15 @@ public class Wiki {
 	public String post(String input) {
 		System.out.println("POST request: " + input);
 		String output = "";
+		
+		Conf yaml = new Conf();
 
-		try {
-			return parserWiki(input);
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			return parserWiki(input);
+//		} 
+//		catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		return output;
 	}
 	
