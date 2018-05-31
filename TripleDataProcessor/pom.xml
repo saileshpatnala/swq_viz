@@ -78,8 +78,14 @@
         	<groupId>org.json</groupId>
         	<artifactId>json</artifactId>
         	<version>20170516</version>
-        	
         </dependency>
+        
+        <dependency>
+   		<groupId>org.yaml</groupId>
+   		<artifactId>snakeyaml</artifactId>
+   		<version>1.7</version>
+		</dependency>
+
     </dependencies>
     <properties>
         <jersey.version>2.16</jersey.version>
