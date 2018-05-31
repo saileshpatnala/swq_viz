@@ -6,11 +6,11 @@ var URIs = [];          // Store all incoming URIs to be queried
 var UniversalN = [];    // Hold all unique graph nodes
 var UniversalL = [];    // Hold all unique graph links
 var GraphNodes = {};    // A map to hold all the nodes currently in graph
-var RQreps = 0;         // current number of requery NEED TO MAKE BOOLEAN
-var MAXRQ = 5;          // max number of reps
-var nodeRadius = 10; // nodeRadius of the d3 nodes displayed
-
-
+var RQreps = 0;         // Current number of requery "NOTE::NEED TO MAKE BOOLEAN"
+var MAXRQ = 7;          // Max number of reps
+var nodeRadius = 10;    // Node radius of the d3 nodes displayed
+var itr = 0;            // Iterator to track next URI to query
+var endptColor = 1;     // to set color for each endpoint queried KEY:[ 1: LIBRARY, 2:]
 
 var svg = d3.select("body")
     .append("svg")
@@ -18,10 +18,21 @@ var svg = d3.select("body")
     .style("height", window.innerHeight + "px")
     .call(d3.zoom()
       .scaleExtent([0.5, 10])
-      .on("zoom", zoomed));;
+      .on("zoom", zoomed));
 
 width = window.innerWidth;
 height = window.innerHeight;
+
+window.addEventListener("resize", redraw);
+
+function redraw(){
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+     svg
+      .style("width", width)
+      .style("height", height);
+}
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -55,13 +66,23 @@ var g = svg.append("g")
     - set up simulation to gravitate to center of svg component
  */
 var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().distance(100))
+    .force("link", d3.forceLink().distance(100).strength(1))
 	.force("collide",d3.forceCollide(20).iterations(16))
-    .force("charge", d3.forceManyBody().strength(-2000))
+    .force("charge", d3.forceManyBody().strength(-1500))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("y", d3.forceY(0))
 	.force("x", d3.forceX(0));
 
+/* NOTE:
+    - Query for first set of triples in library for the search term
+*/
+d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
+    if (error) throw error;
+
+    createGraph(json);
+
+    update();
+});
 
 /* NOTE:
     - converting the predicate URI into string parsing the URI from last occurrence of # or /
@@ -73,7 +94,7 @@ function parsePredicateValue(predicateURI) {
         pos = predicateURI.lastIndexOf("/");
     }
     var predicate = predicateURI.substr(pos + 1, lenURI);
-    return predicate
+    return predicate.replace('>','');
 }
 
 
@@ -86,6 +107,9 @@ function createGraph(json) {
         var triples = json[key];
         triples.forEach(function(key) {
             var triple = {};
+            key.subject.value = key.subject.value.replace('>','').replace('<','');
+            key.object.value = key.object.value.replace('>','').replace('<','');
+
             /* call to parse and extract predicate value */
             triple["predicate"] = parsePredicateValue(key.predicate.value);
             triple["value"] = 1;
@@ -93,11 +117,10 @@ function createGraph(json) {
                 var node = {};
                 node["id"] = key.subject.value;
                 node["uri"] = key.subject.value;
-                // node["group"] = RQreps;
-                node["group"] = 1;
+                node["group"] = endptColor;
                 if (addNode(node)) {
-                    if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
-                            URIs.push(key.subject.value);
+                    if((key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) || key.subject.value.includes("OCoLC")) {
+                        URIs.push(key.subject.value);
                         }
                     UniversalN.push(node);
                 }
@@ -105,11 +128,10 @@ function createGraph(json) {
                 node = {};
                 node["id"] = key.object.value;
                 node["uri"] = key.object.value;
-                // node["group"] = RQreps;
-                node["group"] = 1;
+                node["group"] = endptColor;
                 if(addNode(node)) {
-                    if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
-                            URIs.push(key.object.value);
+                    if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value) || key.object.value.includes("OCoLC")) {
+                        URIs.push(key.object.value);
                     }
                     UniversalN.push(node);
                 }
@@ -129,9 +151,11 @@ function createGraph(json) {
 
 }
 
-
+/* NOTE:
+    - This function filters only the triples we want into the URI array
+*/
 function URI_filter(uri){
-	if(uri.search("/oclc/") !== -1 || uri.search("/names/") !== -1  || uri.search("/bibs/") !== -1 || uri.search("/subjects/") !== -1)
+	if(uri.includes("/oclc/") || uri.includes("/names/") || uri.includes("/bibs/") || uri.includes("/subjects/"))
 		return true;
 	return false;
 }
@@ -153,17 +177,44 @@ function addNode(node) {
 /* NOTE:
     - requerying the unresolved URIs using, appending to the origGraph and updating D3
  */
-
-var itr = 0;
 function requery() {
     while (1) {
         if (itr === URIs.length) {
             break;
         }
         console.log(URIs[itr]);
-
-        /* subject nodes */
-        if (URIs[itr].search("/subjects/")) {
+        if(URIs[itr].includes("OCoLC")){
+            console.log("oclc");
+            jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
+            data: URIs[itr].replace('(OCoLC)',''),
+            contentType: "text/plain",
+            success: function(json) {
+                console.log("POST successful");
+                endptColor = 2;
+                createGraph(json);
+                update();
+            }
+            });
+        } else if(URIs[itr].includes("id.loc.gov")){
+            console.log("loc");
+            jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/libraryofcongress",
+            data: URIs[itr].replace('http://id.loc.gov/authorities/names/',''),
+            contentType: "text/plain",
+            success: function(json) {
+                console.log("POST successful");
+                endptColor = 3
+                createGraph(JSON.parse(json));
+                update();
+            }
+            });
+            itr++;
+            continue;
+        } else if (URIs[itr].includes("/subjects/")) { /*subject nodes*/
+            console.log("subject");
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/librarysubject",
@@ -171,6 +222,7 @@ function requery() {
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
+                endptColor = 1;
                 createGraph(json);
                 update();
             }
@@ -178,6 +230,7 @@ function requery() {
         }
         /* all other nodes */
         else {
+            console.log("regular");
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/library",
@@ -185,6 +238,7 @@ function requery() {
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
+                endptColor = 1;
                 createGraph(json);
                 update();
             }
@@ -196,14 +250,6 @@ function requery() {
     }
 RQreps++;
 }
-
-d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
-    if (error) throw error;
-
-	createGraph(json);
-
-	update();
-});
 
 function update() {
 	var links = UniversalL;
@@ -306,7 +352,7 @@ function update() {
     simulation.alpha(0.3).restart()
 
 	if(RQreps < MAXRQ){
-		setTimeout(function(){requery();},3000);
+		setTimeout(function(){requery();},5000);
 	}
 }
 
