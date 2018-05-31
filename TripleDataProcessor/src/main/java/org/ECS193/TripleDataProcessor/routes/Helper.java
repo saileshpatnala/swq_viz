@@ -148,12 +148,14 @@ public class Helper {
 		- Set up your own API key on OMDBAPI website if needed.
 		- lack of decent, public movie data APIs (IMDB doesn't offer a API, Netflix removed their API, Rotten Tomatoes' API requires an approval process, etc). 
      */
+	/*
 	public static String generate_imdb_query(String id) {
 		id = id.replaceAll(" ", "%20"); 
 		// THIS QUERY DOES NOT RETURN TRIPLE== DOES NOT WORK
 		// return "http://www.omdbapi.com/?i=" + id + "&plot=full&r=json&apikey=10729f07";
 		return "";
 	}
+	*/
 	
 
 	/* UC Davis Library Catalog */ 
