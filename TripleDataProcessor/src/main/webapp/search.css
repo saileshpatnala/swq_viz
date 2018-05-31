@@ -1,0 +1,79 @@
+* {
+  font-family: 'Montserrat';
+}
+
+html, body {
+  height:100%;
+  width:100%;
+  margin:0;
+  padding:0;
+}
+
+#container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+#header {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center; 
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 50px;
+  color: #012756;
+}
+
+#search {
+  display: flex;
+  flex: 2;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+}
+
+#search-middle {
+  display: flex;
+  flex: 2;
+  border-color: #daaa00;
+}
+
+#search-left, #search-right {
+  display: flex;
+  flex: 1;
+}
+
+#submit {
+  background-color: #012756;
+}
+
+#footer {
+  display: flex;
+  flex-direction:column;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+#disclaimer {
+  font-size: medium;
+}
+
+img {
+  width: 30%;
+  height: auto;
+}
+
+#myViafId {
+  border-radius: 6px 0 0 6px;
+  border: 1px solid #daaa00;
+}
