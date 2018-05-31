@@ -23,6 +23,17 @@ var svg = d3.select("body")
 width = window.innerWidth;
 height = window.innerHeight;
 
+window.addEventListener("resize", redraw);
+
+function redraw(){
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+     svg
+      .style("width", width)
+      .style("height", height);
+}
+
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 
