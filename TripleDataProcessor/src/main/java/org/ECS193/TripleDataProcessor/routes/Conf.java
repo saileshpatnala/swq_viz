@@ -15,9 +15,9 @@ public class Conf {
 	String fileName = "conf.yml";
 	ArrayList<String> key = new ArrayList<String>();
     ArrayList<String> value = new ArrayList<String>();
-	public Conf() {
+	
+    public Conf() {
 		loadYaml();
-//		endpointMapping = new HashMap<>();
 	}
 	
 	void loadYaml() {
