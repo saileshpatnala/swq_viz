@@ -42,33 +42,6 @@ public class Helper {
 		return resp.toString();
 	}
 
-	public static String query2(String url) throws IOException {
-		URL link = new URL(url);
-
-		// HttpURLConnection httpLink = (HttpURLConnection) link.openConnection();
-		// httpLink.setRequestMethod("GET");
-
-		// String disposition = httpLink.getHeaderField("Content-Disposition");
-  //       String contentType = httpLink.getContentType();
-
-  //       StringBuffer resp = new StringBuffer();
-  //       InputStream inputStream = httpLink.getInputStream();
-
-
-		// BufferedReader in = new BufferedReader(new InputStreamReader(httpLink.getInputStream()));
-		// String inputLine;
-
-		// while ((inputLine = in.readLine()) != null) {
-		// 	resp.append(inputLine);
-		// }
-
-		// System.out.println("Raw Output: " + resp);
-		// System.out.println();
-
-		return "";
-	}
-	
-
 	/* NOTE:
 		- Generates JSON list of reconciler IDs and author
 		- Query on the LOC ID 
@@ -119,7 +92,7 @@ public class Helper {
 		System.out.println("---- name from DBpedia ------ " + name);
 
 		/* STEP 2 - get n-triples dataset from foaf:name literal */
-		return "dbpedia.org/data/" + name + ".ntriples ";
+		return "http://dbpedia.org/data/" + name + ".ntriples ";
 	}
 
 

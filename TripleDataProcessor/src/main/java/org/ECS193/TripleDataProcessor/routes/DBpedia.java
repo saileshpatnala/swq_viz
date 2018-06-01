@@ -43,9 +43,8 @@ public class DBpedia {
 
 		try {
 			String url = Helper.generate_dbpedia_query(input);
-			String rawJSON = Helper.query2(url);
 			
-			Data data = new Data(rawJSON, ENDPOINT_TYPE.dbpedia);
+			Data data = new Data(url, ENDPOINT_TYPE.dbpedia);
 			jsonObject = data.constructJSON(input);		
 		}	
 		catch(Exception e) {
