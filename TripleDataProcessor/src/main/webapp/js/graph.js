@@ -119,7 +119,7 @@ function createGraph(json) {
                 node["uri"] = key.subject.value;
                 node["group"] = endptColor;
                 if (addNode(node)) {
-                    if((key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) || key.subject.value.includes("OCoLC")) {
+                    if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
                         URIs.push(key.subject.value);
                         }
                     UniversalN.push(node);
@@ -130,7 +130,7 @@ function createGraph(json) {
                 node["uri"] = key.object.value;
                 node["group"] = endptColor;
                 if(addNode(node)) {
-                    if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value) || key.object.value.includes("OCoLC")) {
+                    if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
                         URIs.push(key.object.value);
                     }
                     UniversalN.push(node);
@@ -183,36 +183,39 @@ function requery() {
             break;
         }
         console.log(URIs[itr]);
-        if(URIs[itr].includes("OCoLC")){
-            console.log("oclc");
-            jQuery.ajax({
-            type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
-            data: URIs[itr].replace('(OCoLC)',''),
-            contentType: "text/plain",
-            success: function(json) {
-                console.log("POST successful");
-                endptColor = 2;
-                createGraph(json);
-                update();
-            }
-            });
-        } else if(URIs[itr].includes("id.loc.gov")){
+        // if(URIs[itr].includes("www.worldcat.org/oclc/")){
+        //     console.log("oclc");
+        //     jQuery.ajax({
+        //     type: "POST",
+        //     url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
+        //     data: URIs[itr].replace('http://www.worldcat.org/oclc/',''),
+        //     contentType: "text/plain",
+        //     success: function(json) {
+        //         console.log("POST successful");
+        //         endptColor = 2;
+        //         createGraph(json);
+        //         update();
+        //     }
+        //     });
+        // } else 
+        if(URIs[itr].includes("id.loc.gov/authorities/names/")){
             console.log("loc");
             jQuery.ajax({
             type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/libraryofcongress",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/reconcile",
             data: URIs[itr].replace('http://id.loc.gov/authorities/names/',''),
             contentType: "text/plain",
             success: function(json) {
                 console.log("POST successful");
                 endptColor = 3;
-                createGraph(JSON.parse(json));
-                update();
+				console.log("recon", json);
+                if(json.length() > 0){
+                    console.log("greater");   
+                } else { console.log("0");}
+                //createGraph(JSON.parse(json));
+                //update();
             }
             });
-            itr++;
-            continue;
         } else if (URIs[itr].includes("/subjects/")) { /*subject nodes*/
             console.log("subject");
             jQuery.ajax({
