@@ -115,22 +115,22 @@ function createGraph(json) {
             triple["value"] = 1;
             if (!(triple["predicate"] === "sameAs")) {
                 var node = {};
-                node["id"] = key.subject.value;
+                node["id"] = idShortener(key.subject.value);
                 node["uri"] = key.subject.value;
                 node["group"] = endptColor;
                 if (addNode(node)) {
-                    if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
+                    if(key.subject.type === "uri" && (URIs.indexOf(key.subject.value) === -1) && URI_filter(key.subject.value)) {
                         URIs.push(key.subject.value);
                         }
                     UniversalN.push(node);
                 }
 
                 node = {};
-                node["id"] = key.object.value;
+                node["id"] = idShortener(key.object.value);
                 node["uri"] = key.object.value;
                 node["group"] = endptColor;
                 if(addNode(node)) {
-                    if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
+                    if (key.object.type === "uri" && (URIs.indexOf(key.object.value) === -1) && URI_filter(key.object.value)) {
                         URIs.push(key.object.value);
                     }
                     UniversalN.push(node);
@@ -151,6 +151,14 @@ function createGraph(json) {
 
 }
 
+function idShortener(value){
+	if(value.includes("worldcat") && value.includes("#")){
+		return value.replace(/([\w]*)\//g,'').replace(/([\w.:]*)#/g, '').replace(/[_]/g,' ');
+	}
+	return value.replace('"', '');
+}
+
+
 /* NOTE:
     - This function filters only the triples we want into the URI array
 */
@@ -166,8 +174,8 @@ function URI_filter(uri){
  */
 function addNode(node) {
     /* If node exists in map then return false, else save new node */
-    if (GraphNodes[node.id] == null) {
-        GraphNodes[node.id] = node;
+    if (GraphNodes[node.uri] == null) {
+        GraphNodes[node.uri] = node;
         return true;
     }
     return false;
@@ -178,29 +186,26 @@ function addNode(node) {
     - requerying the unresolved URIs using, appending to the origGraph and updating D3
  */
 function requery() {
-    while (1) {
-        if (itr === URIs.length) {
-            break;
-        }
         console.log(URIs[itr]);
-        // if(URIs[itr].includes("www.worldcat.org/oclc/")){
-        //     console.log("oclc");
-        //     jQuery.ajax({
-        //     type: "POST",
-        //     url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
-        //     data: URIs[itr].replace('http://www.worldcat.org/oclc/',''),
-        //     contentType: "text/plain",
-        //     success: function(json) {
-        //         console.log("POST successful");
-        //         endptColor = 2;
-        //         createGraph(json);
-        //         update();
-        //     }
-        //     });
-        // } else 
-        if(URIs[itr].includes("id.loc.gov/authorities/names/")){
-            console.log("loc");
+        if(URIs[itr].includes("www.worldcat.org/oclc/")){
+            console.log("oclc");
             jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
+            data: URIs[itr].replace('http://www.worldcat.org/oclc/',''),
+            contentType: "text/plain",
+            success: function(json) {
+                console.log("POST successful");
+                endptColor = 2;
+                createGraph(json);
+                update();
+                itr++;
+            }
+            });
+        } else if(URIs[itr].includes("id.loc.gov/authorities/names/")){
+            console.log("reconcile");
+            jQuery.ajax({
+            //async: false,
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/reconcile",
             data: URIs[itr].replace('http://id.loc.gov/authorities/names/',''),
@@ -209,19 +214,90 @@ function requery() {
                 console.log("POST successful");
                 endptColor = 3;
 				console.log("recon", json);
-                if(json.length() > 0){
-                    console.log("greater");   
-                } else { console.log("0");}
-                //createGraph(JSON.parse(json));
-                //update();
+                if(json.length < 1){
+					console.log("Reconciler", "nothing");
+                    itr++;
+                    requery();
+                } else { 
+					console.log("ReconcilerVID", json.Reconciler[0].viafID);
+					console.log("ReconcilerLID", json.Reconciler[1].locID);
+                    locQuery(json.Reconciler[1].locID);
+					console.log("ReconcilerWID", json.Reconciler[2].wikiID);
+                    // locQuery(json.Reconciler[2].wikiID)
+					console.log("ReconcilerIID", json.Reconciler[3].imdbID);
+					console.log("ReconcilerATH", json.Reconciler[4].author);
+				}
+              
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown){
+                console.log("XML", XMLHttpRequest);
+                console.log("txtStatus", textStatus);
+                console.log("err", errorThrown);
             }
             });
-        } else if (URIs[itr].includes("/subjects/")) { /*subject nodes*/
+        } else {
+            libraryQuery(URIs[itr]);
+            itr++;
+        }
+        RQreps++;
+    }
+
+function locQuery(data){
+    console.log("loc");
+            jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/libraryofcongress",
+            data: data,
+            contentType: "text/plain",
+            success: function(json) {
+                console.log("POST successful");
+                endptColor = 3;
+                createGraph(JSON.parse(json));
+                update();
+            }
+        });
+}
+
+function wikiQuery(data){
+    console.log("loc");
+            jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/wiki",
+            data: data,
+            contentType: "text/plain",
+            success: function(json) {
+                console.log("POST successful");
+                endptColor = 4;
+                createGraph(JSON.parse(json));
+                update();
+            }
+        });
+}
+
+function dbpediaQuery(data){
+    console.log("loc");
+            jQuery.ajax({
+            type: "POST",
+            url: "http://localhost:8080/TripleDataProcessor/webapi/dbpedia",
+            data: data,
+            contentType: "text/plain",
+            success: function(json) {
+                console.log("POST successful");
+                endptColor = 5;
+                createGraph(JSON.parse(json));
+                update();
+            }
+        });
+}
+
+function libraryQuery(data){
+
+    if (data.includes("/subjects/")) { /*subject nodes*/
             console.log("subject");
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/librarysubject",
-            data: URIs[itr],
+            data: data,
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
@@ -237,7 +313,7 @@ function requery() {
             jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/library",
-            data: URIs[itr],
+            data: data,
             contentType: "application/json",
             success: function(json) {
                 console.log("POST successful");
@@ -249,9 +325,6 @@ function requery() {
 
         }
 
-        itr++;
-    }
-RQreps++;
 }
 
 function update() {

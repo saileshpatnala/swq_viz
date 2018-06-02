@@ -55,7 +55,7 @@ public class Reconcile {
         
 		JSONObject resultObject = jsonObject.getJSONObject("results");
         if (resultObject.getJSONArray("bindings").length() < 1) {
-            return "";
+            return "[]";
         }
 		JSONObject bindingPoints = (JSONObject)resultObject.getJSONArray("bindings").get(0);
         
