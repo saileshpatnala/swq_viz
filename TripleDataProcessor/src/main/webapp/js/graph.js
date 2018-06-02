@@ -7,7 +7,7 @@ var UniversalN = [];    // Hold all unique graph nodes
 var UniversalL = [];    // Hold all unique graph links
 var GraphNodes = {};    // A map to hold all the nodes currently in graph
 var RQreps = 0;         // Current number of requery "NOTE::NEED TO MAKE BOOLEAN"
-var MAXRQ = 7;          // Max number of reps
+var MAXRQ = 50;         // Max number of reps
 var nodeRadius = 10;    // Node radius of the d3 nodes displayed
 var itr = 0;            // Iterator to track next URI to query
 var endptColor = 1;     // to set color for each endpoint queried KEY:[ 1: LIBRARY, 2:]
@@ -187,59 +187,61 @@ function addNode(node) {
  */
 function requery() {
         console.log(URIs[itr]);
-        if(URIs[itr].includes("www.worldcat.org/oclc/")){
-            console.log("oclc");
-            jQuery.ajax({
-            type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
-            data: URIs[itr].replace('http://www.worldcat.org/oclc/',''),
-            contentType: "text/plain",
-            success: function(json) {
-                console.log("POST successful");
-                endptColor = 2;
-                createGraph(json);
-                update();
+        if (typeof(URIs[itr]) !== 'undefined') {
+            if(URIs[itr].includes("www.worldcat.org/oclc/")){
+                console.log("oclc");
+                jQuery.ajax({
+                type: "POST",
+                url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
+                data: URIs[itr].replace('http://www.worldcat.org/oclc/',''),
+                contentType: "text/plain",
+                success: function(json) {
+                    console.log("POST successful");
+                    endptColor = 2;
+                    createGraph(json);
+                    update();
+                    itr++;
+                }
+                });
+            } else if(URIs[itr].includes("id.loc.gov/authorities/names/")){
+                console.log("reconcile");
+                jQuery.ajax({
+                //async: false,
+                type: "POST",
+                url: "http://localhost:8080/TripleDataProcessor/webapi/reconcile",
+                data: URIs[itr].replace('http://id.loc.gov/authorities/names/',''),
+                contentType: "text/plain",
+                success: function(json) {
+                    console.log("POST successful");
+                    endptColor = 3;
+    				console.log("recon", json);
+                    if(json.length < 1){
+    					console.log("Reconciler", "nothing");
+                        itr++;
+                        requery();
+                    } else { 
+    					console.log("ReconcilerVID", json.Reconciler[0].viafID);
+    					console.log("ReconcilerLID", json.Reconciler[1].locID);
+                        locQuery(json.Reconciler[1].locID);
+    					console.log("ReconcilerWID", json.Reconciler[2].wikiID);
+                        // locQuery(json.Reconciler[2].wikiID)
+    					console.log("ReconcilerIID", json.Reconciler[3].imdbID);
+    					console.log("ReconcilerATH", json.Reconciler[4].author);
+    				}
+                  
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown){
+                    console.log("XML", XMLHttpRequest);
+                    console.log("txtStatus", textStatus);
+                    console.log("err", errorThrown);
+                }
+                });
+            } else {
+                libraryQuery(URIs[itr]);
                 itr++;
             }
-            });
-        } else if(URIs[itr].includes("id.loc.gov/authorities/names/")){
-            console.log("reconcile");
-            jQuery.ajax({
-            //async: false,
-            type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/reconcile",
-            data: URIs[itr].replace('http://id.loc.gov/authorities/names/',''),
-            contentType: "text/plain",
-            success: function(json) {
-                console.log("POST successful");
-                endptColor = 3;
-				console.log("recon", json);
-                if(json.length < 1){
-					console.log("Reconciler", "nothing");
-                    itr++;
-                    requery();
-                } else { 
-					console.log("ReconcilerVID", json.Reconciler[0].viafID);
-					console.log("ReconcilerLID", json.Reconciler[1].locID);
-                    locQuery(json.Reconciler[1].locID);
-					console.log("ReconcilerWID", json.Reconciler[2].wikiID);
-                    // locQuery(json.Reconciler[2].wikiID)
-					console.log("ReconcilerIID", json.Reconciler[3].imdbID);
-					console.log("ReconcilerATH", json.Reconciler[4].author);
-				}
-              
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown){
-                console.log("XML", XMLHttpRequest);
-                console.log("txtStatus", textStatus);
-                console.log("err", errorThrown);
-            }
-            });
-        } else {
-            libraryQuery(URIs[itr]);
-            itr++;
+            RQreps++;
         }
-        RQreps++;
     }
 
 function locQuery(data){
@@ -427,8 +429,12 @@ function update() {
     simulation.force("link").links(links);
     simulation.alpha(0.3).restart()
 
-	if(RQreps < MAXRQ){
+	if (RQreps < MAXRQ){
 		setTimeout(function(){requery();},5000);
+            // if (typeof(URIs[itr])!=='undefined') {
+            //     requery();
+            // }},5000);
+        console.log("RQreps = "+RQreps+" | MAXRQ = "+MAXRQ);
 	}
 }
 
