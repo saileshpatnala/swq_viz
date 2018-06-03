@@ -16,18 +16,49 @@ p {
 
 body {
 	position: fixed;
-	top: 40%;
+	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+}
+
+h1 {
+	font-size: xx-large;
+	font-weight: 600;
+	color: #012756;
+	text-align: center;
+}
+
+a {
+	margin-top: -10px;
+	padding: 10px;
 }
 
 #container {
 	display:flex;
 	flex-direction: row;
+	justify-content: center;
+	align-items: center;
 }
 
 #container div {
 	width: 50%;
 	margin: 0 auto;
-	padding: 50px;
+	padding-right: 50px;
+	padding-left: 50px;
+	padding-bottom: 50px;
+}
+
+#carl {
+	display: flex;         /* NEW, Spec - Firefox, Chrome, Opera */
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.icons {
+	align-self: center;
+}
+
+p {
+	text-align: center;
 }
