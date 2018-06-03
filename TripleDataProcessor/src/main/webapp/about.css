@@ -1,0 +1,33 @@
+* {
+	font-family: 'Montserrat';
+}
+
+img {
+	border-radius: 50%;
+	width: 200px;
+	height: auto;
+}
+
+p {
+	font-family: 'Montserrat';
+	font-size: large;
+	color: #012756;
+}
+
+body {
+	position: fixed;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#container {
+	display:flex;
+	flex-direction: row;
+}
+
+#container div {
+	width: 50%;
+	margin: 0 auto;
+	padding: 50px;
+}
