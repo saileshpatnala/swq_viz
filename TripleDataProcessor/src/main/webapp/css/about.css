@@ -44,6 +44,36 @@ a {
 	align-items: center;
 }
 
+#mithun {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+#wonhee {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+
+#sai {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+
+#nishant {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
 #container div {
 	width: 50%;
 	margin: 0 auto;
@@ -61,7 +91,8 @@ a {
 }
 
 .icons {
-	align-self: center;
+	display: flex;
+	justify-content: center;
 }
 
 p {
