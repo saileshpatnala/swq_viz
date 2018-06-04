@@ -1,0 +1,125 @@
+* {
+  font-family: 'Montserrat';
+}
+
+button {
+  border-radius: 8px;
+  width: auto;
+  height: auto;
+  padding: 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: large;
+  margin: 10px;
+}
+
+#start {
+  background-color: #57A13E;
+  color: white;
+  border-color: #57A13E;
+
+}
+
+#stop {
+  background-color: #BD2729;
+  color: white;
+  border-color: #BD2729;
+}
+
+#home {
+  background-color: #10336D;
+  color: white;
+  border-color: #10336D;
+}
+
+#column {
+  float:left;
+  padding:0px;
+  margin:0px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+
+}
+
+#buttons {
+  position:absolute;
+  left: 0px;
+
+}
+
+.dot {
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  color: black;
+  display: inline-block;
+}
+
+#status {
+  font-size: large;
+  color: #2071FF;
+  font-style: italic;
+  font-weight: 700;
+  text-align:center;
+}
+
+#keytable {
+  font-size: large;
+  color: #2071FF;
+  font-weight: 700;
+}
+
+#dot_ucd {
+  height: 20px;
+  width: 20px;
+  background-color: #4173A3;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#dot_oclc {
+  height: 20px;
+  width: 20px;
+  background-color: #ED8229;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#dot_loc {
+  height: 20px;
+  width: 20px;
+  background-color: #57A23C;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#dot_wiki {
+  height: 20px;
+  width: 20px;
+  background-color: #C33034;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#dot_dbpedia {
+  height: 20px;
+  width: 20px;
+  background-color:#82594D;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#key {
+  padding-left: 30px;
+  position:fixed;
+  right: 0;
+  padding-right: 20px;
+}
+
+#key p {
+  font-size: 20px;
+
+}
