@@ -34,9 +34,17 @@ public class EndPoint {
 				e.printStackTrace();
 			}
 		}
-		else if (type == ENDPOINT_TYPE.lcongress || type == ENDPOINT_TYPE.oclc || type == ENDPOINT_TYPE.wiki || type == ENDPOINT_TYPE.dbpedia ) {
+		else if (type == ENDPOINT_TYPE.oclc || type == ENDPOINT_TYPE.wiki || type == ENDPOINT_TYPE.dbpedia ) {
 			try {
 				this.parserText(data);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else if (type == ENDPOINT_TYPE.lcongress ) {
+			try {
+				this.parserText(data);
+				this.filderBNodes();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -136,8 +144,9 @@ public class EndPoint {
 		
         		this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
 		}
-		
-		
-		
 	}
+	
+	public void filderBNodes() {
+		// the arraylist triples should contain all the triples, you can iterate and filter them. 
+ 	}
 }
