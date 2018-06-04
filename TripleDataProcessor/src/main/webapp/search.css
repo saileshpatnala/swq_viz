@@ -65,15 +65,30 @@ h1 {
 }
 
 #disclaimer {
-  font-size: medium;
+  font-size: large;
 }
 
 img {
-  width: 30%;
+  width: 20%;
   height: auto;
+  padding-bottom: 10px;
 }
 
 #myViafId {
   border-radius: 6px 0 0 6px;
   border: 1px solid #daaa00;
+}
+
+#nav {
+  padding-top: 20px;
+  position: absolute; 
+  right: 0px;
+  top:0px;
+}
+
+#nav a{
+  font-size: large;
+  color: #012756;
+  font-weight: 400;
+  padding: 40px;
 }
