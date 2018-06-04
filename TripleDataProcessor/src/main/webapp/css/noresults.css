@@ -1,0 +1,24 @@
+* {
+	background-color: #FFFFFF;
+}
+
+#main {
+	position: fixed;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+p {
+	font-family: 'Montserrat';
+	font-size: xx-large;
+	color: #012756;
+	text-align: center;
+}
+
+#back {
+	position: absolute;
+	left:0;
+	top:0;
+	padding:20px;
+}
