@@ -49,8 +49,9 @@ h2 {
 	padding-right: 15px;
 }
 
-#disclaimer {
-	font-style: italic;
-	text-align: center;
-    bottom: 0;
+#back {
+	position: absolute;
+	left:0;
+	top:0;
+	padding:20px;
 }
