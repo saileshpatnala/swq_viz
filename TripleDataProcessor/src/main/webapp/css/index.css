@@ -116,10 +116,25 @@ button {
   padding-left: 30px;
   position:fixed;
   right: 0;
-  padding-right: 20px;
+  padding-right: 30px;
 }
 
 #key p {
   font-size: 20px;
 
+}
+
+#searchterm {
+  position:fixed;
+  bottom:0;
+  left:0;
+  padding-left:20px;
+}
+
+#searchstyle {
+  font-size: large;
+  color: #2071FF;
+  font-style: italic;
+  font-weight: 700;
+  text-align:center;
 }
