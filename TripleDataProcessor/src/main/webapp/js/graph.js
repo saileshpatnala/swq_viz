@@ -204,16 +204,23 @@ function requery() {
         }
 
         itr++;
+
     }
 RQreps++;
 }
 
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
     if (error) throw error;
-
-	createGraph(json);
-
-	update();
+    if (json.length == 0) {
+        // console.log("+++++ LENGTH +++++++" + URIs.length);
+        document.getElementById("column").style.display="none";
+    }
+    else {
+        document.getElementById("back").style.display="none";
+        document.getElementById("main").style.display="none";
+        createGraph(json);
+        update();
+    }
 });
 
 function update() {
