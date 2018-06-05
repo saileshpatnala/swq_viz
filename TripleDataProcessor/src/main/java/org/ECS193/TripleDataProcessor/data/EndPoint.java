@@ -142,12 +142,12 @@ public class EndPoint {
 	}
 	
 	public void filterBNodes() {
-		String bNode = "bNode:"; // there are some objects that start with "_:bnode"
+		String bNode = "_:bnode"; // there are some objects that start with "_:bnode"
 		ArrayList<Triple> newTriples = new ArrayList<>();
 		for (int i = 0; i < triples.size(); i++) {
 			String subject = triples.get(i).getSubject().getName();
 			String object = triples.get(i).getObject().getName();
-			if (!(subject.matches(bNode) || object.matches(bNode))) {
+			if (!(subject.contains(bNode) || object.contains(bNode))) {
 				newTriples.add(triples.get(i));
 			}
 		}
