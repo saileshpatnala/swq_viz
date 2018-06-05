@@ -86,6 +86,14 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function 
     setTimeout(function () { requery(); }, 3000);
 });
 
+function search_page(){
+  window.location.href = "./search";
+} 
+
+function pause_page(){
+  window.location.href = "./search";
+} 
+
 /* NOTE:
     - converting the predicate URI into string parsing the URI from last occurrence of # or /
  */
@@ -347,6 +355,7 @@ function libraryQuery(data) {
 
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
     if (error) throw error;
+
     if (json.length == 0) {
         // console.log("+++++ LENGTH +++++++" + URIs.length);
         document.getElementById("column").style.display="none";
