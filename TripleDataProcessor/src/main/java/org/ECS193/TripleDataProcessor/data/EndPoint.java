@@ -142,7 +142,7 @@ public class EndPoint {
 	}
 	
 	public void filterBNodes() {
-		String bNode = "__bNode:";
+		String bNode = "bNode:"; // there are some objects that start with "_:bnode"
 		ArrayList<Triple> newTriples = new ArrayList<>();
 		for (int i = 0; i < triples.size(); i++) {
 			String subject = triples.get(i).getSubject().getName();
@@ -151,6 +151,7 @@ public class EndPoint {
 				newTriples.add(triples.get(i));
 			}
 		}
-		triples = newTriples;
+		triples.clear();
+		this.setTriples(newTriples);
  	}
 }
