@@ -57,9 +57,9 @@ svg.append('defs').append('marker')
 var g = svg.append("g")
     .attr("class", "everything");
 
-  function zoomed() {
+function zoomed() {
     g.attr("transform", d3.event.transform);
-  }
+}
 
 
 /* NOTE:
