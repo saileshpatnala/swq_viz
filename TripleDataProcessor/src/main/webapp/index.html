@@ -7,7 +7,16 @@
 
 	<link rel="stylesheet" href="/TripleDataProcessor/css/index.css" type="text/css"/>
 
-	 <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700" rel="stylesheet">
+	<script type="text/javascript" src="/TripleDataProcessor/js/cookie.commands.js"></script>
+
+	<script type="text/javascript">
+		window.onload = function(){
+			document.getElementById("search_text").textContent=getCookie();
+			eraseCookie();
+		}
+	</script>
+
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700" rel="stylesheet">
 
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -29,13 +38,14 @@
 
 <div id = "column">
 	<div id="buttons">
-		<button type="button" id="start" onclick="pause_page()">Start</button>
+		<button type="button" id="start" onclick="resume_page()">Start</button>
 		<button type="button" id ="stop" onclick="pause_page()">Stop</button>
 		<button type="button" id="home" onclick="search_page()">Home</button>
 	</div>
 
 	<div id= "update">
 		<p id = "status"> Status: </p>
+		<p id = "status_text"></p>
 	</div>
 
 	<div id= "temp">
@@ -46,12 +56,13 @@
 			<p><span id="dot_oclc"></span> OCLC</p>
 			<p><span id="dot_loc"></span> LOC </p>
 			<p><span id="dot_wiki"></span> Wiki</p>
-			<p><span id="dot_dbpedia"></span> DBpedia</p>
+			<!-- <p><span id="dot_dbpedia"></span> DBpedia</p> -->
 		</div>
 	</div>
 
 	<div id= "searchterm">
 		<p id="searchstyle"> Search Term: </p>
+		<p id = "search_text"></p>
 	</div>
 
 	<script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
