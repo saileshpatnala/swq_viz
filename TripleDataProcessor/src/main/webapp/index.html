@@ -7,12 +7,12 @@
 
 	<link rel="stylesheet" href="/TripleDataProcessor/css/index.css" type="text/css"/>
 
-	<script type="text/javascript" src="/TripleDataProcessor/js/cookie.commands.js"></script>
+	<script type="text/javascript" src="/TripleDataProcessor/js/cookieCommands.js"></script>
 
 	<script type="text/javascript">
 		window.onload = function(){
-			document.getElementById("search_text").textContent=getCookie();
-			eraseCookie();
+			document.getElementById('search_text').innerHTML = " " + GetCookie('InputString');
+			// eraseCookie();
 		}
 	</script>
 

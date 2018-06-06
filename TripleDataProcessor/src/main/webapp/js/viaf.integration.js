@@ -7,7 +7,6 @@ $(function() {
 			event.preventDefault();
 			event.stopPropagation();
 			$(this).val(item.value);
-			setCookie(item.value);
 		} 
 	});
 });

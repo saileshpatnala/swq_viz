@@ -75,19 +75,20 @@ var simulation = d3.forceSimulation()
     .force("y", d3.forceY(0))
     .force("x", d3.forceX(0));
 
+window.onload = function(){document.getElementById("status_text").textContent = "Querying Library...";};
+
 /* NOTE:
     - Query for first set of triples in library for the search term
 */
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
     if (error) throw error;
     var count = JSON.stringify(json).length;
-
     if (count > 20) {
-        document.getElementById("status_text").textContent = "Querying Library...";
+        
         // document.getElementById("back").style.display="none";
         // document.getElementById("main").style.display="none";
         createGraph(json);
-        document.getElementById("status_text").textContent = "Done.";
+        
         update();
         setTimeout(function() { requery(); }, 3000);
     } else {
@@ -107,14 +108,8 @@ function pause_page() {
 
 function resume_page() {
     console.log("start");
-    // for(var i = 0; i < URIs.length; i++){
-    //     if(URIs[i].includes(ajaxCalls[0])){
-    //         itr = i;
-    //     } else {
-    //         itr = 0;
-    //     }
-    // }
     itr = URIs.indexOf(ajaxCalls[0]);
+    RQreps = itr;
     console.log(URIs.indexOf(ajaxCalls[0]));
     ajaxCalls.length = 0;
     graphRender = true;
@@ -285,7 +280,7 @@ function ajaxSuccess(json, type, data) {
     - requerying the unresolved URIs using, appending to the origGraph and updating D3
  */
 function requery() {
-    if (itr <= URIs.length) {
+    if (itr < URIs.length) {
         RQreps++;
         console.log("URIs", URIs[itr]);
         console.log("RQreps", URIs);
@@ -307,7 +302,7 @@ function requery() {
             } else if (URIs[itr].includes("id.loc.gov/authorities/names/")) {
                 var input = URIs[itr];
                 // ajaxCalls.push(URIs[itr]);
-                document.getElementById("status_text").textContent = "Querying reconciler...";
+                // document.getElementById("status_text").textContent = "Querying reconciler...";
                 jQuery.ajax({
                     // async: false,
                     type: "POST",
@@ -341,6 +336,8 @@ function requery() {
             // }},5000);
             // console.log("RQreps = " + RQreps + " | MAXRQ = " + MAXRQ);
         }
+    } else {
+                document.getElementById("status_text").textContent = "Updating...";
     }
 }
 
