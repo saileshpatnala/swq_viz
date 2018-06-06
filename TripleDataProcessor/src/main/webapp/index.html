@@ -4,16 +4,18 @@
 <head>
 	<title>Index</title>
 
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 
 	<link rel="stylesheet" href="/TripleDataProcessor/css/index.css" type="text/css"/>
 
 	<script type="text/javascript" src="/TripleDataProcessor/js/cookieCommands.js"></script>
 
 	<script type="text/javascript">
-		window.onload = function(){
-			document.getElementById('search_text').innerHTML = " " + GetCookie('InputString');
-			// eraseCookie();
-		}
+		$(document).ready(function() {
+        $("#search_text").text(GetCookie('InputString'));
+    	});
 	</script>
 
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700" rel="stylesheet">
