@@ -25,6 +25,7 @@ height = window.innerHeight;
 
 window.addEventListener("resize", redraw);
 
+<<<<<<< HEAD
 function redraw() {
     width = window.innerWidth;
     height = window.innerHeight;
@@ -36,6 +37,18 @@ function redraw() {
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10)
     .domain([1, 2, 3, 4, 5, 6]);
+=======
+function redraw(){
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+     svg
+      .style("width", width)
+      .style("height", height);
+}
+
+var colors = d3.scaleOrdinal(d3.schemeCategory10);
+>>>>>>> fe306f10c80a00d8987f4468445e79dff9217946
 
 
 svg.append('defs').append('marker')
@@ -77,22 +90,22 @@ var simulation = d3.forceSimulation()
 /* NOTE:
     - Query for first set of triples in library for the search term
 */
-d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
+d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
     if (error) throw error;
-    var count = JSON.stringify(json).length;
 
-    if (count > 20) {
-        // document.getElementById("back").style.display="none";
-        // document.getElementById("main").style.display="none";
-        createGraph(json);
-        update();
-        setTimeout(function () { requery(); }, 3000);
-    }
-    else {
-        window.location.href = "./noresults";
-        // document.getElementById("column").style.display="none";
-    }
+    createGraph(json);
+    update();
+
+    setTimeout(function () { requery(); }, 3000);
 });
+
+function search_page(){
+  window.location.href = "./search";
+} 
+
+function pause_page(){
+  window.location.href = "./search";
+} 
 
 function search_page(){
   window.location.href = "./search";
@@ -358,8 +371,31 @@ function libraryQuery(data) {
             }
         });
 
+<<<<<<< HEAD
+=======
+        }
+
+        itr++;
+
+>>>>>>> fe306f10c80a00d8987f4468445e79dff9217946
     }
 }
+
+d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
+    if (error) throw error;
+    var count = JSON.stringify(json).length;
+
+    if (count > 20) {
+        // document.getElementById("back").style.display="none";
+        // document.getElementById("main").style.display="none";
+        createGraph(json);
+        update();
+    }
+    else {
+        window.location.href = "./noresults";
+        // document.getElementById("column").style.display="none";
+    }
+});
 
 function update() {
     var links = UniversalL;
