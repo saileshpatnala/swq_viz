@@ -26,7 +26,7 @@ public class LibraryOfCongress {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String post(String input) {
 		System.out.println("POST request: " + input);
-		String output = "";
+		String output = "[]";
 		try {
 			output = parserLC(input);
 		}

@@ -17,7 +17,7 @@ var svg = d3.select("body")
     .style("width", window.innerWidth + "px")
     .style("height", window.innerHeight + "px")
     .call(d3.zoom()
-      .scaleExtent([0.5, 10])
+      .scaleExtent([0.3, 10])
       .on("zoom", zoomed));
 
 width = window.innerWidth;
@@ -34,7 +34,8 @@ function redraw(){
       .style("height", height);
 }
 
-var colors = d3.scaleOrdinal(d3.schemeCategory10);
+var colors = d3.scaleOrdinal(d3.schemeCategory10)
+    .domain([1,2,3,4,5,6]);
 
 
 svg.append('defs').append('marker')
@@ -80,8 +81,9 @@ d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(
     if (error) throw error;
 
     createGraph(json);
-
     update();
+
+    setTimeout(function(){requery();},3000);
 });
 
 /* NOTE:
@@ -103,9 +105,14 @@ function parsePredicateValue(predicateURI) {
     - Basically has the logic for the aggregation && URI_filter(key.object.value)
  */
 function createGraph(json) {
+    var tripleCt = 0;
     Object.keys(json).forEach(function(key) {
         var triples = json[key];
         triples.forEach(function(key) {
+            if(tripleCt >= 100){
+                return;
+            }
+            tripleCt++;
             var triple = {};
             key.subject.value = key.subject.value.replace('>','').replace('<','');
             key.object.value = key.object.value.replace('>','').replace('<','');
@@ -186,10 +193,13 @@ function addNode(node) {
     - requerying the unresolved URIs using, appending to the origGraph and updating D3
  */
 function requery() {
-        console.log(URIs[itr]);
+    RQreps++;
+    MAXRQ = URIs.length;
+    console.log("URIs", URIs);
+    console.log("RQreps", RQreps);
         if (typeof(URIs[itr]) !== 'undefined') {
             if(URIs[itr].includes("www.worldcat.org/oclc/")){
-                console.log("oclc");
+                console.log("Querying oclc...", URIs[itr]);
                 jQuery.ajax({
                 type: "POST",
                 url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
@@ -200,33 +210,30 @@ function requery() {
                     endptColor = 2;
                     createGraph(json);
                     update();
-                    itr++;
                 }
                 });
             } else if(URIs[itr].includes("id.loc.gov/authorities/names/")){
-                console.log("reconcile");
+                console.log("Querying reconciler...", URIs[itr]);
                 jQuery.ajax({
-                //async: false,
+                async: false,
                 type: "POST",
                 url: "http://localhost:8080/TripleDataProcessor/webapi/reconcile",
                 data: URIs[itr].replace('http://id.loc.gov/authorities/names/',''),
                 contentType: "text/plain",
                 success: function(json) {
                     console.log("POST successful");
-                    endptColor = 3;
-    				console.log("recon", json);
+    				console.log("Reconciler Data: ", json);
                     if(json.length < 1){
-    					console.log("Reconciler", "nothing");
-                        itr++;
-                        requery();
+    					console.log("Reconciler: Found Nothing");
+                        // requery();
                     } else { 
     					console.log("ReconcilerVID", json.Reconciler[0].viafID);
     					console.log("ReconcilerLID", json.Reconciler[1].locID);
                         locQuery(json.Reconciler[1].locID);
     					console.log("ReconcilerWID", json.Reconciler[2].wikiID);
-                        // locQuery(json.Reconciler[2].wikiID)
-    					console.log("ReconcilerIID", json.Reconciler[3].imdbID);
-    					console.log("ReconcilerATH", json.Reconciler[4].author);
+                        setTimeout(function(){wikiQuery(json.Reconciler[2].wikiID);},3000);
+                        setTimeout(function(){dbpediaQuery(json.Reconciler[2].wikiID);},3000);
+    					console.log("ReconcilerATH", json.Reconciler[3].author);
     				}
                   
                 },
@@ -238,15 +245,23 @@ function requery() {
                 });
             } else {
                 libraryQuery(URIs[itr]);
-                itr++;
             }
-            RQreps++;
+            
+        }
+        itr++;
+        if (RQreps < MAXRQ){
+            setTimeout(function(){requery();},5000);
+                // if (typeof(URIs[itr])!=='undefined') {
+                //     requery();
+                // }},5000);
+            console.log("RQreps = "+RQreps+" | MAXRQ = "+MAXRQ);
         }
     }
 
 function locQuery(data){
-    console.log("loc");
+    console.log("Querying loc...", data);
             jQuery.ajax({
+                async: false,
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/libraryofcongress",
             data: data,
@@ -261,8 +276,9 @@ function locQuery(data){
 }
 
 function wikiQuery(data){
-    console.log("loc");
+    console.log("Querying wiki...", data);
             jQuery.ajax({
+                async: false,
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/wiki",
             data: data,
@@ -270,30 +286,31 @@ function wikiQuery(data){
             success: function(json) {
                 console.log("POST successful");
                 endptColor = 4;
-                createGraph(JSON.parse(json));
+                createGraph(json);
                 update();
             }
         });
 }
 
 function dbpediaQuery(data){
-    console.log("loc");
+    console.log("Querying dbpedia...", data);
             jQuery.ajax({
+                async: false,
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/dbpedia",
             data: data,
             contentType: "text/plain",
             success: function(json) {
-                console.log("POST successful");
-                endptColor = 5;
-                createGraph(JSON.parse(json));
+                console.log("POST successful", json);
+                endptColor = 6;
+                createGraph(json);
                 update();
             }
         });
 }
 
 function libraryQuery(data){
-
+console.log("Querying library...", data);
     if (data.includes("/subjects/")) { /*subject nodes*/
             console.log("subject");
             jQuery.ajax({
@@ -326,7 +343,6 @@ function libraryQuery(data){
         });
 
         }
-
 }
 
 function update() {
@@ -429,13 +445,13 @@ function update() {
     simulation.force("link").links(links);
     simulation.alpha(0.3).restart()
 
-	if (RQreps < MAXRQ){
-		setTimeout(function(){requery();},5000);
-            // if (typeof(URIs[itr])!=='undefined') {
-            //     requery();
-            // }},5000);
-        console.log("RQreps = "+RQreps+" | MAXRQ = "+MAXRQ);
-	}
+	// if (RQreps < MAXRQ){
+		// setTimeout(function(){requery();},5000);
+ //            // if (typeof(URIs[itr])!=='undefined') {
+ //            //     requery();
+ //            // }},5000);
+ //        console.log("RQreps = "+RQreps+" | MAXRQ = "+MAXRQ);
+	// }
 }
 
 function ticked() {
