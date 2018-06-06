@@ -26,7 +26,7 @@ public class DBpedia {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String post(String input) {
 		System.out.println("POST request: " + input);
-		String output = "";
+		String output = "[]";
 
 		try {
 			return parserDBpedia(input);
@@ -38,7 +38,6 @@ public class DBpedia {
 	}
 	
 	public static String parserDBpedia(String input) throws IOException {
-		String output = "";
 		JSONObject jsonObject = new JSONObject();
 
 		try {

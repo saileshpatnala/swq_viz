@@ -27,7 +27,7 @@ public class Wiki {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String post(String input) {
 		System.out.println("POST request: " + input);
-		String output = "";
+		String output = "[]";
 
 		try {
 			return parserWiki(input);

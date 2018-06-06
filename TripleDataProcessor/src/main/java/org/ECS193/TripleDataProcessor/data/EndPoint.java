@@ -5,12 +5,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.ECS193.TripleDataProcessor.data.TripleElement.TYPE;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,9 +28,17 @@ public class EndPoint {
 				e.printStackTrace();
 			}
 		}
-		else if (type == ENDPOINT_TYPE.lcongress || type == ENDPOINT_TYPE.oclc || type == ENDPOINT_TYPE.wiki || type == ENDPOINT_TYPE.dbpedia ) {
+		else if (type == ENDPOINT_TYPE.oclc || type == ENDPOINT_TYPE.wiki || type == ENDPOINT_TYPE.dbpedia ) {
 			try {
 				this.parserText(data);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else if (type == ENDPOINT_TYPE.lcongress ) {
+			try {
+				this.parserText(data);
+				this.filterBNodes();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -69,42 +71,43 @@ public class EndPoint {
         JSONArray triples = jsonObject.getJSONArray("bindings");
 
         for(int i = 0; i < triples.length(); i++) {
-        		temp = (JSONObject) triples.get(i);
-        		
-        		subject = temp.getJSONObject("subject").get("value").toString();
-        		predicate = temp.getJSONObject("predicate").get("value").toString();
-        		object = temp.getJSONObject("object").get("value").toString();
-        		
-        		if(temp.getJSONObject("subject").get("type").toString().equals("literal")) {
-        			subjectType = TYPE.literal;
-        		}
-        		else {
-        			subjectType = TYPE.uri;
-        		}
-        		
-        		if(temp.getJSONObject("predicate").get("type").toString().equals("literal")) {
-        			predicateType = TYPE.literal;
-        		}
-        		else {
-        			predicateType = TYPE.uri;
-        		}
-        		
-        		if(temp.getJSONObject("object").get("type").toString().equals("literal")) {
-        			objectType = TYPE.literal;
-        		}
-        		else {
-        			objectType = TYPE.uri;
-        		}
-        		
-        		System.out.println("Triple " + (i+1) + ": ");
-        		System.out.println(subject);
-        	    System.out.println(predicate);
-        	    System.out.println(object);
-        		System.out.println();
-        		
-        		this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
+			temp = (JSONObject) triples.get(i);
+
+			subject = temp.getJSONObject("subject").get("value").toString();
+			predicate = temp.getJSONObject("predicate").get("value").toString();
+			object = temp.getJSONObject("object").get("value").toString();
+
+			if(temp.getJSONObject("subject").get("type").toString().equals("literal")) {
+				subjectType = TYPE.literal;
+			}
+			else {
+				subjectType = TYPE.uri;
+			}
+
+			if(temp.getJSONObject("predicate").get("type").toString().equals("literal")) {
+				predicateType = TYPE.literal;
+			}
+			else {
+				predicateType = TYPE.uri;
+			}
+
+			if(temp.getJSONObject("object").get("type").toString().equals("literal")) {
+				objectType = TYPE.literal;
+			}
+			else {
+				objectType = TYPE.uri;
+			}
+
+			System.out.println("Triple " + (i+1) + ": ");
+			System.out.println(subject);
+			System.out.println(predicate);
+			System.out.println(object);
+			System.out.println();
+
+			this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
         }  
-    	}
+	}
+
 	public void parserText(String data) throws Exception {
         String subject = "";
         String predicate = ""; 
@@ -136,8 +139,19 @@ public class EndPoint {
 		
         		this.addTriple(new Triple(subject, subjectType, predicate, predicateType, object, objectType));
 		}
-		
-		
-		
 	}
+	
+	public void filterBNodes() {
+		String bNode = "_:bnode"; // there are some objects that start with "_:bnode"
+		ArrayList<Triple> newTriples = new ArrayList<>();
+		for (int i = 0; i < triples.size(); i++) {
+			String subject = triples.get(i).getSubject().getName();
+			String object = triples.get(i).getObject().getName();
+			if (!(subject.contains(bNode) || object.contains(bNode))) {
+				newTriples.add(triples.get(i));
+			}
+		}
+		triples.clear();
+		this.setTriples(newTriples);
+ 	}
 }

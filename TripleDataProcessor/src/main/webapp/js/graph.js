@@ -6,24 +6,36 @@ var URIs = [];          // Store all incoming URIs to be queried
 var UniversalN = [];    // Hold all unique graph nodes
 var UniversalL = [];    // Hold all unique graph links
 var GraphNodes = {};    // A map to hold all the nodes currently in graph
-var RQreps = 0;         // current number of requery NEED TO MAKE BOOLEAN
-var MAXRQ = 5;          // max number of reps
-var nodeRadius = 10; // nodeRadius of the d3 nodes displayed
-
-
+var RQreps = 0;         // Current number of requery "NOTE::NEED TO MAKE BOOLEAN"
+var MAXRQ = 50;         // Max number of reps
+var nodeRadius = 10;    // Node radius of the d3 nodes displayed
+var itr = 0;            // Iterator to track next URI to query
+var endptColor = 1;     // to set color for each endpoint queried KEY:[ 1: LIBRARY, 2:]
 
 var svg = d3.select("body")
     .append("svg")
     .style("width", window.innerWidth + "px")
     .style("height", window.innerHeight + "px")
     .call(d3.zoom()
-      .scaleExtent([0.5, 10])
-      .on("zoom", zoomed));;
+        .scaleExtent([0.3, 10])
+        .on("zoom", zoomed));
 
 width = window.innerWidth;
 height = window.innerHeight;
 
-var colors = d3.scaleOrdinal(d3.schemeCategory10);
+window.addEventListener("resize", redraw);
+
+function redraw() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    svg
+        .style("width", width)
+        .style("height", height);
+}
+
+var colors = d3.scaleOrdinal(d3.schemeCategory10)
+    .domain([1, 2, 3, 4, 5, 6]);
 
 
 svg.append('defs').append('marker')
@@ -46,22 +58,33 @@ svg.append('defs').append('marker')
 var g = svg.append("g")
     .attr("class", "everything");
 
-  function zoomed() {
+function zoomed() {
     g.attr("transform", d3.event.transform);
-  }
+}
 
 
 /* NOTE:
     - set up simulation to gravitate to center of svg component
  */
 var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().distance(100))
-	.force("collide",d3.forceCollide(20).iterations(16))
-    .force("charge", d3.forceManyBody().strength(-2000))
+    .force("link", d3.forceLink().distance(100).strength(1))
+    .force("collide", d3.forceCollide(20).iterations(16))
+    .force("charge", d3.forceManyBody().strength(-1500))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("y", d3.forceY(0))
-	.force("x", d3.forceX(0));
+    .force("x", d3.forceX(0));
 
+/* NOTE:
+    - Query for first set of triples in library for the search term
+*/
+d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function (error, json) {
+    if (error) throw error;
+
+    createGraph(json);
+    update();
+
+    setTimeout(function () { requery(); }, 3000);
+});
 
 /* NOTE:
     - converting the predicate URI into string parsing the URI from last occurrence of # or /
@@ -73,7 +96,7 @@ function parsePredicateValue(predicateURI) {
         pos = predicateURI.lastIndexOf("/");
     }
     var predicate = predicateURI.substr(pos + 1, lenURI);
-    return predicate
+    return predicate.replace('>', '');
 }
 
 
@@ -82,46 +105,52 @@ function parsePredicateValue(predicateURI) {
     - Basically has the logic for the aggregation && URI_filter(key.object.value)
  */
 function createGraph(json) {
-    Object.keys(json).forEach(function(key) {
+    var tripleCt = 0;
+    Object.keys(json).forEach(function (key) {
         var triples = json[key];
-        triples.forEach(function(key) {
+        triples.forEach(function (key) {
+            if (tripleCt >= 100) {
+                return;
+            }
+            tripleCt++;
             var triple = {};
+            key.subject.value = key.subject.value.replace('>', '').replace('<', '');
+            key.object.value = key.object.value.replace('>', '').replace('<', '');
+
             /* call to parse and extract predicate value */
             triple["predicate"] = parsePredicateValue(key.predicate.value);
             triple["value"] = 1;
             if (!(triple["predicate"] === "sameAs")) {
                 var node = {};
-                node["id"] = key.subject.value;
+                node["id"] = idShortener(key.subject.value);
                 node["uri"] = key.subject.value;
-                // node["group"] = RQreps;
-                node["group"] = 1;
+                node["group"] = endptColor;
                 if (addNode(node)) {
-                    if(key.subject.type === "uri" && URIs.indexOf(key.subject.value) === -1 && URI_filter(key.subject.value)) {
-                            URIs.push(key.subject.value);
-                        }
-                    UniversalN.push(node);
-                }
-
-                node = {};
-                node["id"] = key.object.value;
-                node["uri"] = key.object.value;
-                // node["group"] = RQreps;
-                node["group"] = 1;
-                if(addNode(node)) {
-                    if (key.object.type === "uri" && URIs.indexOf(key.object.value) === -1 && URI_filter(key.object.value)) {
-                            URIs.push(key.object.value);
+                    if (key.subject.type === "uri" && (URIs.indexOf(key.subject.value) === -1) && URI_filter(key.subject.value)) {
+                        URIs.push(key.subject.value);
                     }
                     UniversalN.push(node);
                 }
 
-               let sourceIndex = UniversalN.findIndex(function(x) { return x.uri === key.subject.value });
+                node = {};
+                node["id"] = idShortener(key.object.value);
+                node["uri"] = key.object.value;
+                node["group"] = endptColor;
+                if (addNode(node)) {
+                    if (key.object.type === "uri" && (URIs.indexOf(key.object.value) === -1) && URI_filter(key.object.value)) {
+                        URIs.push(key.object.value);
+                    }
+                    UniversalN.push(node);
+                }
 
-                if(triple["predicate"] === "title" || triple["predicate"] === "label"){
+                let sourceIndex = UniversalN.findIndex(function (x) { return x.uri === key.subject.value });
+
+                if (triple["predicate"] === "title" || triple["predicate"] === "label") {
                     UniversalN[sourceIndex].id = key.object.value;
                 }
                 triple["source"] = sourceIndex;
 
-                triple["target"] = UniversalN.findIndex(function(x) { return x.uri === key.object.value });
+                triple["target"] = UniversalN.findIndex(function (x) { return x.uri === key.object.value });
                 UniversalL.push(triple);
             }
         });
@@ -129,11 +158,21 @@ function createGraph(json) {
 
 }
 
+function idShortener(value) {
+    if (value.includes("worldcat") && value.includes("#")) {
+        return value.replace(/([\w]*)\//g, '').replace(/([\w.:]*)#/g, '').replace(/[_]/g, ' ');
+    }
+    return value.replace('"', '');
+}
 
-function URI_filter(uri){
-	if(uri.search("/oclc/") !== -1 || uri.search("/names/") !== -1  || uri.search("/bibs/") !== -1 || uri.search("/subjects/") !== -1)
-		return true;
-	return false;
+
+/* NOTE:
+    - This function filters only the triples we want into the URI array
+*/
+function URI_filter(uri) {
+    if (uri.includes("/oclc/") || uri.includes("/names/") || uri.includes("/bibs/") || uri.includes("/subjects/"))
+        return true;
+    return false;
 }
 
 
@@ -142,8 +181,8 @@ function URI_filter(uri){
  */
 function addNode(node) {
     /* If node exists in map then return false, else save new node */
-    if (GraphNodes[node.id] == null) {
-        GraphNodes[node.id] = node;
+    if (GraphNodes[node.uri] == null) {
+        GraphNodes[node.uri] = node;
         return true;
     }
     return false;
@@ -153,69 +192,170 @@ function addNode(node) {
 /* NOTE:
     - requerying the unresolved URIs using, appending to the origGraph and updating D3
  */
-
-var itr = 0;
 function requery() {
-    while (1) {
-        if (itr === URIs.length) {
-            break;
-        }
-        console.log(URIs[itr]);
-
-        /* subject nodes */
-        if (URIs[itr].includes("/subjects/")) {
+    RQreps++;
+    MAXRQ = URIs.length;
+    console.log("URIs", URIs);
+    console.log("RQreps", RQreps);
+    if (typeof (URIs[itr]) !== 'undefined') {
+        if (URIs[itr].includes("www.worldcat.org/oclc/")) {
+            console.log("Querying oclc...", URIs[itr]);
             jQuery.ajax({
+                type: "POST",
+                url: "http://localhost:8080/TripleDataProcessor/webapi/oclc",
+                data: URIs[itr].replace('http://www.worldcat.org/oclc/', ''),
+                contentType: "text/plain",
+                success: function (json) {
+                    console.log("POST successful");
+                    endptColor = 2;
+                    createGraph(json);
+                    update();
+                }
+            });
+        } else if (URIs[itr].includes("id.loc.gov/authorities/names/")) {
+            console.log("Querying reconciler...", URIs[itr]);
+            jQuery.ajax({
+                async: false,
+                type: "POST",
+                url: "http://localhost:8080/TripleDataProcessor/webapi/reconcile",
+                data: URIs[itr].replace('http://id.loc.gov/authorities/names/', ''),
+                contentType: "text/plain",
+                success: function (json) {
+                    console.log("POST successful");
+                    console.log("Reconciler Data: ", json);
+                    if (json.length < 1) {
+                        console.log("Reconciler: Found Nothing");
+                        // requery();
+                    } else {
+                        console.log("ReconcilerVID", json.Reconciler[0].viafID);
+                        console.log("ReconcilerLID", json.Reconciler[1].locID);
+                        locQuery(json.Reconciler[1].locID);
+                        console.log("ReconcilerWID", json.Reconciler[2].wikiID);
+                        setTimeout(function () { wikiQuery(json.Reconciler[2].wikiID); }, 3000);
+                        setTimeout(function () { dbpediaQuery(json.Reconciler[2].wikiID); }, 3000);
+                        console.log("ReconcilerATH", json.Reconciler[3].author);
+                    }
+
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log("XML", XMLHttpRequest);
+                    console.log("txtStatus", textStatus);
+                    console.log("err", errorThrown);
+                }
+            });
+        } else {
+            libraryQuery(URIs[itr]);
+        }
+
+    }
+    itr++;
+    if (RQreps < MAXRQ) {
+        setTimeout(function () { requery(); }, 5000);
+        // if (typeof(URIs[itr])!=='undefined') {
+        //     requery();
+        // }},5000);
+        console.log("RQreps = " + RQreps + " | MAXRQ = " + MAXRQ);
+    }
+}
+
+function locQuery(data) {
+    console.log("Querying loc...", data);
+    jQuery.ajax({
+        async: false,
+        type: "POST",
+        url: "http://localhost:8080/TripleDataProcessor/webapi/libraryofcongress",
+        data: data,
+        contentType: "text/plain",
+        success: function (json) {
+            console.log("POST successful");
+            endptColor = 3;
+            createGraph(JSON.parse(json));
+            update();
+        }
+    });
+}
+
+function wikiQuery(data) {
+    console.log("Querying wiki...", data);
+    jQuery.ajax({
+        async: false,
+        type: "POST",
+        url: "http://localhost:8080/TripleDataProcessor/webapi/wiki",
+        data: data,
+        contentType: "text/plain",
+        success: function (json) {
+            console.log("POST successful");
+            endptColor = 4;
+            createGraph(json);
+            update();
+        }
+    });
+}
+
+function dbpediaQuery(data) {
+    console.log("Querying dbpedia...", data);
+    jQuery.ajax({
+        async: false,
+        type: "POST",
+        url: "http://localhost:8080/TripleDataProcessor/webapi/dbpedia",
+        data: data,
+        contentType: "text/plain",
+        success: function (json) {
+            console.log("POST successful", json);
+            endptColor = 6;
+            createGraph(json);
+            update();
+        }
+    });
+}
+
+function libraryQuery(data) {
+    console.log("Querying library...", data);
+    if (data.includes("/subjects/")) { /*subject nodes*/
+        console.log("subject");
+        jQuery.ajax({
             type: "POST",
             url: "http://localhost:8080/TripleDataProcessor/webapi/librarysubject",
-            data: URIs[itr],
+            data: data,
             contentType: "application/json",
-            success: function(json) {
-                console.log("POST successful SUBJECT");
+            success: function (json) {
+                console.log("POST successful");
+                endptColor = 1;
                 createGraph(json);
                 update();
             }
-            });
-        }
-        /* all other nodes */
-        else {
-            jQuery.ajax({
+        });
+    }
+    /* all other nodes */
+    else {
+        console.log("regular");
+        jQuery.ajax({
             type: "POST",
-            url: "http://localhost:8080/TripleDataProcessor/webapi/libraryall",
-            data: URIs[itr],
+            url: "http://localhost:8080/TripleDataProcessor/webapi/library",
+            data: data,
             contentType: "application/json",
-            success: function(json) {
-                console.log("POST successful OTHER");
+            success: function (json) {
+                console.log("POST successful");
+                endptColor = 1;
                 createGraph(json);
                 update();
             }
         });
 
-        }
-
-        itr++;
     }
-RQreps++;
 }
 
-d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
-    if (error) throw error;
-
-	createGraph(json);
-
-	update();
-});
-
 function update() {
-	var links = UniversalL;
-	var nodes = UniversalN;
+    var links = UniversalL;
+    var nodes = UniversalN;
 
     g = svg.select("g");
 
-	console.log("lnks", UniversalL, "nds", UniversalN);
+    console.log("lnks", UniversalL, "nds", UniversalN);
 
 
     link = svg.select("g").selectAll(".link")
-        .data(links, function(d) { return d.source.id + "-" + d.target.id; });
+        .data(links, function (d) { return d.source.id + "-" + d.target.id; });
 
     link.exit().remove();
 
@@ -235,7 +375,7 @@ function update() {
             'class': 'edgepath',
             'fill-opacity': 0,
             'stroke-opacity': 0,
-            'id': function(d, i) { return 'edgepath' + i }
+            'id': function (d, i) { return 'edgepath' + i }
         })
         .style("pointer-events", "none")
         .merge(edgepaths);
@@ -252,14 +392,14 @@ function update() {
         .style("font-size", "0.7em")
         .attrs({
             'class': 'edgelabel',
-            'id': function(d, i) { return 'edgelabel' + i },
+            'id': function (d, i) { return 'edgelabel' + i },
             'font-size': 12,
             'fill': '#aaa'
         })
         .merge(edgelabels);
 
     var node = svg.select("g").selectAll("g")
-    .data(nodes);
+        .data(nodes);
 
     node.exit().remove();
 
@@ -269,7 +409,7 @@ function update() {
 
     var circle = node.append("circle")
         .attr("r", nodeRadius)
-        .attr("fill", function(d) { return colors(d.group); })
+        .attr("fill", function (d) { return colors(d.group); })
         .attr("cx", 0)
         .attr("cy", 0);
 
@@ -281,52 +421,56 @@ function update() {
     drag_handler(node);
 
     link.append("title")
-        .text(function(d) { return d.predicate; });
+        .text(function (d) { return d.predicate; });
 
     edgelabels.append('textPath')
-        .attr('xlink:href', function(d, i) { return '#edgepath' + i })
+        .attr('xlink:href', function (d, i) { return '#edgepath' + i })
         .style("text-anchor", "middle")
         .style("pointer-events", "none")
         .attr("startOffset", "50%")
-        .text(function(d) { return d.predicate });
+        .text(function (d) { return d.predicate });
 
     node.append("text")
         .attr("class", "ndtext")
         .attr("dy", -1)
         .style("font-family", "sans-serif")
         .style("font-size", "0.7em")
-        .text(function(d) {return d.id; });
+        .text(function (d) { return d.id; });
 
     d3.selectAll(".ndtext")
-        .text(function(d){return d.id;})
+        .text(function (d) { return d.id; })
         .call(wrap, 200);
 
     simulation.nodes(nodes).on("tick", ticked);
     simulation.force("link").links(links);
     simulation.alpha(0.3).restart()
 
-	if(RQreps < MAXRQ){
-		setTimeout(function(){requery();},3000);
-	}
+    // if (RQreps < MAXRQ){
+    // setTimeout(function(){requery();},5000);
+    //            // if (typeof(URIs[itr])!=='undefined') {
+    //            //     requery();
+    //            // }},5000);
+    //        console.log("RQreps = "+RQreps+" | MAXRQ = "+MAXRQ);
+    // }
 }
 
 function ticked() {
 
-   link = svg.selectAll(".link")
-		.attr("x1", function (d) {return d.source.x })
-        .attr("y1", function (d) {return d.source.y })
-        .attr("x2", function (d) {return d.target.x })
-        .attr("y2", function (d) {return d.target.y });
+    link = svg.selectAll(".link")
+        .attr("x1", function (d) { return d.source.x })
+        .attr("y1", function (d) { return d.source.y })
+        .attr("x2", function (d) { return d.target.x })
+        .attr("y2", function (d) { return d.target.y });
 
-   node = svg.selectAll(".node")
-        .attr("transform", function(d) { return "translate(" + d.x + ", " + d.y + ")"; })
-		.attr("cx", function(d) { return d.x })
-        .attr("cy", function(d) { return d.y });
+    node = svg.selectAll(".node")
+        .attr("transform", function (d) { return "translate(" + d.x + ", " + d.y + ")"; })
+        .attr("cx", function (d) { return d.x })
+        .attr("cy", function (d) { return d.y });
 
-    edgepaths.attr('d', function(d) {
+    edgepaths.attr('d', function (d) {
         return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
     });
-    edgelabels.attr('transform', function(d) {
+    edgelabels.attr('transform', function (d) {
         if (d.target.x < d.source.x) {
             var bbox = this.getBBox();
             rx = bbox.x + bbox.width / 2;
@@ -341,27 +485,27 @@ function ticked() {
 }
 
 function wrap(text, width) {
-  text.each(function() {
-    var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = 1, // ems
-        y = text.attr("y"),
-        dy = parseFloat(text.attr("dy")),
-        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", 0).attr("dy", dy + "em")
-    while (word = words.pop()) {
-      line.push(word)
-      tspan.text(line.join(" "))
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop()
-        tspan.text(line.join(" "))
-        line = [word]
-        tspan = text.append("tspan").attr("x", 0).attr("y", 0).attr("dy", `${++lineNumber * lineHeight + dy}em`).text(word)
-      }
-    }
-  });
+    text.each(function () {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1, // ems
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", 0).attr("dy", dy + "em")
+        while (word = words.pop()) {
+            line.push(word)
+            tspan.text(line.join(" "))
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop()
+                tspan.text(line.join(" "))
+                line = [word]
+                tspan = text.append("tspan").attr("x", 0).attr("y", 0).attr("dy", `${++lineNumber * lineHeight + dy}em`).text(word)
+            }
+        }
+    });
 }
 
 function dragstarted(d) {
