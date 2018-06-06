@@ -41,7 +41,7 @@ public class Reconcile {
 	}
 	
 	public static String parserReconcile(String input) throws IOException {
-		List<String> possiblePoints = Arrays.asList("viafID", "locID", "wikiID", "imdbID", "author");
+		List<String> possiblePoints = Arrays.asList("viafID", "locID", "wikiID", "author");
 		String url = Helper.generate_reconciler_query(input);
 		String rawJSON = Helper.query(url);
 		JSONObject jsonOut = new JSONObject();
@@ -54,6 +54,9 @@ public class Reconcile {
         JSONArray endPoints = headObject.getJSONArray("vars");
         
 		JSONObject resultObject = jsonObject.getJSONObject("results");
+        if (resultObject.getJSONArray("bindings").length() < 1) {
+            return "[]";
+        }
 		JSONObject bindingPoints = (JSONObject)resultObject.getJSONArray("bindings").get(0);
         
         for(int i = 0; i < endPoints.length(); i++) {
