@@ -355,16 +355,17 @@ function libraryQuery(data) {
 
 d3.json("http://localhost:8080/TripleDataProcessor/webapi/myresource", function(error, json) {
     if (error) throw error;
+    var count = JSON.stringify(json).length;
 
-    if (json.length == 0) {
-        // console.log("+++++ LENGTH +++++++" + URIs.length);
-        document.getElementById("column").style.display="none";
-    }
-    else {
-        document.getElementById("back").style.display="none";
-        document.getElementById("main").style.display="none";
+    if (count > 20) {
+        // document.getElementById("back").style.display="none";
+        // document.getElementById("main").style.display="none";
         createGraph(json);
         update();
+    }
+    else {
+        window.location.href = "./noresults";
+        // document.getElementById("column").style.display="none";
     }
 });
 
