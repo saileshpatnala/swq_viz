@@ -1,0 +1,107 @@
+* {
+	font-family: 'Montserrat';
+}
+
+img {
+	border-radius: 50%;
+	width: 200px;
+	height: auto;
+}
+
+p {
+	font-family: 'Montserrat';
+	font-size: large;
+	color: #012756;
+}
+
+#big {
+	right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+    /* give it dimensions */
+    min-height: 10em;
+    width: 90%;
+    padding-top: 50px;
+}
+
+h1 {
+	font-size: xx-large;
+	font-weight: 600;
+	color: #012756;
+	text-align: center;
+}
+
+a {
+	margin-top: -10px;
+	padding: 10px;
+}
+
+#container {
+	display:flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+#mithun {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+#wonhee {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+
+#sai {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+
+#nishant {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+#container div {
+	width: 50%;
+	margin: 0 auto;
+	padding-right: 50px;
+	padding-left: 50px;
+	padding-bottom: 50px;
+}
+
+#carl {
+	display: flex;         /* NEW, Spec - Firefox, Chrome, Opera */
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding-bottom: 40px;
+}
+
+.icons {
+	display: flex;
+	justify-content: center;
+}
+
+p {
+	text-align: center;
+}
+
+#back {
+	position: absolute;
+	left:0;
+	top:0;
+	padding:20px;
+}
