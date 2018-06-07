@@ -7,6 +7,12 @@
 	top: 40%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+#term_text{
+	text-align: center;
+	margin-bottom: 5px;
 }
 
 p {
