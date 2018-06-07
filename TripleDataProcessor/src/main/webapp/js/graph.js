@@ -191,7 +191,17 @@ function createGraph(json) {
                     triple["source"] = sourceIndex;
 
                     triple["target"] = UniversalN.findIndex(function(x) { return x.uri === key.object.value });
-                    UniversalL.push(triple);
+                    var exists = UniversalL.filter( link => (link.source == triple["source"] && link.target == triple["target"]));
+                    if(exists.length > 0)
+                        console.log("exists", exists);
+                    if(exists.length > 0){
+                        if(!(exists[0]["predicate"].includes(triple["predicate"]))){
+                          exists[0]["predicate"] = exists[0]["predicate"] + "/" + triple["predicate"];  
+                        }
+                    } else {
+                        UniversalL.push(triple);
+                    }
+                    
                 }
             });
         });
@@ -252,7 +262,7 @@ function ajaxSuccess(json, type, data) {
     if (graphRender) {
         remove(ajaxCalls, data);
         console.log("POST successful");
-        document.getElementById("status_text").textContent = "Done.";
+        document.getElementById("status_text").textContent = "Updating Graph...";
         if (type === "reconciler") {
             if (json.length < 1) {
                 console.log("Reconciler: Found Nothing");
@@ -337,7 +347,7 @@ function requery() {
             // console.log("RQreps = " + RQreps + " | MAXRQ = " + MAXRQ);
         }
     } else {
-                document.getElementById("status_text").textContent = "Updating...";
+                document.getElementById("status_text").textContent = "Done";
     }
 }
 
@@ -515,7 +525,7 @@ function update() {
         .style("font-size", "0.7em")
         .text(function(d) { return d.id; });
 
-    d3.selectAll(".ndtext")
+     d3.selectAll(".ndtext")
         .text(function(d) { return d.id; })
         .call(wrap, 200);
 
